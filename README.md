@@ -27,6 +27,7 @@ git clone https://github.com/yehuoshun/slay-the-spire-2-mod-skill.git
 ## 鸣谢
 
 - [STS2Plus](https://github.com/StephenSHorton/STS2Plus) — 修正器架构、UI 组件、联机同步参考实现
+- [Megadot](https://megadot.megacrit.com) — 杀戮尖塔 2 专用 Godot 编辑器
 - [B站开发教程 01](https://www.bilibili.com/opus/1179300682687053826) — 环境搭建、PCK 导出、资源替换
 - [B站开发教程 02](https://www.bilibili.com/opus/1179604439936270359) — 自定义遗物、DynamicVar、遗物池
 - [B站开发教程 03](https://www.bilibili.com/opus/1179979923167641608) — 自定义卡牌、伤害链、选牌抽牌
