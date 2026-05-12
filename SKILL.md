@@ -1,13 +1,12 @@
 # 杀戮尖塔 2 (Slay the Spire 2) Mod 开发技能
 
-> 基于 STS2Plus v0.2.0 (by 4step) 深度逆向，作为 Mod 开发的蓝本参考。
-> STS2Plus GitHub: https://github.com/StephenSHorton/STS2Plus
+> 基于两个核心参考 Mod 深度逆向而成：
+> - **[STS2Plus](https://github.com/StephenSHorton/STS2Plus)** v0.2.0 (by 4step) — 10 种修正器 + 6 个 UI 组件 + 完整联机架构
+> - **[STS2-ShunMod](https://github.com/yehuoshun/STS2-ShunMod)** v0.0.8 (by yehuoshun) — 原生卡牌 Mod + 自动注册系统 + 创新补丁
 
 **适用场景**：本技能用于帮助 AI 理解 STS2 的 Mod 运行时架构，辅助编写、调试、扩展 STS2 Mod。当你被问到任何关于 STS2 Mod 开发的问题时，使用本技能作为参考。
 
-**核心技能**：你需要参考本仓库的源代码来回答 STS2 Mod 开发相关问题。本 SKILL.md 是对 STS2Plus 的深度分析文档，但实际实现细节应以仓库源码为准。
-
-> **作者注**：本仓库当前为占位框架（SKILL.md + README.md 为空），但 .git commit history 中包含 STS2Plus v1.1 的完整实现。`git log` 可追溯历史版本，`git diff` 可查看最新变更。建议在需要时 checkout 历史版本查看完整源码。
+**核心技能**：本 SKILL.md 整合了两个参考 Mod（STS2Plus + STS2-ShunMod）的深度分析。STS2Plus 提供修正器/UI/联机架构，STS2-ShunMod 提供自定义卡牌/自动注册/高级补丁模式。实际实现细节应以仓库源码为准。
 
 ---
 
@@ -681,6 +680,338 @@ private static IEnumerable<MethodBase> TargetMethods()
     // 通过反射在运行时匹配方法
 }
 ```
+
+---
+
+---
+
+## 🏷️ 自动注册系统 (来自 STS2-ShunMod)
+
+STS2-ShunMod 实现了一套**声明式自动注册系统**，添加新卡牌/遗物只需标记 `[Pool]` 属性，无需修改入口代码。
+
+### 架构
+
+```
+[Pool(typeof(ColorlessCardPool))]      ← 声明式标记
+        ↓
+AssemblyScanner.GetLoadableTypes()     ← 安全类型扫描
+        ↓
+ContentRegistry.RegisterAll()          ← 自动调用 ModHelper.AddModelToPool
+```
+
+### PoolAttribute
+
+```csharp
+[AttributeUsage(AttributeTargets.Class, Inherited = false)]
+public class PoolAttribute : Attribute
+{
+    public Type PoolType { get; }
+    public PoolAttribute(Type poolType) { PoolType = poolType; }
+}
+```
+
+**常见卡池类型**：
+| Pool 类型 | 说明 |
+|-----------|------|
+| `ColorlessCardPool` | 无色牌池 |
+| `IroncladCardPool` | 铁卫牌池 |
+| `SilentCardPool` | 静默猎人牌池 |
+| `DefectCardPool` | 程序员牌池 |
+| `WatcherCardPool` | 观者牌池 |
+
+### AssemblyScanner（安全类型扫描）
+
+```csharp
+// 兼容 Mono / IL2CPP 平台，捕获 ReflectionTypeLoadException
+public static IReadOnlyList<Type> GetLoadableTypes(Assembly assembly)
+{
+    try { return assembly.GetTypes(); }
+    catch (ReflectionTypeLoadException ex) {
+        return ex.Types.Where(t => t != null).Cast<Type>().ToArray();
+    }
+}
+```
+
+### ContentRegistry
+
+```csharp
+// MainFile.Initialize() 中调用一次：
+ContentRegistry.RegisterAll(Assembly.GetExecutingAssembly());
+
+public static void RegisterAll(Assembly assembly)
+{
+    foreach (var type in AssemblyScanner.GetLoadableTypes(assembly))
+    {
+        if (type.IsAbstract) continue;
+        var poolAttr = type.GetCustomAttribute<PoolAttribute>();
+        if (poolAttr == null) continue;
+        ModHelper.AddModelToPool(poolAttr.PoolType, type);
+    }
+}
+```
+
+**关键点**：
+- `ModHelper.AddModelToPool(poolType, modelType)` 是游戏原生 API
+- 跳过抽象类（`IsAbstract`）避免注册 ShunCard 基类
+- 此模式可扩展用于遗物/能力/其他内容的自动注册
+
+---
+
+## 🃏 自定义卡牌系统 (来自 STS2-ShunMod)
+
+### ShunCard 基类
+
+封装 `CardModel` 的抽象成员，提供**链式配置**模式，子类只需重写构造函数和 `OnPlay`。
+
+```csharp
+public abstract class ShunCard : CardModel
+{
+    private readonly List<CardKeyword> _keywords = [];
+    private readonly List<Func<CardModel, IHoverTip>> _hoverTips = [];
+    private int? _costUpgrade;
+
+    // sealed 防止子类覆盖，统一由基类管理
+    protected sealed override IEnumerable<DynamicVar> CanonicalVars => [];
+    public sealed override IEnumerable<CardKeyword> CanonicalKeywords => _keywords;
+    protected sealed override HashSet<CardTag> CanonicalTags => [];
+    protected sealed override IEnumerable<IHoverTip> ExtraHoverTips =>
+        _hoverTips.Select(t => t(this));
+
+    // 升级回调
+    protected override void OnUpgrade()
+    {
+        if (_costUpgrade.HasValue)
+            EnergyCost.UpgradeBy(_costUpgrade.Value);
+    }
+
+    // ══ 链式配置方法 ══
+    protected void WithKeywords(params CardKeyword[] keywords)
+        => _keywords.AddRange(keywords);
+    protected void WithTip(CardKeyword keyword)
+        => _hoverTips.Add(_ => HoverTipFactory.FromKeyword(keyword));
+    protected void WithCostUpgradeBy(int amount)
+        => _costUpgrade = amount;
+}
+```
+
+### 卡牌实现示例 — 超级神化
+
+```csharp
+[Pool(typeof(ColorlessCardPool))]
+public class SuperApotheosis : ShunCard
+{
+    public SuperApotheosis()
+        : base(baseCost: 2, type: CardType.Skill, rarity: CardRarity.Rare, target: TargetType.Self)
+    {
+        WithKeywords(CardKeyword.Exhaust);    // 消耗
+        WithTip(CardKeyword.Exhaust);         // 悬停提示
+        WithCostUpgradeBy(-1);                // 升级 → 费用 -1
+    }
+
+    public override string PortraitPath => "res://STS2_ShunMod/cards/apotheosis.png";
+
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
+    {
+        // 升级战斗中所有卡牌（排除自身）
+        foreach (CardModel allCard in Owner.PlayerCombatState.AllCards)
+        {
+            if (allCard != this && allCard.IsUpgradable)
+                CardCmd.Upgrade(allCard);
+        }
+        // 升级牌组中所有可升级卡牌（无预览动画）
+        var deckCards = PileType.Deck.GetPile(Owner).Cards
+            .Where(c => c.IsUpgradable).ToList();
+        foreach (var card in deckCards)
+            CardCmd.Upgrade(card, CardPreviewStyle.None);
+    }
+}
+```
+
+### 关键 API
+
+| API | 用途 |
+|-----|------|
+| `CardCmd.Upgrade(card, style?)` | 升级卡牌 |
+| `base.Owner.PlayerCombatState.AllCards` | 获取战斗中持有卡牌 |
+| `PileType.Deck.GetPile(Owner).Cards` | 获取牌组卡牌 |
+| `card.IsUpgradable` | 是否可升级 |
+| `HoverTipFactory.FromKeyword(keyword)` | 生成关键词悬停提示 |
+
+---
+
+## 🧰 工具类 (来自 STS2-ShunMod)
+
+### RelicHelper — 遗物操作
+
+```csharp
+public static class RelicHelper
+{
+    // 移除遗物 + 触发 RelicRemoved 事件
+    public static bool RemoveRelic(Player player, RelicModel relic)
+    {
+        // 反射访问 _relics 私有字段
+        if (RelicsField?.GetValue(player) is not List<RelicModel> list) return false;
+        if (!list.Remove(relic)) return false;
+
+        // 手动触发 RelicRemoved 事件通知游戏
+        if (RelicRemovedEvent?.GetValue(player) is Delegate del)
+        {
+            foreach (var handler in del.GetInvocationList())
+                handler.Method.Invoke(handler.Target, [relic]);
+        }
+        return true;
+    }
+}
+```
+
+**关键模式**：反射访问私有字段后，必须手动触发对应的公共事件，否则游戏状态不更新。
+
+---
+
+## 🔥 高级补丁模式 (来自 STS2-ShunMod)
+
+### 无限升级 (与 STS2Plus UnlimitedGrowth 区别)
+
+STS2-ShunMod 的无限升级比 STS2Plus `UnlimitedGrowth` 更简洁：
+- **只 Patch `MaxUpgradeLevel` 的 getter**，拉到 99
+- 不处理序列化/反序列化（自然兼容）
+- 使用 `TargetMethods()` 动态匹配所有 CardModel 子类
+
+```csharp
+[HarmonyPatch] // 不指定目标，用 TargetMethods 动态匹配
+public static class InfiniteUpgrade_MaxUpgradeLevel
+{
+    static IEnumerable<MethodBase> TargetMethods()
+    {
+        var baseGetter = AccessTools.PropertyGetter(typeof(CardModel),
+            nameof(CardModel.MaxUpgradeLevel));
+        if (baseGetter != null) yield return baseGetter;
+
+        // 扫描所有子类中重写的 getter
+        foreach (var type in typeof(CardModel).Assembly.GetTypes())
+        {
+            if (type.IsAbstract || !typeof(CardModel).IsAssignableFrom(type))
+                continue;
+            var getter = AccessTools.PropertyGetter(type,
+                nameof(CardModel.MaxUpgradeLevel));
+            if (getter != null && getter.DeclaringType == type)
+                yield return getter;
+        }
+    }
+
+    static void Postfix(CardModel __instance, ref int __result)
+    {
+        if (__result >= 1 && __result < 99)
+            __result = 99; // 拉起升级上限
+    }
+}
+```
+
+**与 STS2Plus 的对比**：
+
+| 维度 | STS2Plus UnlimitedGrowth | STS2-ShunMod 无限升级 |
+|------|--------------------------|----------------------|
+| 策略 | Patch 序列化/反序列化 | Patch MaxUpgradeLevel getter |
+| 复杂度 | 3 个 Patch 文件 | 1 个 Patch 文件 |
+| 存档安全 | 需处理序列化上下文 | 自然兼容（只改值） |
+| 适用范围 | 需专项处理 | 通用：任何卡牌 |
+
+### 无限附魔 (InfiniteEnchant)
+
+突破游戏「一张卡只能有一种附魔」的限制：
+
+```csharp
+// Patch 1: CanEnchant → 永远返回 true
+[HarmonyPatch(typeof(EnchantmentModel), nameof(EnchantmentModel.CanEnchant))]
+static void Postfix(ref bool __result) => __result = true;
+
+// Patch 2: CardCmd.Enchant → 完全替换为多附魔逻辑
+[HarmonyPatch(typeof(CardCmd), nameof(CardCmd.Enchant))]
+static bool Prefix(EnchantmentModel enchantment, CardModel card,
+    decimal amount, ref EnchantmentModel __result)
+{
+    var typeKey = enchantment.GetType().FullName!;
+    var dict = AllEnchantments.GetOrCreateValue(card);
+
+    if (dict.TryGetValue(typeKey, out existing))
+    {
+        existing.Amount += (int)amount;  // 同类叠加层数
+        __result = existing;
+    }
+    else
+    {
+        card.EnchantInternal(enchantment, amount);
+        enchantment.ModifyCard();        // 写入卡牌属性
+        dict[typeKey] = enchantment;     // 记录引用
+        __result = card.Enchantment;
+    }
+    return false; // 跳过原始方法
+}
+```
+
+**核心技巧**：
+- 用 `ConditionalWeakTable` 存所有附魔引用（不阻止 GC）
+- 同类附魔叠加 `Amount` 层数
+- 异类附魔分别调用 `ModifyCard()` 写入属性
+- `HarmonyPrefix` 返回 `false` 跳过原始方法 → 完全替换行为
+
+### 硬化外壳修复
+
+```csharp
+[HarmonyPatch(typeof(HardenedShellPower), "ModifyHpLostBeforeOstyLate")]
+static void Postfix(..., ref decimal __result)
+{
+    __result = amount; // 覆盖返回值为原始伤害值
+}
+```
+
+**模式**：Postfix 中 `ref __result` 可以覆盖任何非 void 方法的返回值。
+
+---
+
+## 🌍 本地化文件结构 (来自 STS2-ShunMod)
+
+STS2-ShunMod 使用**独立 JSON 文件**而非代码字典，更易维护：
+
+```
+localization/
+├── eng/
+│   ├── cards.json          # {"CARD_ID.title": "Name", "CARD_ID.description": "Desc"}
+│   ├── relics.json
+│   ├── powers.json
+│   ├── monsters.json
+│   ├── enchantments.json
+│   ├── encounters.json
+│   ├── modifiers.json
+│   ├── ancients.json
+│   ├── orbs.json
+│   ├── card_reward_ui.json
+│   ├── gameplay_ui.json
+│   ├── rest_site_ui.json
+│   ├── settings_ui.json
+│   └── characters.json
+└── zhs/                   # 中文翻译
+    └── (同上结构)
+```
+
+**与 STS2Plus 对比**：
+
+| 维度 | STS2Plus | STS2-ShunMod |
+|------|----------|-------------|
+| 存储方式 | C# 代码字典 | JSON 文件 |
+| 语言支持 | 英 + 土耳其语（硬编码） | 英 + 中文（文件分离） |
+| 合并方式 | `LocManager.GetTable().MergeWith()` | Godot 原生 `res://` 引用 |
+| 可维护性 | 改字符串需重新编译 | 改 JSON 即可 |
+
+**JSON 本地化格式**：
+```json
+{
+  "CARD_ID.title": "卡牌名",
+  "CARD_ID.description": "描述文本 {Keyword:showTooltip}"
+}
+```
+- `{Keyword:showTooltip}` 是 Godot 本地化宏，自动生成关键词悬停
+- 卡牌 ID 对应 `CardModel` 的类名（大写下划线）
 
 ---
 
