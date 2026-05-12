@@ -1,746 +1,663 @@
-# 杀戮尖塔 2 (Slay the Spire 2) Mod 开发技能
+# 杀戮尖塔 2 Mod 开发技能
 
-> 基于 STS2Plus v0.2.0 (by 4step) 深度逆向，作为 Mod 开发的蓝本参考。
-> STS2Plus GitHub: https://github.com/StephenSHorton/STS2Plus
-
-**适用场景**：本技能用于帮助 AI 理解 STS2 的 Mod 运行时架构，辅助编写、调试、扩展 STS2 Mod。当你被问到任何关于 STS2 Mod 开发的问题时，使用本技能作为参考。
-
-**核心技能**：你需要参考本仓库的源代码来回答 STS2 Mod 开发相关问题。本 SKILL.md 是对 STS2Plus 的深度分析文档，但实际实现细节应以仓库源码为准。
-
-> **作者注**：本仓库当前为占位框架（SKILL.md + README.md 为空），但 .git commit history 中包含 STS2Plus v1.1 的完整实现。`git log` 可追溯历史版本，`git diff` 可查看最新变更。建议在需要时 checkout 历史版本查看完整源码。
+> **参考实现**：[STS2Plus](https://github.com/StephenSHorton/STS2Plus) v0.2.0（修正器/UI/联机）、[STS2-ShunMod](https://github.com/yehuoshun/STS2-ShunMod) v0.0.8（卡牌/注册/补丁）
 
 ---
 
-## 🏗️ 架构概览
+## 🎯 你要做什么
 
-STS2 使用 **Godot 4 + C# (.NET 9)** 开发。Mod 通过 **Harmony** 运行时修补（Runtime Patching）实现，以 DLL 形式加载。
-
-### 技术栈
-
-| 组件 | 版本/类型 |
-|------|-----------|
-| 语言 | C# 12 (.NET 9) |
-| 游戏引擎 | Godot 4.x (GodotSharp) |
-| 修改框架 | Harmony (Lib.Harmony) |
-| 构建 | dotnet CLI + PowerShell |
-| 目标框架 | `net9.0` |
-| 输出 | Library (DLL) |
-
-### 项目结构
-
-```
-STS2Plus/
-├── STS2Plus.csproj          # 项目文件
-├── build.ps1                # 构建脚本
-├── mod_manifest.json        # Mod 清单（复制为 STS2Plus.json 到 Mods/ 目录）
-├── GodotPlugins.Game/       # 联机/多玩家 Hook 入口
-├── Properties/              # AssemblyInfo
-├── STS2Plus/               # 核心入口 + 状态管理
-├── STS2Plus.Config/         # 配置系统
-├── STS2Plus.Features/       # 游戏功能逻辑
-├── STS2Plus.Localization/   # 本地化（英/土耳其语）
-├── STS2Plus.Modifiers/      # 自定义游戏修正器（Custom Modifiers）
-├── STS2Plus.Modules/        # 模块定义
-├── STS2Plus.Multiplayer/    # 联机消息定义
-├── STS2Plus.Patches/        # Harmony 补丁集合
-├── STS2Plus.Reflection/     # 运行时反射工具
-└── STS2Plus.Ui/             # Godot UI 控件
-```
+这个技能告诉你**怎么写 STS2 Mod**。不是介绍别人写了什么，而是给你可复用的模式、API、坑点。
 
 ---
 
-## 🔌 mod_manifest.json 格式
+## 🚀 从零搭建 Mod 项目
+
+### 最小项目结构
+
+```
+MyMod/
+├── MyMod.csproj          # .NET 9 Library
+├── mod_manifest.json     # 游戏识别 Mod 的清单
+├── MainFile.cs           # 入口点
+└── localization/         # 可选：JSON 本地化
+    ├── eng/
+    └── zhs/
+```
+
+### .csproj 模板
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <Nullable>enable</Nullable>
+    <LangVersion>12.0</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <STS2GameDir Condition="'$(STS2GameDir)' == ''">
+      C:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2
+    </STS2GameDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="sts2">
+      <HintPath>$(STS2GameDir)\data_sts2_windows_x86_64\sts2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="GodotSharp">
+      <HintPath>$(STS2GameDir)\data_sts2_windows_x86_64\GodotSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(STS2GameDir)\data_sts2_windows_x86_64\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
+```
+
+构建：`dotnet build -p:STS2GameDir="你的游戏路径" -c Release -o out/`
+
+### mod_manifest.json
 
 ```json
 {
-  "id": "STS2Plus",           // Mod 唯一 ID
-  "name": "STS2Plus",         // 显示名称
-  "author": "4step",          // 作者
-  "description": "...",       // 描述
-  "version": "0.2.0",         // 版本号
-  "has_dll": true,            // 是否包含 DLL
-  "has_pck": false,           // 是否包含 Godot 包
-  "dependencies": [],         // 依赖
-  "affects_gameplay": true    // 是否影响游戏玩法
+  "id": "MyMod",
+  "name": "My Mod",
+  "author": "you",
+  "version": "0.1.0",
+  "has_dll": true,
+  "has_pck": false,
+  "dependencies": [],
+  "affects_gameplay": true
 }
 ```
 
-安装位置：`<GameDir>/Mods/STS2Plus/STS2Plus.dll` + `<GameDir>/Mods/STS2Plus/STS2Plus.json`
+安装：复制 DLL + manifest 到 `<游戏>/Mods/MyMod/`
 
 ---
 
-## 🚀 入口点 (ModEntry)
+## 🔌 入口点
 
-通过 `[ModInitializer("Initialize")]` 属性标记入口方法，游戏在加载时自动调用。
+### 最小入口
 
 ```csharp
-[ModInitializer("Initialize")]
-[ScriptPath("res://src/ModEntry.cs")]
-public class ModEntry : Node
+using HarmonyLib;
+using MegaCrit.Sts2.Core.Modding;
+
+[ModInitializer(nameof(Initialize))]
+public static class MainFile
+{
+    private static readonly Harmony harmony = new("mymod");
+
+    public static void Initialize()
+    {
+        harmony.PatchAll();  // 自动应用所有 [HarmonyPatch]
+    }
+}
 ```
 
-**初始化流程**：
-1. 加载配置 (`ConfigManager.Load()`)
-2. 创建 Harmony 实例
-3. 按补丁分类打补丁（Core → MoreRules）
-4. 合并本地化文本
-5. 完成初始化
+### 带内容注册的入口（推荐）
 
-**补丁分类**：
+```csharp
+public static void Initialize()
+{
+    harmony.PatchAll();
+    ContentRegistry.RegisterAll(Assembly.GetExecutingAssembly());
+}
+```
 
-| 分类 | 内容 |
+---
+
+## 🎯 Harmony 补丁三大模式
+
+### 模式 1：固定目标 Patch
+
+```csharp
+// Postfix 注入——最常用，在方法执行后修改结果
+[HarmonyPatch(typeof(目标类), nameof(目标类.方法名))]
+public static class MyPatch
+{
+    static void Postfix(ref int __result)  // ref 可以覆盖返回值
+    {
+        __result = 99;
+    }
+}
+```
+
+### 模式 2：动态目标 Patch
+
+```csharp
+// 运行时匹配多个目标
+[HarmonyPatch]  // 不指定类型
+public static class MyDynamicPatch
+{
+    static IEnumerable<MethodBase> TargetMethods()
+    {
+        // 匹配所有子类的重写方法
+        foreach (var type in typeof(BaseClass).Assembly.GetTypes())
+        {
+            if (!typeof(BaseClass).IsAssignableFrom(type)) continue;
+            var getter = AccessTools.PropertyGetter(type, "PropertyName");
+            if (getter != null && getter.DeclaringType == type)
+                yield return getter;
+        }
+    }
+
+    static void Postfix(ref int __result) { ... }
+}
+```
+
+### 模式 3：替换方法体（Prefix return false）
+
+```csharp
+[HarmonyPatch(typeof(TargetClass), "MethodName")]
+public static class MyReplacement
+{
+    static bool Prefix(/* 参数与目标方法一致 */, ref ReturnType __result)
+    {
+        // 你的实现
+        __result = newValue;
+        return false;  // 跳过原始方法
+    }
+}
+```
+
+---
+
+## 🏷️ 自动内容注册系统
+
+### 三步添加新卡牌/遗物，无需改入口
+
+**第 1 步：定义 [Pool] 属性**
+
+```csharp
+[AttributeUsage(AttributeTargets.Class, Inherited = false)]
+public class PoolAttribute : Attribute
+{
+    public Type PoolType { get; }
+    public PoolAttribute(Type poolType) => PoolType = poolType;
+}
+```
+
+**第 2 步：扫描并注册**
+
+```csharp
+public static class ContentRegistry
+{
+    public static void RegisterAll(Assembly assembly)
+    {
+        foreach (var type in GetLoadableTypes(assembly))
+        {
+            if (type.IsAbstract) continue;
+            var pool = type.GetCustomAttribute<PoolAttribute>();
+            if (pool == null) continue;
+            ModHelper.AddModelToPool(pool.PoolType, type);
+        }
+    }
+
+    static IReadOnlyList<Type> GetLoadableTypes(Assembly assembly)
+    {
+        try { return assembly.GetTypes(); }
+        catch (ReflectionTypeLoadException ex)
+            => ex.Types.Where(t => t != null).Cast<Type>().ToArray();
+    }
+}
+```
+
+**第 3 步：入口一行调用**
+
+```csharp
+public static void Initialize()
+{
+    harmony.PatchAll();
+    ContentRegistry.RegisterAll(Assembly.GetExecutingAssembly());
+}
+```
+
+### 常用卡池类型
+
+| 类型 | 说明 |
 |------|------|
-| `Core` | 基础功能（速度控制/快速重启/伤害告警/路线建议/跳过Intro/稀有度标签/卡牌总伤害预览） |
-| `MoreRules` | 自定义游戏规则修正器 |
-| `DpsMeter` | DPS 统计相关（未实现） |
+| `ColorlessCardPool` | 无色牌 |
+| `IroncladCardPool` | 铁卫牌 |
+| `SilentCardPool` | 静默猎人 |
+| `DefectCardPool` | 程序员 |
+| `WatcherCardPool` | 观者 |
 
-### 日志系统
+---
 
-使用游戏自带 `MegaCrit.Sts2.Core.Logging.Logger`，带 Verbose 开关控制：
+## 🃏 自定义卡牌
+
+### 基类封装模式（ShunCard）
+
+继承 `CardModel`，用 sealed override 锁住抽象成员，子类只需填构造函数和 `OnPlay`：
 
 ```csharp
-public static Logger Logger { get; } = new Logger("STS2Plus", LogType.Info);
-public static void Verbose(string message)
+public abstract class ShunCard : CardModel
 {
-    if (ConfigManager.Current.VerboseLoggingEnabled)
-        Logger.Info("[VERBOSE] " + message);
+    private readonly List<CardKeyword> _keywords = [];
+    private int? _costUpgrade;
+
+    protected ShunCard(int baseCost, CardType type, CardRarity rarity, TargetType target)
+        : base(baseCost, type, rarity, target) { }
+
+    protected sealed override IEnumerable<DynamicVar> CanonicalVars => [];
+    public sealed override IEnumerable<CardKeyword> CanonicalKeywords => _keywords;
+    protected sealed override HashSet<CardTag> CanonicalTags => [];
+
+    protected override void OnUpgrade()
+    {
+        if (_costUpgrade.HasValue) EnergyCost.UpgradeBy(_costUpgrade.Value);
+    }
+
+    // 链式配置
+    protected void WithKeywords(params CardKeyword[] k) => _keywords.AddRange(k);
+    protected void WithCostUpgradeBy(int amount) => _costUpgrade = amount;
+}
+```
+
+### 卡牌实现
+
+```csharp
+[Pool(typeof(ColorlessCardPool))]  // 自动注册，无需改入口
+public class MyCard : ShunCard
+{
+    public MyCard()
+        : base(baseCost: 2, type: CardType.Skill, rarity: CardRarity.Rare, target: TargetType.Self)
+    {
+        WithKeywords(CardKeyword.Exhaust);
+        WithCostUpgradeBy(-1); // 升级后费用减 1
+    }
+
+    public override string PortraitPath => "res://MyMod/cards/my_card.png";
+
+    protected override async Task OnPlay(PlayerChoiceContext ctx, CardPlay play)
+    {
+        // 你的卡牌效果
+    }
+}
+```
+
+### 常用卡牌 API
+
+```csharp
+// 升级卡牌
+CardCmd.Upgrade(card);
+CardCmd.Upgrade(card, CardPreviewStyle.None);  // 无动画
+
+// 获取卡牌
+Owner.PlayerCombatState.AllCards      // 战斗中所有卡牌（手牌+抽牌+弃牌+消耗堆）
+PileType.Deck.GetPile(Owner).Cards    // 牌组
+PileType.Hand.GetPile(Owner).Cards    // 手牌
+PileType.Discard.GetPile(Owner).Cards // 弃牌堆
+PileType.Exhaust.GetPile(Owner).Cards // 消耗堆
+
+// 卡牌属性
+card.IsUpgradable    // bool — 是否可升级
+card.EnergyCost      // DynamicVar — 费用
+card.Enchantment     // EnchantmentModel — 当前附魔
+```
+
+---
+
+## 🧰 反射工具速查
+
+### AccessTools（Harmony 提供）
+
+```csharp
+// 获取属性/字段/方法
+var prop = AccessTools.Property(typeof(T), "Name");
+prop.GetValue(instance);
+prop.SetValue(instance, value);
+
+var field = AccessTools.Field(typeof(T), "_fieldName");
+field.GetValue(instance);
+
+var method = AccessTools.Method(typeof(T), "MethodName");
+method.Invoke(instance, args);
+
+// PropertyGetter 用于 TargetMethods
+var getter = AccessTools.PropertyGetter(typeof(T), "PropertyName");
+```
+
+### 运行时类型查找
+
+```csharp
+// 从全限定名查找
+var type = Type.GetType("Namespace.ClassName");
+
+// 从 STS2 程序集查找
+var type = typeof(CardModel).Assembly.GetType("Namespace.ClassName");
+
+// 遍历查找（兼容 IL2CPP）
+static Type FindType(string simpleName) =>
+    typeof(CardModel).Assembly.GetTypes()
+        .FirstOrDefault(t => t.Name == simpleName);
+```
+
+### 常见反射路径
+
+```csharp
+// 获取运行状态
+RunManager.Instance.DebugOnlyGetState()
+
+// 获取地图
+typeof(CardModel).Assembly.GetType("...NMapScreen")
+AccessTools.Property(mapScreenType, "Instance")?.GetValue(null)
+
+// 获取当前房间
+NCombatRoom.Instance
+
+// 获取 Overlay 栈
+NOverlayStack.Instance
+```
+
+---
+
+## 🎭 自定义修正器
+
+### SyncedModifierModel 模式
+
+```csharp
+// 第 1 步：定义修正器类（只需空类体）
+internal sealed class MyRule : SyncedModifierModel { }
+
+// SyncedModifierModel 已处理：
+// - Title（从本地化表读取）
+// - Description
+// - Icon（内置图标映射）
+```
+
+### 注册修正器
+
+```csharp
+// 在 ModelDb 中注册
+ModelDb.Inject(typeof(MyRule));
+
+// 创建实例
+var modifier = ModelDb.GetByIdOrNull<ModifierModel>(ModelDb.GetId(typeof(MyRule)));
+```
+
+### 修正器状态管理
+
+```csharp
+// 本地状态
+static bool myRuleSelected;
+
+// 活跃性检查（双重保障：本地 + 运行状态）
+public static bool IsMyRuleActive()
+    => myRuleSelected || GameReflection.HasActiveModifier("MY_RULE");
+
+// 设置状态
+public static void SetMyRule(bool enabled)
+{
+    myRuleSelected = enabled;
+}
+
+// 从运行状态同步
+public static void SyncFromRunState()
+{
+    myRuleSelected = GameReflection.HasActiveModifier("MY_RULE");
+}
+```
+
+### 修正器影响数值
+
+```csharp
+// 在 Patch 中检查并应用：
+[HarmonyPatch(typeof(CardModel), "method")]
+static void Postfix(CardModel __instance, ref int __result)
+{
+    if (PlusState.IsMyRuleActive())
+        __result += 3;  // 应用修正器加成
 }
 ```
 
 ---
 
-## ⚙️ 配置系统 (Config)
+## ✨ UI 组件开发模式
 
-### PlusConfig
-
-JSON 配置文件，存储在 `%AppData%/SlayTheSpire2/ModConfig/STS2Plus.json`。
-
-| 配置项 | 类型 | 默认值 | 说明 |
-|--------|------|--------|------|
-| `MoreRulesEnabled` | bool | true | 自定义规则总开关 |
-| `RouteAdvisorEnabled` | bool | true | 路线建议 |
-| `CompactRelicDrawerEnabled` | bool | false | 紧凑遗物界面 |
-| `SpeedControlEnabled` | bool | true | 战斗加速 |
-| `QuickRestartEnabled` | bool | true | F5 快速重新开始 |
-| `SkipIntroEnabled` | bool | true | 跳过启动画面 |
-| `CardTotalDamagePreviewEnabled` | bool | true | 卡牌总伤害预览 |
-| `RarityTagsEnabled` | bool | true | 稀有度标签 |
-| `PlayerCombatShieldEnabled` | bool | true | 玩家护盾数值显示 |
-| `VerboseLoggingEnabled` | bool | true | 详细日志 |
-
-### ConfigManager
+### 独立 Overlay 挂载
 
 ```csharp
-internal static class ConfigManager
+// 挂载到场景根节点
+var root = ((SceneTree)Engine.GetMainLoop()).Root;
+var canvasLayer = new CanvasLayer { Name = "MyLayer" };
+root.AddChild(canvasLayer);
+
+// 按需控制可见性
+canvasLayer.Visible = ShouldShow();
+```
+
+### 尺寸控制——右键上方浮动
+
+```csharp
+// 固定大小 + 固定位置
+((Control)this).Size = new Vector2(228f, 42f);
+((Control)this).Position = new Vector2(
+    viewportSize.X - 228f - 148f,  // 右边缘偏移
+    86f                             // 顶部偏移
+);
+```
+
+### 自定义绘制控件
+
+```csharp
+// 重写 _Draw 用 CanvasItem 绘制
+public override void _Draw()
 {
-    public static PlusConfig Current { get; private set; }
-    public static void Load();     // 从文件加载，不存在则创建
-    public static void Save();     // 保存到文件
+    DrawColoredPolygon(vertices, fillColor, null, null);
+    DrawCircle(center, radius, color);
+}
+```
+
+### 检测 UI 栈阻塞
+
+```csharp
+// Overlay 打开时暂停
+var overlayStack = NOverlayStack.Instance;
+if (overlayStack != null && overlayStack.ScreenCount > 0)
+    return; // 有 Overlay 打开，隐藏自己
+
+// 游戏暂停时
+var tree = (SceneTree)Engine.GetMainLoop();
+if (tree.Paused) return;
+```
+
+### 从游戏捕获字体
+
+```csharp
+// 遍历生物节点找到 RichTextLabel/→Label 的 theme font
+foreach (var child in parent.GetChildren())
+{
+    var label = child.GetNodeOrNull<Label>("%Value");
+    if (label != null)
+        return label.GetThemeFont("font", null);
 }
 ```
 
 ---
 
-## 🎭 自定义修正器 (Modifiers) — 核心系统
+## 👥 联机适配
 
-### 修正器架构
-
-每个修正器继承 `SyncedModifierModel → ModifierModel`，仅需一个空类体（逻辑通过 Harmony Patches 注入）：
+### Host/Client 检测
 
 ```csharp
-namespace STS2Plus.Modifiers;
-internal sealed class AttackDefense : SyncedModifierModel { }
+// 从 RunManager.NetService 检测
+var net = RunManager.Instance?.NetService;
+bool isMultiplayer = net != null && (net.Type == NetGameType.Host || net.Type == NetGameType.Client);
+
+// 判断当前是否 Client（交互锁定）
+bool isClient = net?.Type == NetGameType.Client;
 ```
 
-### SyncedModifierModel
+### 交互锁定
 
-提供 Title/LocString 和 IconPath 的标准实现，支持联机同步：
+联机中 Client 不能修改规则，UI 需要锁住：
 
 ```csharp
-internal abstract class SyncedModifierModel : ModifierModel
+// 锁住控件
+control.MouseFilter = isClient ? MouseFilterEnum.Ignore : MouseFilterEnum.Stop;
+control.Modulate = isClient ? new Color(1,1,1,0.65f) : Colors.White;
+```
+
+---
+
+## 🌍 本地化
+
+### JSON 文件结构
+
+```json
+// localization/eng/cards.json
 {
-    public override LocString Title => new LocString("modifiers", Id.Entry + ".title");
-    public override LocString Description => new LocString("modifiers", Id.Entry + ".description");
+  "MY_CARD.title": "My Card",
+  "MY_CARD.description": "Deal {Damage:damageAmount} damage. {Exhaust:showExhaustTooltip}"
+}
+
+// localization/zhs/cards.json
+{
+  "MY_CARD.title": "我的卡牌",
+  "MY_CARD.description": "造成 {Damage:damageAmount} 点伤害。{Exhaust:showExhaustTooltip}"
 }
 ```
 
-**图标映射**（使用游戏内置修正器图标）：
-
-| Entry | 内置图标 |
-|-------|----------|
-| ATTACK_DEFENSE | `all_star` |
-| ATTACK_DEFENSE_PLUS | `murderous` |
-| IRON_SKIN | `terminal` |
-| GIANT_CREATURES | `big_game_hunter` |
-| HARD_ELITES | `vintage` |
-| ENDLESS_MODE | `flight` |
-| GLASS_CANNON | `insanity` |
-| UNLIMITED_GROWTH | `hoarder` |
-| SANDBOX | `sealed_deck` |
-| BUILD_CREATOR | `sealed_deck` |
-
-### CustomModifierCatalog
-
-修正器的注册、匹配和反序列化工厂。关键方法：
+### 在代码中使用
 
 ```csharp
-// 创建修正器实例
-public static ModifierModel Create(string entry);
-
-// 从存档数据尝试恢复修正器（支持旧版兼容）
-public static ModifierModel? TryCreate(SerializableModifier serializable);
-
-// 检查修正器列表中是否包含某条目
-public static bool ContainsEntry(IEnumerable<ModifierModel>? modifiers, string entry);
-
-// 判断修正器是否已知
-public static bool IsKnownModifier(ModifierModel? modifier);
+// CardModel 自动从 localization 表读取 Title/Description
+// 只需确保 LocString 指向正确的表和键：
+new LocString("cards", "MY_CARD.title")     // → 读取 cards.json 的 MY_CARD.title
+new LocString("modifiers", "ID.entry")      // → 读取 modifiers.json
+new LocString("relics", "RELIC_ID.name")    // → 读取 relics.json
 ```
 
-**修正器编号常量**（用于存档兼容）：
+### 动态合并（运行时）
 
-| 位 (Flags) | 常量 | Entry |
-|-----------|------|-------|
-| 1 | AttackDefenseFlag | ATTACK_DEFENSE |
-| 2 | AttackDefensePlusFlag | ATTACK_DEFENSE_PLUS |
-| 4 | IronSkinFlag | IRON_SKIN |
-| 8 | GiantCreaturesFlag | GIANT_CREATURES |
-| 16 | HardElitesFlag | HARD_ELITES |
-| 32 | EndlessModeFlag | ENDLESS_MODE |
-| 64 | GlassCannonFlag | GLASS_CANNON |
-| 128 | UnlimitedGrowthFlag | UNLIMITED_GROWTH |
-| 256 | SandboxFlag | SANDBOX |
-| 512 | BuildCreatorFlag | BUILD_CREATOR |
-
-### 修正器选择/同步状态 (PlusState)
-
-核心状态管理类，跟踪所有修正器的选择状态、提供活跃性检查、计算攻击/防御卡牌数值加成。
-
-**选择状态同步**：
-- `SyncRuleSelections(IEnumerable<ModifierModel>)`：从修正器列表同步
-- `SyncRuleSelectionsFromRunState()`：从运行状态同步，支持挂起选择恢复
-- 每项都有 `Selected` 属性和 `Set{Name}Rule(bool)` 方法
-
-**挂起选择 (Pending Selections)**：当运行状态丢失修正器时自动恢复挂起选择
-
-**数值计算**：
 ```csharp
-// 根据活跃修正器计算攻击卡牌加成
-public static decimal GetAttackCardBonus()
-// 根据活跃修正器计算防御卡牌加成
-public static decimal GetDefenseCardBonus()
-```
-
-**GlassCannon 特殊处理**：
-- `EnsureGlassCannonExpectedMaxHp(object? player, int fallbackMaxHp)`
-- `RememberGlassCannonExpectedMaxHp(object? player, int value)`
-- `TryGetGlassCannonExpectedMaxHp(object? player, out int value)`
-- `IncreaseGlassCannonExpectedMaxHp(object? player, int amount)`
-
-**DPS 统计**：
-```csharp
-public static decimal CombatDamageTotal { get; private set; }
-public static void AddCombatDamage(decimal amount);
-public static void ResetCombatDamage();
+LocManager.Instance.GetTable("modifiers").MergeWith(new Dictionary<string, string>
+{
+    ["MY_RULE.title"] = "My Rule",
+    ["MY_RULE.description"] = "Does something."
+});
 ```
 
 ---
 
-## 🧩 修正器详解 (10种)
+## 🔧 实用工具模式
 
-### 1. ATTACK_DEFENSE — 攻守平衡
-
-所有攻击卡牌 **+2 伤害**，所有防御卡牌 **+2 格挡**。
-
-### 2. ATTACK_DEFENSE_PLUS (Warrior) — 战士
-
-所有攻击卡牌 **+5 伤害**，所有防御卡牌 **+5 格挡**。
-
-### 3. IRON_SKIN — 铁甲
-
-所有攻击卡牌 **-2 伤害**，所有防御卡牌 **+5 格挡**。
-
-### 4. GIANT_CREATURES — 巨型生物
-
-遭遇的所有生物 **HP 翻倍**，战斗金币奖励 **+100%**。
-
-**补丁范围**：HP 相关 Patch、金币相关 Patch、奖励标记 (AppliedTracker)
-
-### 5. HARD_ELITES — 精英强化
-
-精英房间敌人 **+50% HP**，精英战斗金币奖励 **+200%**，精英 **掉落 2 件遗物**。
-
-### 6. ENDLESS_MODE — 无尽模式
-
-第 3 幕结束后不终止游戏，进入**新循环**。
-
-**补丁范围**：Act 条幅、架构者、进入 Act、HP 缩放、杀死玩家、涅奥选项、涅奥房间、UI 刷新、获胜结算等等
-
-### 7. GLASS_CANNON — 玻璃大炮
-
-- 起始 **1 最大 HP**
-- **+100% 金币**获得
-- 每场战斗后 **+1 最大 HP**
-- 攻击卡牌 **+3 伤害**
-- 每回合 **4 能量**
-- 每回合保留最多 **15 格挡**
-
-### 8. UNLIMITED_GROWTH — 无限成长
-
-卡牌可**重复升级**，每次升级**再次应用当前升级效果**。
-
-**补丁范围**：反序列化、最大升级等级、序列化上下文
-
-### 9. SANDBOX — 沙盒
-
-所有敌人每阶段起始 **1 HP**。
-
-### 10. BUILD_CREATOR — 构筑者
-
-自定义开局：在涅奥事件中选择任意数量的**角色牌池中的卡牌** (+升级版)、**遗物**，然后与一个不朽的木桩战斗。
-
-**特殊点**：`BuildCreator : SyncedModifierModel` 重写了 `GenerateNeowOption` 方法：
+### 防止重复处理（AppliedTracker）
 
 ```csharp
-public override Func<Task>? GenerateNeowOption(EventModel eventModel)
+static class AppliedTracker
 {
-    return () => BuildCreatorOverlay.OpenAsync(eventModel);
+    static readonly HashSet<int> processed = [];
+
+    public static bool Mark(object instance)
+        => processed.Add(RuntimeHelpers.GetHashCode(instance));
+
+    public static void Reset() => processed.Clear();
 }
+
+// 使用：
+if (!AppliedTracker.Mark(creature))
+    return; // 已处理过
+// 否则：应用效果
+```
+
+### ConditionalWeakTable 弱引用存储
+
+```csharp
+// 存储额外数据但不阻止 GC
+static readonly ConditionalWeakTable<CardModel, Dictionary<string, object>> extras = new();
+
+var dict = extras.GetOrCreateValue(card);
+dict["myData"] = value;
+
+// 当 card 被 GC 时，关联数据自动清理
+```
+
+### 反射操作私有字段 + 手动触发事件
+
+```csharp
+// 反射移除私有列表中的元素
+var field = typeof(Player).GetField("_relics", BindingFlags.NonPublic | BindingFlags.Instance);
+if (field.GetValue(player) is List<RelicModel> list)
+    list.Remove(relic);
+
+// 必须手动触发公共事件！
+var evt = typeof(Player).GetField("RelicRemoved", BindingFlags.Public | BindingFlags.Instance);
+if (evt.GetValue(player) is Delegate del)
+    foreach (var handler in del.GetInvocationList())
+        handler.Method.Invoke(handler.Target, [relic]);
 ```
 
 ---
 
-## ✨ UI 组件 (6个)
+## ⚠️ 常见坑点
 
-### SpeedControlOverlay
+### 1. 修正器图标必须用游戏内置的
 
-**作用**：战斗速度控制（1x ~ 5x），右上角显示速度选择器。
+自定义修正器只能映射到已存在的内置图标路径：
+```csharp
+"packed/modifiers/all_star.png"     // ✓
+"res://MyMod/icons/custom.png"      // ✗
+```
 
-- 通过 `Engine.TimeScale` 控制游戏速度
-- 仅在战斗中激活（`IsCombatSpeedActive()`）
-- 自动挂载到场景树的 Root Window 上
-- 使用 CanvasLayer 作为独立图层
-- 暂停时自动隐藏 (NOverlayStack 检测)
-- 拖尾动画调整：`ApplyTweenSpeed(Tween tween)`
+### 2. 联机时序
 
-**速度选择**：
-- 按钮：`1x`, `2x`, `3x`, `4x`, `5x`（游戏速 = %Speed 按钮值 / %Combat 当前选择速度）
-- SpeedGlyph: 自定义绘制控件，用三角形数量指示速度等级
-- 持久 Manager Node (`_Process` 处理状态同步)
+修正器状态在 Host 选择 → 发送消息 → Client 接收这个链条中可能丢。必须**双路检查**：本地选择状态 + 运行状态中的修正器列表。
 
-### RouteAdvisorHighlighter
+### 3. Harmony PatchAll 只扫描当前程序集
 
-**作用**：地图路线建议高亮。
+子模块/子命名空间中的 Patch 需要显式指定：
+```csharp
+harmony.PatchCategory(assembly, "MyCategory");
+```
 
-- `Safe` 路线（金色）：偏好商店(7) > ?事件(5) > 休息(4) > 普通战斗(2) > 精英(1) > 宝藏(-3) > 首领(3) 
-- `Aggressive` 路线（红色）：偏好精英(8) > 宝藏(3) > 休息(4) > 普通战斗(2) > 商店(1) > ?事件(1) > 首领(5)
+### 4. Unity IL2CPP / Mono 兼容
 
-**高亮逻辑**：
-- 路线地图段被着色为金色/红色
-- 两条路线重叠部分显示橙色
-- 使用 `VisualStateCache`（`ConditionalWeakTable`）记录原始颜色/缩放用于重置
+`Assembly.GetTypes()` 在非标准运行时可能抛 `ReflectionTypeLoadException`，必须捕获。
 
-### IncomingDamageOverlay
+### 5. Godot 节点生命周期
 
-**作用**：在敌方单位头上显示**对本玩家的预计伤害值**。
-
-- 实时追踪意图伤害
-- 显示扣血值 + LETHAL 警告
-- 颜色分级：<10 黄，10-20 紫，>20 红
-- 通过 `IncomingDamageTracker` 处理伤害追踪
-- 附着在敌方 CreatureNode 上
-- 自动隐藏当无有效伤害时
-
-### PlayerDamageShieldBadge
-
-**作用**：玩家头顶显示**攻防差值** (Block + PetHP - 收到的伤害)。
-
-- 正数=蓝（可承受）→ 零数=白 → 负数=黄/紫/红（致命）
-- 显示 `+N` / `-N` / `0`
-- 通过 `PlayerDamageTracker` 计算
-- 考虑 Osty (宠物) HP 作为缓冲
-
-### CompactRelicDrawer
-
-**作用**：紧凑遗物抽屉，代替原生遗物界面。
-
-- 按钮显示已拥有遗物数量
-- 点击弹出覆盖层显示所有遗物（网格布局）
-- 支持搜索（使用游戏内置 `MegaInput.cancel` 关闭）
-- 支持联机模式下手动定位
-- 自动将原生 NRelicInventory 隐藏
-
-### MoreRulesUi
-
-**作用**：在创建游戏时向自定义规则列表注入 STS2Plus 的规则行。
-
-- 搜索 `NRunModifierTickbox` 模板行，克隆后注入
-- 每个修正器对应一行，带勾选框
-- 支持联机锁定 (MultiplayerSafety interaction lock)
-- 行点击切换状态 → 触发 `EmitSignalModifiersChanged`
-
-### BuildCreatorOverlay（在 Modifiers/BuildCreator.cs 中关联）
-
-**作用**：构筑者 UI，在涅奥事件选择时打开。
+- 从 `_ExitTree` 移除事件订阅，否则节点销毁后回调崩
+- `QueueFree()` 不是同步的，下一帧才生效
+- 使用 `GodotObject.IsInstanceValid(obj)` 检查节点是否存活
 
 ---
 
-## 🔧 核心补丁 (Patches)
+## 📦 发布
 
-### 核心功能 (PatchCategory: Core)
+### 手动发布
 
-| 补丁文件 | 作用 |
-|---------|------|
-| `SpeedControlBootstrapPatch` | 附加到 NGame._Ready，启动速度控制 Overlay |
-| `SpeedControlMainMenuPatch` | 返回主菜单时重置/隐藏速度控制 |
-| `SpeedControlEnterActPatch` | 进入新 Act 时同步速度控制 |
-| `SpeedControlCombatSetupPatch` | 战斗开始时显示速度控制 |
-| `SpeedControlCombatExitPatch` | 战斗结束时调整速度控制 |
-| `SpeedControlRunUiReadyPatch` | UI 就绪时应用速度设置 |
-| `SpeedControlTweenPatch` | 为任意 Tween 调用 ApplyTweenSpeed |
-| `QuickRestartPatch` | F5 快速重新开始当前角色运行 |
-| `CardTotalDamageHoverPatch` | 卡牌悬浮提示显示总伤害 = 单次 × 连击次数 |
-| `SkipIntroLogoPatch` | 跳过开场 Logo |
-| `SkipEarlyAccessDisclaimerPatch` | 跳过 Early Access 声明 |
-| `NMainMenuPatch` | 主菜单同步/控制 |
-| `HoverTipRarityPatch` | 卡牌悬浮提示显示稀有度标签 |
-| `RouteAdvisorMapPatch` | 地图 UI 更新时刷新路线建议高亮 |
-| `CompactRelicDrawer*Patch` (6个) | 紧凑遗物抽屉的附着/动画/显示/隐藏/定位 |
-| `IncomingDamageIntentPatch` | 追踪意图伤害 |
-| `IncomingDamageCombatSetupPatch` | 战斗开始重置伤害追踪 |
-| `IncomingDamageCreatureExitPatch` | 生物退场清理 |
-| `IncomingDamageHideIntentPatch` | 隐藏意图时清理 |
-| `IncomingDamagePerformIntentPatch` | 意图执行时清理 |
-| `IncomingDamageCreatureRefreshPatch` | 生物刷新时更新 UI |
-| `IncomingDamageCreatureLifecyclePatch` | 生物生命周期管理 |
-| `PlayerDamageIntentVisualsPatch` | 意图可视化时重新计算玩家防御 |
-| `PlayerDamageIntentUpdatePatch` | 意图更新时重新计算 |
-| `PlayerDamagePerformIntentPatch` | 意图执行后重新计算 |
-| `PlayerDamageCombatSetupPatch` | 战斗开始时初始化 |
-| `PlayerDamageCreatureExitPatch` | 生物退场时清理 |
-| `PlayerDamageCreatureUpdateIntentPatch` | 生物意图更新时重新计算 |
-| `PlayerDamageGainBlockPatch` | 获得格挡时更新 |
-| `PlayerDamageLoseBlockPatch` | 失去格挡时更新 |
-| `PlayerDamageClearBlockPatch` | 清除格挡时更新 |
-| `PlayerDamageHideIntentPatch` | 隐藏意图时清理 |
-| `PlayerDamageRefreshIntentsPatch` | 意图刷新时重算 |
-| `MapDrawingMessageSafetyPatch` | 地图绘图消息安全性（联机） |
-| `MultiplayerQuickRestartCoordinator` | 联机模式 F5 协调 |
-| `MultiplayerRuleSyncCoordinator` | 修正器规则同步协调 |
-| `MultiplayerRuleSyncCleanupPatch` | 规则同步清理 |
-| `MultiplayerRuleSyncLaunchPatch` | 规则同步启动 |
-| `MultiplayerRuleSyncMainMenuPatch` | 主菜单规则同步 |
-| `NCustomRunModifiersListPatch` | 自定义修改器列表 UI 注入 |
-| `PlusLifecyclePatch` | Plus 生命周期管理 |
-| `QuickRestartMainMenuResetPatch` | 快速重新开始时重置主菜单 |
-| `QuickRestartRunCleanupPatch` | 快速重新开始时清理运行 |
-| `QuickRestartRunLaunchPatch` | 快速重新开始时启动运行 |
-| `SilverCrucibleTreasurePatch` | 银圣杯宝藏处理 |
-| `DeprecatedModifierHoverTipPatch` | 旧版修正器悬浮提示 |
-| `DeprecatedModifierTopBarPatch` | 旧版修正器顶部栏 |
-| `ModifierLocalizationPatch` | 修正器本地化 |
+```bash
+dotnet build -c Release -o out/MyMod
+cp mod_manifest.json out/MyMod/MyMod.json
+# 打包 out/MyMod/ 下所有内容为 MyMod.zip
+# 用户解压到 <Game>/Mods/MyMod/
+```
 
-### 规则修正器补丁 (HarmonyPatchCategory: MoreRules)
+### CI 自动发布（GitHub Actions）
 
-| 补丁文件 | 作用 |
-|---------|------|
-| `AttackDefenseCardCreationPatch` | 攻击/防御卡牌创建时应用加成 |
-| `AttackDefensePlayerSyncPatch` | 联机同步攻击/防御加成 |
-| `GiantCreaturesPatch` | 巨型生物 HP 翻倍 |
-| `GiantCreaturesGoldRewardFixedPatch` | 固定金币奖励翻倍 |
-| `GiantCreaturesGoldRewardRangePatch` | 范围金币奖励翻倍 |
-| `HardElitesPatch` | 精英 HP +50% |
-| `HardElitesExtraRelicPatch` | 精英掉率 2 件遗物 |
-| `HardElitesGoldRewardFixedPatch` | 精英固定金币 +200% |
-| `HardElitesGoldRewardRangePatch` | 精英范围金币 +200% |
-| `EndlessMode*Patch` (7个) | 无尽模式全套实现 |
-| `GlassCannon*Patch` (16个) | 玻璃大炮全套实现（HP/能量/格挡/金币/同步等） |
-| `UnlimitedGrowthMaxUpgradePatch` | 移除升级上限 |
-| `UnlimitedGrowthDeserializePatch` | 重复升级反序列化 |
-| `SandboxEnemyHpPatch` | 敌人 HP=1 |
-| `SandboxEnemyMaxHpClampPatch` | 敌人最大 HP 限制 |
-| `SandboxEnemyCurrentHpClampPatch` | 敌人当前 HP 限制 |
-| `BuildCreatorEncounterReplacementPatch` | 构筑者遭遇替换 |
-| `BuildCreatorEnemySetupPatch` | 构筑者敌人设置 |
-| `BuildCreatorTurnHealPatch` | 构筑者回合治疗 |
-| `CustomModifierListPatch` | 自定义修正器列表 |
-| `CustomModifierListSyncPatch` | 自定义修正器列表同步 |
-| `CustomModifierRunStateSyncPatch` | 运行状态同步 |
-| `CustomModifierSerializationPatch` | 修正器序列化 |
-| `CustomModifierUiRefreshPatch` | 修正器 UI 刷新 |
-| `EndlessModeKillPlayersPatch` | 无尽模式杀死玩家 |
-| `EndlessModeWinRunPatch` | 无尽模式获胜 |
-| `EndlessModeArchitectPatch` | 无尽模式架构者 |
-| `EndlessModeArchitectWinRunPatch` | 无尽模式架构者获胜 |
-| `EndlessModeNeowRoomPatch` | 无尽模式涅奥房间 |
-| `EndlessModeNeowOptionsPatch` | 无尽模式涅奥选项 |
-| `EndlessModeEnterActPatch` | 无尽模式进入幕 |
-| `EndlessModeHpScalingPatch` | 无尽模式 HP 缩放 |
-| `EndlessModeUiRefreshPatch` | 无尽模式 UI 刷新 |
-| `EndlessActBannerPatch` | 无尽幕横幅 |
+- 上传 `sts2.dll` 和 `0Harmony.dll` 到 Release 作为构建依赖
+- tag push 触发 CI 自动构建打包发布
+- 构建时引用游戏 DLL（不打包进 Mod）
 
 ---
 
-## 🪞 反射工具 (Reflection Helpers)
-
-### GameReflection
-
-核心反射工具类，用于访问游戏私有/内部 API。
-
-**关键方法分组**：
-
-**地图相关**：
-- `GetRouteStartPoint()` — 当前路线起点
-- `GetMapPointChildren(object point)` — 地图点子节点
-- `GetMapPointType(object point)` — `MapPointType` 枚举（Monster/Elite/Shop/Rest/Treasure/Boss/Mystery）
-- `GetMapPointCoord(object point)` — 坐标
-
-**生物/实体相关**：
-- `HasActiveModifier(string entry)` — 检查当前运行是否包含某修正器
-- `IsAttackCard(object card)` — 是否攻击卡牌
-- `GetCardDisplayedDamage(object card)` — 显示伤害
-- `GetCardMultiPlayCount(object card)` — 连击次数
-- `GetCreatureEntity(object node)` — 从节点提取实体
-- `IsAnyPlayerCreature(object)` — 是否任意玩家生物
-- `IsLocalPlayerObject(object)` / `IsLocalPlayerCreature(object)` — 是否本地玩家
-- `GetPlayerStateKey(object player)` — 玩家状态键
-- `GetPlayerCreature(object player)` — 玩家实体
-- `GetCurrentHp(object)` / `GetCreatureCurrentHp(object)` — 当前 HP
-- `GetMaxHp(object)` — 最大 HP
-- `GetCurrentBlock(object)` — 当前格挡
-- `HasHealthAccess(object)` — 是否有 HP 访问权限
-- `ResolveOwningPlayer(object)` — 解析所有者玩家
-- `GetIntentTotalDamage(object intent, object[] targets, object owner)` — 意图总伤害
-- `GetCreatureIntentAnchor(object node)` — 意图悬挂点
-- `ResolveHealthHolders(object instance)` — 解决 HP 持有者
-
-**运行状态**：
-- `IsRunActive()` — 运行是否活跃
-- `IsMultiplayerRun()` — 是否联机
-- `GetRunState()` — 获取运行状态
-- `GetSeedString(object state)` — 种子字符串
-
-**动态变量**：
-- `ResolveDynamicVarBase(object dynamicVar)` — 动态变量基值
-- `AddDynamicVarBase(object dynamicVar, decimal amount)` — 动态变量加法
-
-### MultiplayerReflection
-
-联机角色检测：
-- `MarkHost()` / `MarkClient()` / `ClearRole()`
-- `IsInteractionLocked(Node? context)` — 交互是否锁定（Client 端）
-- `IsMultiplayerRun()` — 是否联机运行
-- `DescribeCurrentService()` — 当前联机服务状态描述
-
-### RuntimeTypeResolver
-
-通过名称寻找运行时类型（支持 `FindType(string typeName)` / `FindTypeByName(string simpleName)`）。
-
----
-
-## 🌐 本地化 (Localization)
-
-使用游戏内置 LocString + 自定义文本表：
-
-```csharp
-public override LocString Title => new LocString("modifiers", Id.Entry + ".title");
-```
-
-本地化通过 `PlusLoc.MergeIntoModifiersTable()` 合并到游戏 `modifiers` 表。
-
-支持语言：**English** (默认) + **Türkçe** (土耳其语，通过 `TranslationServer.GetLocale()` 检测)
-
-关键方法：
-- `Text(string key)` — 获取当前语言的文本
-- `Format(string key, params object[] args)` — 格式化
-- `ModifierTitleKey(string entry)` / `ModifierDescriptionKey(string entry)` — 标题/描述键映射
-- `ActNumber(int actNumber)` — 幕名
-- `MergeIntoModifiersTable()` — 合并到游戏本地化表
-
----
-
-## 👥 联机支持 (Multiplayer)
-
-### 架构
-
-- 自动检测 Host/Client 角色
-- Host 端可修改规则，Client 端被锁定
-- 修正器选择在联机时通过消息同步
-
-### MultiplayerSafety
-
-```csharp
-internal static class MultiplayerSafety
-{
-    public static bool IsGameplayRuleSelectionLocked(Node? context);
-}
-```
-
-### 消息协议
-
-| 消息类 | 用途 |
-|--------|------|
-| `QuickRestartBeginMessage` | 快速重新开始通知 |
-| `QuickRestartRequestedMessage` | 快速重新开始请求 |
-| `RuleSelectionSyncMessage` | 规则选择同步 |
-
-### 同步流程
-
-1. 修改器选择 → emit modifiers changed
-2. `CustomModifierListSyncPatch` 捕获变更 → 发送 `RuleSelectionSyncMessage`
-3. Host 端接收 → 应用到全局状态
-4. 新游戏/存档加载时从 `SerializableModifier` 恢复
-
----
-
-## 🧩 特征追踪器 (AppliedTracker)
-
-追踪已在当前运行中应用的效果，防止重复应用：
-
-```
-GiantCreatureSet     — 已被倍增的 HP 生物
-HardEliteSet         — 已被强化的精英
-EndlessScaledSet    — 已被无尽缩放
-HardEliteRelicRewardSet — 已被发放额外遗物的 (房间, 玩家) 对
-GlassCannonRewardSet     — 已被发放金币加成的 (房间, 玩家) 对
-AttackDefenseSet    — 已被加成攻击防御的实例
-GlassCannonSet      — 已被处理的玻璃大炮玩家
-```
-
-`Reset()` — 运行开始时清除所有追踪。
-
----
-
-## 🛠️ 构建流程
-
-### 构建脚本 (build.ps1)
-
-```powershell
-.\build.ps1                                # 仅构建
-.\build.ps1 -Install                       # 构建并安装到游戏目录
-.\build.ps1 -GameDir "D:\STS2" -Install    # 指定游戏目录
-```
-
-**环境变量**：`$env:STS2_GAME_DIR`
-
-**构建流程**：
-1. 解析游戏目录（参数 → 环境变量 → 默认 Steam 路径）
-2. 验证 `sts2.dll` / `GodotSharp.dll` / `0Harmony.dll`
-3. 检查 `dotnet` 可用
-4. `dotnet build -c Release -o out/STS2Plus`
-5. 可选：复制 DLL + manifest 到 `<GameDir>/Mods/STS2Plus/`
-
-### .csproj 关键点
-
-```xml
-<TargetFramework>net9.0</TargetFramework>
-<OutputType>Library</OutputType>
-<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-
-<!-- 引用游戏 DLL（不复制到输出） -->
-<Reference Include="sts2" Private="false" />
-<Reference Include="GodotSharp" Private="false" />
-<Reference Include="0Harmony" Private="false" />
-```
-
----
-
-## 🎯 开发指南
-
-### 添加新的自定义修正器
-
-1. 在 `STS2Plus.Modifiers` 创建类继承 `SyncedModifierModel`
-2. 在 `CustomModifierCatalog` 的 `IsKnownId` 和 `GetCanonical` switch 中添加
-3. 在 `PlusState` 添加标志 + new/restore/sync 方法
-4. 在 `AppliedTracker` 添加追踪集（如需）
-5. 写对应的 Harmony Patches 实现功能逻辑
-6. 在 `PlusLoc` 添加本地化文本（英 + 土）
-7. 在 `MoreRulesUi` 添加行常量 + 创建/刷新/点击处理
-8. 在 `mod_manifest.json` 更新版本号
-
-### Harmony Patch 分类
-
-```csharp
-[HarmonyPatchCategory("Core")]           // 基础功能
-[HarmonyPatchCategory("MoreRules")]      // 规则修正器
-[HarmonyPatch(typeof(目标类), "方法名")]
-internal static class MyPatch
-{
-    static void Prefix(...) { }
-    static void Postfix(...) { }
-    static IEnumerable<MethodBase> TargetMethods() { ... }
-}
-```
-
-### 动态目标方法
-
-```csharp
-[HarmonyTargetMethods]
-private static IEnumerable<MethodBase> TargetMethods()
-{
-    // 通过反射在运行时匹配方法
-}
-```
-
----
-
-## 📝 常见模式
-
-### 检查修正器活跃
-
-```csharp
-// 两路检查：本地选择状态 + 运行状态
-if (PlusState.IsGiantCreaturesActive()) { ... }
-```
-
-### 跟踪已处理实例（防止重复应用）
-
-```csharp
-// AppliedTracker 标记
-if (!AppliedTracker.MarkGiantCreature(instance))
-    return; // 已标记过，跳过
-```
-
-### 访问游戏私有属性/字段
-
-```csharp
-object value = AccessTools.Field(typeof(TargetClass), "_fieldName")?.GetValue(instance);
-// 或
-object value = AccessTools.Property(typeof(TargetClass), "PropertyName")?.GetValue(instance);
-```
-
-### 运行时类型匹配
-
-```csharp
-Type type = RuntimeTypeResolver.FindType("MegaCrit.Sts2.Core.Nodes.Screens.Map.NMapScreen")
-    ?? RuntimeTypeResolver.FindTypeByName("NMapScreen");
-```
-
-### Godot 节点操作
-
-```csharp
-Node child = node.GetNodeOrNull<Node>((NodePath)"NodeName");
-Control ctrl = (Control)(object)((child is Control) ? child : null);
-((CanvasItem)node).Visible = true;
-```
-
-### 创建一个简单的 UI 控件
-
-```csharp
-var label = new Label
-{
-    Text = "Hello",
-    HorizontalAlignment = HorizontalAlignment.Center
-};
-((Control)label).AddThemeFontSizeOverride((StringName)"font_size", 16);
-((Control)label).AddThemeColorOverride((StringName)"font_color", Colors.White);
-```
-
----
-
-## 🔗 参考链接
-
-- **STS2Plus 仓库**: https://github.com/StephenSHorton/STS2Plus
-- **Harmony 文档**: https://harmony.pardeike.net/
-- **Godot C# API**: https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/
-- **杀戮尖塔 2**: Steam 平台
+## 🔗 API 速查
+
+| 命名空间 | 关键类型 | 用途 |
+|---------|---------|------|
+| `MegaCrit.Sts2.Core.Modding` | `ModInitializer`, `ModHelper` | 入口/注册 |
+| `MegaCrit.Sts2.Core.Models` | `CardModel`, `ModifierModel`, `RelicModel` | 数据模型 |
+| `MegaCrit.Sts2.Core.Runs` | `RunManager`, `RunState` | 运行状态 |
+| `MegaCrit.Sts2.Core.Commands` | `CardCmd` | 卡牌操作命令 |
+| `MegaCrit.Sts2.Core.Models.CardPools` | `ColorlessCardPool` 等 | 卡池类型 |
+| `MegaCrit.Sts2.Core.Entities.Cards` | `CardKeyword`, `CardType`, `CardRarity`, `TargetType` | 卡牌枚举 |
+| `MegaCrit.Sts2.Core.Localization` | `LocString`, `LocManager` | 本地化 |
+| `MegaCrit.Sts2.Core.Combat` | `CombatManager`, `CombatState` | 战斗状态 |
+| `MegaCrit.Sts2.Core.Nodes.Rooms` | `NCombatRoom` | 战斗场景 |
+| `MegaCrit.Sts2.Core.Nodes.Screens.Overlays` | `NOverlayStack` | UI 层栈 |
+| `MegaCrit.Sts2.Core.Nodes.Screens.Map` | `NMapScreen` | 地图屏幕 |
+| `Godot` | `Node`, `Control`, `CanvasLayer`, `Label` 等 | Godot UI |
