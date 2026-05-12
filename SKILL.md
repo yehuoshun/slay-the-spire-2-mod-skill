@@ -116,6 +116,29 @@ public static class MainFile
 
 Steam 版无控制台，用 Megadot 运行；`mods/` 放编辑器同级目录。
 
+### BaseLib ModConfig — 模组设置 UI
+
+BaseLib 提供开箱即用的设置面板，声明属性即生成 UI 控件：
+
+```csharp
+public class MyModConfig : SimpleModConfig
+{
+    [ConfigSlider("Speed", 1, 10, Step = 0.5f)]  // 自动生成滑块
+    public float Speed { get; set; } = 2f;
+
+    [ConfigTickbox("Enable Feature")]              // 自动生成勾选框
+    public bool FeatureEnabled { get; set; } = true;
+
+    [ConfigDropdown("Mode", ["A", "B", "C"])]     // 自动生成下拉菜单
+    public string Mode { get; set; } = "A";
+}
+
+// 注册（Initialize 中）
+ModConfigRegistry.Register(new MyModConfig());
+```
+
+支持的控件：`ConfigSlider`、`ConfigTickbox`、`ConfigDropdown`、`ConfigColorPicker`、`ConfigLineEdit`、`ConfigButton`、`ConfigCollapsibleSection`。
+
 ---
 
 ## 2. Harmony 补丁
@@ -153,15 +176,33 @@ static bool Prefix(ref int __result) { __result = 42; return false; }
 
 ## 3. 自定义卡牌
 
-### 基类模式
+### BaseLib CustomCardModel（推荐）
+
+`Alchyr.Sts2.BaseLib` NuGet 包提供了 `CustomCardModel`，构造函数 `autoAdd: true` 自动注册，无需 `ContentRegistry`。
+
+```csharp
+public class MyCard : CustomCardModel
+{
+    public MyCard() : base(cost: 2, CardType.Skill, CardRarity.Rare, TargetType.Self) {}
+
+    // 图像路径（自动拼接 res://ModId/images/...）
+    public override string CustomPortraitPath => $"{Id.Entry.RemovePrefix().ToLowerInvariant()}.png".BigCardImagePath();
+    public override string PortraitPath => $"{Id.Entry.RemovePrefix().ToLowerInvariant()}.png".CardImagePath();
+
+    protected override async Task OnPlay(PlayerChoiceContext ctx, CardPlay play)
+    {
+        await DamageCmd.Attack(6).FromCard(this).Targeting(ctx.Targets.First()).Execute();
+    }
+}
+```
+
+### 手动模式（不依赖 BaseLib）
 
 ```csharp
 public abstract class MyCardBase : CardModel
 {
-    readonly List<CardKeyword> _keywords = [];
-    int? _costUpgrade;
-    protected MyCardBase(int cost, CardType type, CardRarity rarity, TargetType tgt)
-        : base(cost, type, rarity, tgt) {}
+    readonly List<CardKeyword> _keywords = []; int? _costUpgrade;
+    protected MyCardBase(int cost, CardType type, CardRarity rarity, TargetType tgt) : base(cost, type, rarity, tgt) {}
     protected sealed override IEnumerable<DynamicVar> CanonicalVars => [];
     public sealed override IEnumerable<CardKeyword> CanonicalKeywords => _keywords;
     protected sealed override HashSet<CardTag> CanonicalTags => [];
@@ -253,22 +294,30 @@ public static class ContentRegistry
 
 ## 4. 自定义遗物
 
-### 遗物类
+### BaseLib CustomRelicModel（推荐）
+
+```csharp
+public class MyRelic : CustomRelicModel
+{
+    public MyRelic() : base(autoAdd: true) {}  // 自动注册
+
+    protected override Rarity Rarity => Rarity.Starter;
+    protected sealed override IEnumerable<DynamicVar> CanonicalVars => [DynamicVars.Energy.WithBase(1)];
+
+    public override async Task AfterSideTurnStart(Side side, CombatState combatState)
+    { if (side == Owner.Creature.Side) { await Flash(); await PlayerCmd.GainEnergy(Owner, DynamicVars.Energy.BaseValue); } }
+}
+```
+
+### 手动模式
 
 ```csharp
 internal sealed class MyRelic : RelicModel
 {
     protected override Rarity Rarity => Rarity.Starter;
-    protected sealed override IEnumerable<DynamicVar> CanonicalVars => [
-        DynamicVars.Energy.WithBase(1)
-    ];
-    public override async Task AfterSideTurnStart(Side side, CombatState combatState)
-    {
-        if (side != Owner.Creature.Side) return;
-        await Flash();
-        await PlayerCmd.GainEnergy(Owner, DynamicVars.Energy.BaseValue);
-    }
+    // ...
 }
+// + 手动 ModHelper.AddModelToPool(...)
 ```
 
 ### 遗物池
@@ -340,18 +389,31 @@ ModHelper.AddModelToPool(typeof(SharedPotionPool), typeof(MyPotion));
 
 ## 6. 自定义能力 (Buff/Debuff)
 
+### BaseLib CustomPowerModel（推荐）
+
+```csharp
+public class MyPower : CustomPowerModel
+{
+    public override string? CustomPackedIconPath => "powers/power.png".ImagePath();      // 64×64
+    public override string? CustomBigIconPath => "powers/big/power.png".ImagePath();      // 256×256
+
+    public override PowerType Type => PowerType.Buff;
+    public override PowerStackType StackType => PowerStackType.Intensity;
+
+    public override async Task AfterCardPlayed(CardModel card)
+    { await PlayerCmd.GainBlock(Owner, Amount); }
+}
+```
+
+### 手动模式
+
 ```csharp
 internal sealed class MyPower : PowerModel
 {
-    public override PowerType Type => PowerType.Buff;           // Buff / Debuff
-    public override PowerStackType StackType => PowerStackType.Intensity;  // 层数可叠
-    public override bool AllowNegative => false;                 // 层数≤0 时移除
-
-    // 监听事件
-    public override async Task AfterCardPlayed(CardModel card)
-    { await PlayerCmd.GainBlock(Owner, Amount); }
-    public override async Task OnSideTurnEnd(Side side)
-    { if (side == Owner.Creature.Side) Amount--; }
+    public override PowerType Type => PowerType.Buff;
+    public override PowerStackType StackType => PowerStackType.Intensity;
+    public override bool AllowNegative => false;
+    // ...
 }
 ```
 
