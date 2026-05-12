@@ -183,7 +183,103 @@ card.EnergyCost
 
 ---
 
-## 4. 自定义修正器
+## 4. 自定义遗物
+
+### 遗物类
+
+继承 `RelicModel`，类名自动转 `UPPER_SNAKE_CASE` 作为遗物 ID（如 `MyRelic` → `MY_RELIC`）。
+
+```csharp
+internal sealed class MyRelic : RelicModel
+{
+    // 稀有度：Starter(初始)/Common/Uncommon/Rare/Shop/Event/Ancient
+    // Starter/Event/Ancient 不进常规宝箱/精英池
+    protected override Rarity Rarity => Rarity.Starter;
+
+    // 动态变量：{Energy:amount} 等显示用
+    protected sealed override IEnumerable<DynamicVar> CanonicalVars => [
+        DynamicVars.Energy.WithBase(1)
+    ];
+
+    // 回合开始事件钩子
+    public override async Task AfterSideTurnStart(Side side, CombatState combatState)
+    {
+        if (side != Owner.Creature.Side) return;
+        await Flash();  // 遗物闪烁动画
+        await PlayerCmd.GainEnergy(Owner, DynamicVars.Energy.BaseValue);
+    }
+}
+```
+
+### 注册到遗物池
+
+```csharp
+// 初始化中
+ModHelper.AddModelToPool(typeof(IroncladRelicPool), typeof(MyRelic));
+
+// 或用自动注册（同卡牌模式）
+[Pool(typeof(SharedRelicPool))]
+internal sealed class MyRelic : RelicModel { }
+```
+
+| 遗物池 | 获取方式 |
+|--------|---------|
+| `IroncladRelicPool` 等角色池 | 精英/商店 |
+| `SharedRelicPool` | 精英/商店/宝箱 |
+| `EventRelicPool` | 仅问号事件 |
+| `Shop` 稀有度 | 仅商店 |
+| `FallbackRelicPool` | 兜底 |
+
+### 修改初始遗物
+
+```csharp
+[HarmonyPatch(typeof(Ironclad), "StartingRelics", MethodType.Getter)]
+static void Postfix(ref IReadOnlyList<RelicModel> __result)
+{
+    var list = __result.ToList();
+    list.Add(ModelDb.GetByIdOrNull<RelicModel>(ModelDb.GetId(typeof(MyRelic))));
+    __result = list;
+}
+```
+
+### 遗物图标
+
+| 类型 | 路径 | 格式 |
+|------|------|------|
+| 大图 | `res://images/relics/<小写ID>.png` | 256×256 PNG |
+| 剪影 | `res://images/relics/<小写ID>_outline.png` | 未发现时显示 |
+| 图标裁切 | `res://images/atlases/relic_atlas.sprites/<小写ID>.tres` | AtlasTexture 资源 |
+| 剪影裁切 | `res://images/atlases/relic_outline_atlas.sprites/<小写ID>.tres` | AtlasTexture 资源 |
+
+图标裁切 `.tres` 通过 Godot 编辑器创建 AtlasTexture 资源，指定 PNG 作为 Atlas，裁剪区域 256×256。
+
+### 遗物本地化
+
+`res://<modid>/localization/<lang>/relics.json`：
+
+```json
+{
+  "MY_RELIC.title": "我的遗物",
+  "MY_RELIC.description": "首回合获得 {Energy:amount} 点能量",
+  "MY_RELIC.flavor": "引言文本"
+}
+```
+
+### Harmony 版本兼容
+
+Godot 4.5.1 的 GodotSharp 可能使用更高 .NET 版本，导致 Harmony 报错。编辑 `GodotSharp/Api/Debug/GodotPlugins.runtimeconfig.json`：
+
+```json
+{
+  "runtimeOptions": {
+    "framework": { "name": "Microsoft.NETCore.App", "version": "9.0.0" }
+  }
+}
+```
+
+---
+
+## 5. 自定义修正器
 
 ```csharp
 // 空类体即可，逻辑在 Patch 里
@@ -195,7 +291,7 @@ public static bool IsRuleActive => RuleSelected || HasActiveModifier("MY_RULE");
 
 ---
 
-## 5. UI 开发
+## 6. UI 开发
 
 ```csharp
 // Overlay 挂载
@@ -209,7 +305,7 @@ bool blocked = tree.Paused || (stack?.ScreenCount > 0);
 
 ---
 
-## 6. 联机适配
+## 7. 联机适配
 
 ```csharp
 var net = RunManager.Instance?.NetService;
@@ -222,7 +318,7 @@ control.Modulate = isClient ? new Color(1,1,1,0.65f) : Colors.White;
 
 ---
 
-## 7. 反射与工具模式
+## 8. 反射与工具模式
 
 ```csharp
 // 反射
@@ -245,7 +341,7 @@ foreach (var h in eventDelegate.GetInvocationList())
 
 ---
 
-## 8. 本地化
+## 9. 本地化
 
 ```json
 // eng/cards.json
@@ -259,7 +355,7 @@ LocManager.Instance.GetTable("modifiers").MergeWith(dict);
 
 ---
 
-## 9. 常见坑
+## 10. 常见坑
 
 | 坑 | 原因 | 对策 |
 |----|------|------|
@@ -268,16 +364,21 @@ LocManager.Instance.GetTable("modifiers").MergeWith(dict);
 | IL2CPP 崩溃 | `GetTypes()` 抛异常 | 捕获 `ReflectionTypeLoadException` |
 | 节点销毁后崩 | `QueueFree()` 异步 | `_ExitTree` 取消订阅 |
 | Steam 无日志 | Steam 不连控制台 | Megadot 项目模式运行 |
+| Harmony 报错 | GodotSharp .NET 版本过高 | 编辑 `GodotPlugins.runtimeconfig.json` 强制 9.0 |
 
 ---
 
-## 10. API 速查
+## 11. API 速查
 
 | 类型 | 命名空间 | 用途 |
 |------|---------|------|
 | `ModInitializer` | `Core.Modding` | 入口 |
-| `ModHelper.AddModelToPool` | `Core.Modding` | 卡牌入池 |
+| `ModHelper.AddModelToPool` | `Core.Modding` | 入池 |
 | `CardModel` | `Core.Models` | 卡牌基类 |
+| `RelicModel` | `Core.Models` | 遗物基类 |
+| `AbstractModel` | `Core.Models` | 所有内容基类 |
+| `DynamicVars` | `Core.Localization.DynamicVars` | 动态变量集合 |
+| `PlayerCmd.GainEnergy` | `Core.Commands` | 玩家操作（能量/金币等） |
 | `RunManager.Instance` | `Core.Runs` | 运行状态 |
 | `CardCmd.Upgrade` | `Core.Commands` | 升级卡牌 |
 | `LocString` / `LocManager` | `Core.Localization` | 本地化 |
