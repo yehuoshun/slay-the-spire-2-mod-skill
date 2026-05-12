@@ -23,10 +23,10 @@ cd ~/.openclaw/workspace/skills
 git clone https://github.com/yehuoshun/slay-the-spire-2-mod-skill.git
 ```
 
-对话触发：
+对话触发（STS2 = 杀戮尖塔2）：
 
 ```
-帮我写一个 STS2 Mod，添加一张自定义卡牌
+帮我写一个杀戮尖塔2 Mod，添加一张自定义卡牌
 给我一个 STS2 Mod 的项目模板
 怎么给 STS2 写 Harmony 补丁
 ```

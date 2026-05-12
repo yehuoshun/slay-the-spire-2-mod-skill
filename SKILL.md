@@ -1,3 +1,8 @@
+---
+name: slay-the-spire-2-mod-skill
+description: 杀戮尖塔2（Slay the Spire 2 / STS2）模组开发实用指南。当用户提到杀戮尖塔2、杀戮尖塔、STS2、STS Mod、写模组、模组开发、卡牌、补丁、Harmony、Godot模组、Mod开发时使用。提供项目搭建、Harmony补丁、自定义卡牌、修正器、Godot UI、联机适配的完整参考。
+---
+
 # 杀戮尖塔 2 Mod 开发技能
 
 > 本技能教你**怎么写** STS2 Mod。参考实现：[STS2Plus](https://github.com/StephenSHorton/STS2Plus)
