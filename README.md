@@ -28,9 +28,9 @@ git clone https://github.com/yehuoshun/slay-the-spire-2-mod-skill.git
 怎么给 STS2 添加卡牌
 ```
 
-## 技术参考
+## 鸣谢
 
-[STS2Plus](https://github.com/StephenSHorton/STS2Plus) — 修正器、UI 组件、联机同步
+- [STS2Plus](https://github.com/StephenSHorton/STS2Plus) — 修正器架构、UI 组件、联机同步参考实现
 
 ## 作者
 
