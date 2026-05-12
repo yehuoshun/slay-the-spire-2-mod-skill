@@ -44,7 +44,6 @@ git clone https://github.com/yehuoshun/slay-the-spire-2-mod-skill.git
 | 参考 Mod | 作者 | 重点 |
 |---------|------|------|
 | [STS2Plus](https://github.com/StephenSHorton/STS2Plus) | 4step | 修正器架构、UI 组件、联机同步 |
-| [STS2-ShunMod](https://github.com/yehuoshun/STS2-ShunMod) | yehuoshun | 自动注册、自定义卡牌 |
 
 ## 许可证
 

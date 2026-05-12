@@ -1,6 +1,6 @@
 # 杀戮尖塔 2 Mod 开发技能
 
-> 本技能教你**怎么写** STS2 Mod。参考实现：[STS2Plus](https://github.com/StephenSHorton/STS2Plus)、[STS2-ShunMod](https://github.com/yehuoshun/STS2-ShunMod)
+> 本技能教你**怎么写** STS2 Mod。参考实现：[STS2Plus](https://github.com/StephenSHorton/STS2Plus)
 
 ---
 
