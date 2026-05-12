@@ -1,18 +1,19 @@
 # 杀戮尖塔2 Mod 开发
 
-帮你写 Slay the Spire 2 模组 — 从项目搭建到 Harmony 补丁、自定义卡牌和修正器、Godot UI 开发、联机适配，一站式指导。
+帮你写 Slay the Spire 2 模组 — 从项目搭建到 Harmony 补丁、自定义卡牌/遗物/修正器、Godot UI 开发、联机适配，一站式指导。
 
 ## 能做什么
 
 - **环境与项目** — Megadot + .NET 9 SDK + .csproj 模板 + mod_manifest.json，复制即用
 - **Harmony 补丁** — 固定目标、动态目标、方法体替换，三种模式覆盖所有场景
 - **自定义卡牌** — ShunCard 链式配置基类 + PoolAttribute 自动注册，添卡不改入口
+- **自定义遗物** — RelicModel 继承、DynamicVar、事件钩子、图标裁切、初始遗物修改
 - **自定义修正器** — SyncedModifierModel 模式 + 双路状态检查 + 联机同步
 - **Godot UI** — CanvasLayer 独立挂载、Overlay 阻塞检测、游戏字体捕获
 - **联机适配** — Host/Client 角色检测、UI 交互锁定、修正器消息同步
 - **本地化** — JSON 文件结构（中/英） + LocManager 动态合并
 - **实用工具** — 防重复处理、ConditionalWeakTable 弱引用、反射+手动事件触发
-- **避坑手册** — 5 个常见坑及原因/对策
+- **避坑手册** — 6 个常见坑及原因/对策
 
 ## 快速开始
 
