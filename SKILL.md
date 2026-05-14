@@ -690,3 +690,136 @@ LocManager.Instance.GetTable("modifiers").MergeWith(dict);
 | `LocString/LocManager` | `Core.Localization` | 本地化 |
 | `NCombatRoom` | `Core.Nodes.Rooms` | 战斗场景 |
 | `Megadot` | megadot.megacrit.com | 编辑器 |
+
+---
+
+## 17. BaseLib 进阶特性（v3.1.1+）
+
+### 自定义目标类型
+
+用 `DynamicEnumValueMinter` 动态创建 `TargetType` 枚举值，突破游戏内置目标类型限制：
+
+```csharp
+static readonly DynamicEnumValueMinter<TargetType> Minter = new();
+public static TargetType Everyone { get; } = Minter.Mint("MODID_TARGETTYPE_EVERYONE");
+public static TargetType Anyone { get; } = Minter.Mint("MODID_TARGETTYPE_ANYONE");
+```
+
+### 自定义音频（v3.1.1）
+
+```csharp
+// ResourceLoader 加载自定义音效
+var audio = ResourceLoader.Load<AudioStream>("res://ModId/sounds/effect.ogg");
+```
+
+### ITomeCard — 指定尘书卡牌（v3.1.1）
+
+```csharp
+public class MyTomeCard : CustomCardModel, ITomeCard
+{
+    // 尘埃之书固定给此卡，而非随机先古
+}
+```
+
+### MakeCalculated 快捷方式（v3.1.3）
+
+```csharp
+// CustomCardModel 中直接定义计算变量
+MakeCalculated<int>(name: "Bonus", baseVal: 0, calc: card => card.Owner.Strength);
+```
+
+### CustomRestSiteOption（v3.1.3）
+
+```csharp
+public class MyRestOption : CustomRestSiteOption
+{
+    public override string CustomImagePath => "res://ModId/images/rest_option.png";
+}
+```
+
+---
+
+## 18. 参考架构：YuWanCard 值得学的模式
+
+> 来源：[YuWan886/Sts2-YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard)，不依赖 BaseLib 的自建框架
+
+### Builder Pattern 卡牌基类
+
+链式构造，比直接继承 `CardModel` 或 `CustomCardModel` 更灵活：
+
+```csharp
+public class MyCard : YuWanCardModel
+{
+    public MyCard() : base(1, CardType.Attack, CardRarity.Common, TargetType.Opponent)
+    {
+        WithDamage(8, upgrade: 3)
+            .WithBlock(5)
+            .WithKeywords(CardKeyword.Exhaust)
+            .WithKeyword(CardKeyword.Ethereal, UpgradeType.Remove)  // 升级后移除
+            .WithHandGlowGold(card => card.Owner?.Gold >= 100);
+    }
+}
+```
+
+链式 API：`WithDamage()` `WithBlock()` `WithCards()` `WithEnergy()` `WithHeal()` `WithPower<T>()` `WithKeywords()` `WithKeyword(kw, upgradeType)` `WithTags()` `WithTip()` `WithHandGlow()` `WithVar()` `WithVars()` `WithCalculatedDamage()`
+
+### 声明式手牌发光
+
+替代重写 `ShouldGlowGoldInternal` / `ShouldGlowRedInternal`：
+
+```csharp
+// 实例级
+WithHandGlowGold(card => card.Owner?.Gold >= 100);
+
+// 类型级（全局注册）
+CardHandGlowRegistry.Register<SomeCard>(CardHandGlowRules.Gold(
+    whenBonusActive: c => (c as SomeCard)?.SomeCondition == true
+));
+```
+
+基类 sealed override 了 `ShouldGlowGoldInternal` / `ShouldGlowRedInternal`，OR 合并实例规则 + 注册表。
+
+### 先古视觉样式切换
+
+```csharp
+// 卡牌构造器中设 true 即可切换为 Ancient 外观
+protected override bool UseAncientVisualStyle => true;
+```
+
+原理：Harmony patch `NCard.Reload` 交换 portrait/frame/banner 显隐，注入先古材质。配套 patch `CardModel` 的 `AncientTextBg`、`BannerTexture`、`BannerMaterial` getter。
+
+### ModPatcher 错误隔离
+
+每个补丁独立 try-catch，平台缺失方法不崩全局：
+
+```csharp
+var patcher = new ModPatcher(ModId);
+patcher.ApplySingle(h => h.PatchAll(Assembly), "Bulk");
+patcher.ApplySingle(h => MobileOnlyPatch.Apply(h), "Mobile");  // 移动端缺失→warn, continue
+```
+
+### SavedProperty 序列化
+
+遗物/卡牌持久化状态的标准方式：
+
+```csharp
+public class MyRelic : YuWanRelicModel
+{
+    static MyRelic() => SavedPropertyRegistration.RegisterType(typeof(MyRelic));
+
+    [SavedProperty]
+    public string ModId_CustomData { get; set; } = "";
+
+    public override bool ShowCounter => !string.IsNullOrEmpty(CustomData);
+    public override int DisplayAmount => ParseData(CustomData).Count;
+}
+```
+
+### VFX 预加载
+
+避免首次触发特效卡顿：
+
+```csharp
+VfxUtils.PreloadScenes("res://ModId/scenes/vfx/vfx_explosion.tscn");
+VfxUtils.PreloadFrames("res://ModId/images/vfx/explosion/frame", frameCount: 48);
+```
