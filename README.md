@@ -1,12 +1,12 @@
-# 杀戮尖塔 2 Mod 开发技能
+# 杀戮尖塔 2 Mod 开发指南
 
 > 🦞 自包含完整指南——从零搭建环境到发布成品 Mod，只看这一份就够了。
 
 ## 这是什么
 
-一个 OpenClaw AI 技能，让 AI 助手帮你写 Slay the Spire 2 模组。配备了这份 Skill 后，AI 能直接给出**可编译、可运行的完整代码**，覆盖 STS2 Mod 开发的全部内容类型。
+一份面向 AI 和人类的 Slay the Spire 2 模组开发知识库。无论是喂给 AI 助手让它帮你写 Mod，还是自己查阅学习，这里覆盖了 STS2 Mod 开发的全部内容类型——从项目搭建到 Harmony 补丁、自定义卡牌/遗物/药水/能力/事件/怪物/角色。
 
-不需要翻 Wiki、不需要看源码、不需要踩坑——把需求说清楚，AI 就能落地。
+不需要翻 Wiki、不需要看源码、不需要踩坑——把需求说清楚，直接落地。
 
 ## 覆盖范围
 
@@ -103,7 +103,7 @@ cd ~/.openclaw/workspace/skills
 git clone https://github.com/yehuoshun/slay-the-spire-2-mod-skill.git
 ```
 
-安装后，在 OpenClaw 对话中直接描述你的 Mod 需求即可，例如：
+安装后，向 AI 助手直接描述你的 Mod 需求即可，例如：
 
 > "帮我做一个 2 费攻击卡，造成 8 点伤害，升级后造成 12 点，目标为单个敌人"
 
