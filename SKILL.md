@@ -1354,3 +1354,326 @@ public class MyRelic : YuWanRelicModel
 ### 模组图标
 
 模组在安装页面的显示图标：`res://<modid>/mod_image.png`
+
+---
+
+## 附录A：游戏源码速查
+
+> 不用每次 grep sts2-res。关键类的真实签名、字段、属性都在这里。
+> 写 Patch 前先查本节，签名对不上再去看反编译源码。
+
+### A.1 CardModel — 卡牌模型
+
+```csharp
+// ── 构造函数 ──
+CardModel(int cost, CardType type, CardRarity rarity, TargetType target, bool showInLibrary = true)
+
+// ── 可 Patch 的属性/方法 ──
+public virtual int MaxUpgradeLevel => 1;           // 升级上限，patch 这个实现无限升级
+public bool IsUpgradable                            // 是否可升级
+{
+    get { if (CurrentUpgradeLevel >= MaxUpgradeLevel) return false; return true; }
+}
+public bool IsUpgraded => CurrentUpgradeLevel > 0;  // 是否已升级
+public int CurrentUpgradeLevel                       // 当前升级等级
+public int BaseReplayCount                           // 原生重放次数（默认 0）
+public EnchantmentModel? Enchantment                 // 附魔（null = 无附魔）
+public CardUpgradePreviewType UpgradePreviewType     // 升级预览类型
+
+// ── 可重写的方法 ──
+protected virtual IEnumerable<DynamicVar> CanonicalVars => Array.Empty<DynamicVar>();
+public virtual IEnumerable<CardKeyword> CanonicalKeywords  // 关键词
+protected virtual HashSet<CardTag> CanonicalTags           // 标签
+public virtual string PortraitPath                          // 肖像路径
+public virtual bool IsPlayable                              // 打出条件
+public virtual bool ShouldGlowGoldInternal                  // 金光提示
+protected virtual void OnUpgrade()                          // 升级回调
+protected virtual async Task OnPlay(PlayerChoiceContext ctx, CardPlay play)  // 打出效果
+public virtual async Task OnTurnEndInHand(PlayerChoiceContext ctx)           // 回合结束在手牌
+
+// ── 描述相关 ──
+public string GetDescriptionForPile(PileType pileType, Creature? target = null)
+// 内部: private string GetDescriptionForPile(PileType, DescriptionPreviewType, Creature?)
+public string GetDescriptionForUpgrade()
+
+// ── 数值相关 ──
+public int GetEnchantedReplayCount()  // = Enchantment?.EnchantPlayCount(BaseReplayCount) ?? BaseReplayCount
+public int ResolveXValue()            // X 费卡当前 X 值
+public int ResolveStarXValue()        // 辉星卡 X 值
+public DynamicVarSet DynamicVars      // 动态变量集合（.TryGetValue(key, out dv)）
+
+// ── 序列化/克隆 ──
+public static CardModel FromSerializable(SerializableCard save)
+public CardModel ToMutable()
+protected override void DeepCloneFields()
+
+// ── 内部方法（Patch 时可能用到）──
+public void UpgradeInternal()          // 执行升级（CurrentUpgradeLevel++）
+public void EnchantInternal(EnchantmentModel m, decimal amount)
+public void FinalizeUpgradeInternal()  // 升级后刷新数值
+```
+
+### A.2 RelicModel — 遗物模型
+
+```csharp
+// ── 核心属性 ──
+protected virtual Rarity Rarity    // 稀有度：Starter/Event/Ancient/Common/Uncommon/Rare/Shop
+
+// ── 回合钩子 ──
+public virtual async Task AfterSideTurnStart(Side side, CombatState combatState)
+public virtual async Task BeforeSideTurnStart(Side side, CombatState combatState)
+// Side 枚举: Side.Player / Side.Opponent
+
+// ── 战斗钩子 ──
+public virtual async Task OnCombatStart(CombatState combatState)
+public virtual async Task OnCombatEnd()
+public virtual async Task OnPlayerDeath()
+
+// ── 获取钩子 ──
+public virtual async Task OnObtained()
+public virtual async Task OnRemoved()
+
+// ── 工具方法 ──
+protected Task Flash()               // 闪烁提示（触发遗物动画）
+public static RelicModel FromSerializable(SerializableRelic save)
+```
+
+### A.3 PotionModel — 药水模型
+
+```csharp
+// ── 枚举 ──
+enum PotionRarity { Common, Uncommon, Rare }
+enum PotionUsage { CombatOnly, AnyTime, ProgrammaticOnly }
+
+// ── 核心 ──
+public TargetType TargetType
+public PotionUsage Usage
+public virtual bool CanBeGeneratedInCombat  // 战斗中能否随机生成
+public virtual bool ShouldDie               // 复活药水用
+public virtual async Task AfterPreventingDeath(Player player)
+public virtual async Task OnUse(PlayerChoiceContext ctx, PotionTarget target)
+
+// ── 序列化 ──
+public static PotionModel FromSerializable(SerializablePotion save)
+public PotionModel ToMutable()
+```
+
+### A.4 EnchantmentModel — 附魔模型
+
+```csharp
+// ── 核心方法 ──
+public virtual bool CanEnchant(CardModel card)         // 签名: (CardModel) 非无参
+public virtual bool CanEnchantCardType(CardType cardType)
+public virtual void ModifyCard()                        // 应用附魔效果
+public int EnchantPlayCount(int baseCount)              // 计算附魔重放次数
+public int Amount                                       // 层数
+
+// ── 序列化 ──
+public static EnchantmentModel FromSerializable(SerializableEnchantment save)
+```
+
+### A.5 PowerModel — 能力/Buff/Debuff
+
+```csharp
+enum PowerType { Buff, Debuff, Neutral }
+enum PowerStackType { Intensity, Duration }
+
+// ── 核心 ──
+protected virtual PowerType Type
+protected virtual PowerStackType StackType
+public virtual bool IsInstanced      // true = 每个实例独立，false = 同类型不叠加
+public virtual bool AllowNegative    // 允许负层数
+public virtual string smartDescription  // 动态描述的 key
+
+// ── 战斗钩子 ──
+public virtual async Task OnApplied(Creature target)
+public virtual async Task OnRemoved(Creature target)
+public virtual async Task AfterSideTurnStart(Side side, CombatState state)
+public virtual async Task OnDamageReceived(DamageInfo info)
+public virtual async Task OnDamageDealt(DamageInfo info)
+public virtual decimal ModifyDamage(DamageInfo info, decimal damage)  // 伤害修正
+```
+
+### A.6 EventModel — 事件模型
+
+```csharp
+// ── 核心 ──
+public virtual string EventId
+public virtual async Task OnEnter(RoomModel room, Player player)
+public virtual async Task OnOptionSelected(int optionIndex, Player player)
+
+// ── AncientEventModel（先古之民）──
+public virtual AncientDialogueSet DialogueSet
+public virtual async Task OnAncientEnter(Player player)
+public virtual async Task OnAncientOptionSelected(int option, Player player)
+```
+
+### A.7 MonsterModel + 遭遇
+
+```csharp
+// ── MonsterModel ──
+public virtual async Task<MoveState> GetInitialState(CombatState combat)
+public virtual string PortraitPath
+
+// ── MoveState ──
+public class MoveState
+{
+    public LocString IntentText       // 意图文本
+    public int IntentAmount           // 意图数值
+    public IntentType IntentType      // Attack/Defend/Buff/Debuff/...
+    public Func<Task<MoveState>> Action  // 执行动作，返回下一个 MoveState
+}
+
+// ── EncounterModel ──
+public virtual string EncounterId
+public virtual IReadOnlyList<MonsterModel> GetMonsters(Player player)
+```
+
+### A.8 CharacterModel — 角色模型
+
+```csharp
+public virtual string CharacterId
+public virtual IReadOnlyList<RelicModel> StartingRelics
+public virtual CardPoolModel CardPool
+public virtual RelicPoolModel RelicPool
+public virtual PotionPoolModel PotionPool
+public virtual string PortraitPath
+public virtual string SelectScreenPath
+public virtual int MaxHp
+```
+
+### A.9 Core Commands — 命令类
+
+```csharp
+// ── CardCmd ──
+static void Upgrade(CardModel card, CardPreviewStyle style = ...)
+static void Enchant(EnchantmentModel m, CardModel card, decimal amount)
+static void Discard(CardModel card)
+
+// ── DamageCmd ──
+static AttackCommand Attack(decimal damage)
+    .FromCard(CardModel)
+    .FromMonster(Creature)
+    .Targeting(Creature)
+    .TargetingAllOpponents(CombatState)
+    .TargetingRandomOpponents(CombatState, bool allowRepeats)
+    .WithHitCount(int)
+    .WithHitFx(string scenePath, ...)
+    .Execute()  // → Task
+
+// ── PlayerCmd ──
+static Task GainEnergy(Player player, int amount)
+static Task GainGold(Player player, int amount)
+static Task GainBlock(Player player, int amount)
+static Task Damage(Player player, int amount)
+static Task Heal(Player player, int amount)
+
+// ── CardPileCmd ──
+static Task Draw(Player, int count)
+
+// ── CardSelectCmd ──
+static Task<CardModel?> FromHand(PlayerChoiceContext ctx, Player owner,
+    CardSelectorPrefs prefs, Func<CardModel,bool>? filter, CardModel? source)
+static Task<CardModel?> FromHandForUpgrade(..., filter)
+static Task<CardModel?> FromHandForDiscard(..., filter)
+// CardSelectorPrefs: new(prompt, count) 或 new(prompt, minCount, maxCount)
+
+// ── PotionCmd ──
+static async Task<PotionProcureResult> TryToProcure(PotionModel potion, Player player, int slotIndex = -1)
+static async Task<PotionProcureResult> TryToProcure<T>(Player player) where T : PotionModel
+```
+
+### A.10 NPotionContainer / NPotionHolder
+
+```csharp
+// ── NPotionContainer ──
+class NPotionContainer : Control
+{
+    private Player? _player;                           // 当前玩家
+    private readonly List<NPotionHolder> _holders;     // 药水栏位列表
+    public void Initialize(IRunState runState);
+    private void RemoveUsed(PotionModel potion);       // 使用后移除（可 Patch）
+    private void Discard(PotionModel potion);           // 丢弃（可 Patch）
+}
+
+// ── NPotionHolder ──
+class NPotionHolder : NClickableControl
+{
+    public NPotion? Potion { get; private set; }       // 当前药水节点
+    public bool HasPotion => Potion != null;
+    private TextureRect _emptyIcon;                     // 空栏位图标
+    public void AddPotion(NPotion potion);              // 放入药水
+    public void RemoveUsedPotion();                     // 使用后清理
+    public void DiscardPotion();                        // 丢弃后清理
+}
+```
+
+### A.11 其他常用类型
+
+```csharp
+// ── PileType ──
+enum PileType { None, Hand, Draw, Discard, Deck, Exhaust, ... }
+
+// ── CardType ──
+enum CardType { Attack, Skill, Power, Status, Curse }
+
+// ── CardRarity ──
+enum CardRarity { Common, Uncommon, Rare, Event, Ancient, Token, Status, Curse, Quest, Shop }
+
+// ── TargetType ──
+enum TargetType { Opponent, Ally, Self, AllOpponents, Everyone, TargetedNoCreature, Osty, ... }
+
+// ── CardKeyword ──
+enum CardKeyword { Exhaust, Ethereal, Retain, Innate, Unplayable, ... }
+
+// ── CardTag ──
+enum CardTag { Strike, ... }
+
+// ── CardPoolModel ──
+class CardPoolModel
+{
+    public string Title               // 卡池名
+    public Color BorderColor           // 边框颜色
+    public Color ThumbnailCardColor    // 缩略卡颜色
+    public string EnergyIconPath       // 能量图标路径
+}
+
+// ── ModelDb ──
+static class ModelDb
+{
+    static Id GetId(Type type)
+    static T GetByIdOrNull<T>(Id id) where T : AbstractModel
+    static T Potion<T>() where T : PotionModel
+}
+
+// ── ModHelper ──
+static class ModHelper
+{
+    static void AddModelToPool(Type poolType, Type modelType)
+}
+
+// ── RunManager / LocalContext ──
+class RunManager
+{
+    static RunManager Instance
+    IRunState RunState
+    HoveredModelTracker HoveredModelTracker
+}
+static class LocalContext
+{
+    static Player GetMe(IRunState runState)
+    static bool IsMine(AbstractModel model)
+}
+
+// ── TaskHelper ──
+static class TaskHelper
+{
+    static Task RunSafely(Task task)   // 火后即忘，异常静默吞
+}
+
+// ── PotionFactory ──
+static class PotionFactory
+{
+    static IReadOnlyList<PotionModel> GetPotionOptions(Player player, PotionModel[] exclude)
+}
+```
