@@ -208,9 +208,11 @@ grep -rn "virtual.*Task\|override.*Task" ~/sts2-res/src/Models/RelicModel.cs
 ## 鸣谢
 
 - **[STS2Plus](https://github.com/StephenSHorton/STS2Plus)** — 修正器架构、多 modifier、联机同步参考实现
+- **[sts2mod](https://github.com/s1f102500012/sts2mod)** — Natsuki 的 12 个独立模组合集，涵盖角色/符文/无尽/难度/UI/构建等全方位参考
 - **[YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard)** — 生产级角色 Mod，分阶段初始化、SavedProperty、Builder Pattern
 - **[BaseLib](https://github.com/Alchyr/BaseLib-StS2)** — 社区框架，CustomModel 系列、ModConfig 面板
 - **[ModTemplate](https://github.com/Alchyr/ModTemplate-StS2)** — 官方模板，dotnet new 一键创建
+- **[sts2-res](https://github.com/yehuoshun/sts2-res)** — STS2 反编译源码参考（用于 API 查询）
 - **[Megadot](https://megadot.megacrit.com)** — STS2 专用 Godot 引擎
 - **B 站教程系列** — 从环境到怪物，9 篇完整 step-by-step
 
