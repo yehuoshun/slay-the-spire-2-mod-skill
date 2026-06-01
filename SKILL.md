@@ -137,7 +137,13 @@ public static class ModEntry
 ### 快速脚手架命令
 
 ```bash
-# 一键创建完整目录
+# 推荐：用官方模板一键创建（需先安装 dotnet new 模板）
+dotnet new install Alchyr.Sts2.Templates
+dotnet new sts2mod -n MyMod          # 空模组（BaseLib 依赖）
+dotnet new sts2content -n MyMod      # 内容模组（卡牌/遗物/能力）
+dotnet new sts2character -n MyMod    # 角色模组（完整角色）
+
+# 手动创建完整目录（不用模板时）
 mkdir -p MyMod/{assets/{images/{cards,relics,powers,events},localization/{zhs,eng}},src/{Cards,Relics,Powers,Events,Patches},tools}
 
 # 创建 assets/MyMod.json（参考附录 D）
@@ -917,6 +923,7 @@ config/description="Resource packer for MyMod"
 | 查 Natsuki 参考合集 | `curl -sL https://raw.githubusercontent.com/s1f102500012/sts2mod/main/<目录>/src/<文件>.cs` |
 | 查 YuWanCard 参考 | `curl -sL https://raw.githubusercontent.com/YuWan886/Sts2-YuWanCard/master/<路径>` |
 | 查 STS2Plus 参考 | `curl -sL https://raw.githubusercontent.com/StephenSHorton/STS2Plus/master/<路径>` |
+| 创建新模组 | `dotnet new sts2mod -n MyMod` / `sts2content` / `sts2character`（需先 `dotnet new install Alchyr.Sts2.Templates`） |
 | 构建 | `dotnet build` + Godot 打包 PCK |
 | 部署 | `tools/build_and_deploy.sh`（Mac）/ 手动 cp DLL+PCK+JSON 到 mods/ |
 | 调试图标 | icons 路径规范 → 附录 B |
@@ -981,30 +988,127 @@ config/description="Resource packer for MyMod"
 
 ## 📐 YuWanCard 参考架构（生产级角色 Mod）
 
-从 [YuWan886/Sts2-YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard) 学到的最佳实践：
+从 [YuWan886/Sts2-YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard) 源码提取的核心模式：
 
-| 模式 | 说明 | 示例 |
-|------|------|------|
-| **Builder 链式构造** | 卡牌用 Fluent Builder 替代构造函数参数堆叠 | `CardBuilder.Create().WithCost(2).WithDamage(8)...` |
-| **分阶段初始化** | 角色分 PreInit/Init/PostInit 三阶段，避免初始化顺序问题 | `CharacterInitPhase` |
-| **SavedProperty 序列化** | 自定义属性用 `[SavedProperty]` 标注，自动持久化 | 角色解锁状态、自定义计数器 |
-| **多语言分离** | 本地化按 `zh/` `en/` 分目录，每种内容类型独立 JSON | `localization/zh/cards.json` |
-| **资源路径常量** | 所有资源路径集中在常量类，不散落在各文件中 | `ResourcePaths.CardPortrait` |
+### 初始化架构（MainFile.cs）
+
+```csharp
+// 四阶段初始化：Patches → Platform → Content → Config
+public static void Initialize()
+{
+    ModLifecycle.Publish(ModLifecyclePhase.Initializing);
+    var patcher = new ModPatcher(ModId);
+
+    // Phase 1: 批量 Harmony 补丁（PatchAllSafe — 每个类独立 try/catch，兼容 Android/Mono AOT）
+    patcher.PatchAllSafe(Assembly.GetExecutingAssembly(), manualPatches);
+    ModLifecycle.Publish(ModLifecyclePhase.PatchesApplied);
+
+    // Phase 2: 平台条件补丁（桌面/移动端分别处理）
+    patcher.ApplySingle(h => CustomEnergyIconPatches.Apply(h), "CustomEnergyIcons");
+    patcher.ApplySingle(h => ModInteropProcessor.Process(h, assembly), "ModInterop");
+
+    // Phase 3: 内容发现 — 扫描 [Pool] 和注册属性
+    ModLifecycle.Publish(ModLifecyclePhase.ContentRegistering);
+    ContentRegistry.RegisterAll(Assembly.GetExecutingAssembly());
+    SavedPropertyRegistration.RegisterAssembly(Assembly.GetExecutingAssembly());
+    ModLifecycle.Publish(ModLifecyclePhase.ContentRegistered);
+
+    // Phase 4: 配置、场景转换、多人游戏、资源
+    Config = new YuWanCardConfig();
+    ConfigRegistrar.TryDeferredRegister();
+    NodeFactory.Init();
+    AssetPreloader.Preload();
+    ModLifecycle.Publish(ModLifecyclePhase.Initialized);
+}
+```
+
+### 值得学的模式
+
+| 模式 | 说明 | 源码位置 |
+|------|------|----------|
+| **ModPatcher.PatchAllSafe** | 每个 [HarmonyPatch] 类独立 try/catch，一个失败不影响其他。Android/Mono AOT 必备 | `Core/Patching/ModPatcher.cs` |
+| **ModLifecycle 事件总线** | 7 阶段有序初始化（Initializing→PatchesApplied→ContentRegistering→...→Initialized），订阅者按序执行，晚订阅立即回调 | `Core/Lifecycle/ModLifecycle.cs` |
+| **ContentRegistry 多属性注册** | `[Pool]`/`[RegisterAncient]`/`[RegisterOrb]`/`[RegisterMonster]`/`[RegisterEnchantment]`/`[RegisterCharacter]`/`[RegisterEvent]`/`[RegisterSingleton]`，Freeze 后禁止注册 | `Core/Registration/ContentRegistry.cs` |
+| **SavedPropertyRegistration** | 扫描 `[SavedProperty]` 标注的属性，自动注入序列化缓存 | `Core/Registration/SavedPropertyRegistration.cs` |
+| **ModInterop 跨模组兼容** | `[ModInterop]` 属性 + Transpiler 替换 stub 为真实调用，目标模组未加载时用 fallback | `Core/Interop/ModInteropProcessor.cs` |
+| **YuWanXxx 抽象基类** | `YuWanCardModel`/`YuWanRelicModel`/`YuWanPowerModel`/`YuWanEventModel` 等 15+ 个基类，封装自动注册 + 通用逻辑 | `Core/Abstracts/` |
+| **AssemblyScanner** | 安全类型扫描，捕获 `ReflectionTypeLoadException`，兼容 Android/Mono | `Core/Registration/AssemblyScanner.cs` |
+| **CustomTargetType** | 自定义目标类型注册表，支持非标准目标选择 | `Core/CustomTargetType.cs` |
+| **CardHandGlow** | 手牌高亮系统（条件/规则/合并），可注册自定义发光条件 | `Core/HandGlow/` |
+| **CustomKeywordRegistry** | `[CustomKeyword]` + `[CustomEnum]` 自动注册自定义关键词 | `Core/Patches/Content/CustomKeywordRegistry.cs` |
+| **ConfigRegistrar 延迟注册** | 配置在 NMainMenu._Ready 时延迟注册，避免初始化顺序问题 | `MainFile.cs` 的 `NMainMenu_ConfigRegisterPatch` |
+| **平台检测** | `IsMobilePlatform()` 检查 OS 名称，桌面专用补丁跳过 Android/iOS | `MainFile.cs` |
+| **Hextech 集成** | 跨模组符文系统兼容层，`HextechRuntimeCompat.TryInstall` | `Integrations/Hextech/` |
 
 ---
 
 ## 📐 BaseLib 参考架构（社区框架）
 
-从 [Alchyr/BaseLib-StS2](https://github.com/Alchyr/BaseLib-StS2) 学到的快捷封装：
+从 [Alchyr/BaseLib-StS2](https://github.com/Alchyr/BaseLib-StS2) 源码提取的核心模式：
 
-| 模式 | 说明 | 示例 |
-|------|------|------|
-| **CustomModel 系列** | `CustomCard`/`CustomRelic`/`CustomPower` 基类，封装了常见样板代码 | 继承 `CustomCard` 只需写 `OnPlay` |
-| **ModConfig 设置面板** | 游戏内设置 UI，玩家可调参数 | `ModConfig.AddSlider("难度", 1, 10)` |
-| **自动注册** | 扫描 Assembly 自动注册所有模型，不用手动写注册代码 | `BaseMod.RegisterAll()` |
-| **日志工具** | 统一的 Log 封装，带 Mod 前缀 | `Log.Info("消息")` |
+### CustomCardModel 核心能力
+
+```csharp
+public abstract class CustomCardModel : CardModel, ICustomModel, ILocalizationProvider
+{
+    // 自动注册（构造时 autoAdd=true）
+    public CustomCardModel(...) { if (autoAdd) CustomContentDictionary.AddModel(GetType()); }
+
+    // 自定义卡框/横幅材质
+    public virtual Texture2D? CustomFrame => null;
+    public virtual Material? CreateCustomFrameMaterial => null;
+    public virtual Material? CreateCustomBannerMaterial => null;
+    public virtual string? CustomBannerMaterialPath => null;
+    public virtual string? CustomPortraitPath => null;
+    public virtual Texture2D? CustomPortrait => null;
+
+    // 计算型变量工厂方法
+    public static IEnumerable<DynamicVar> MakeCalculatedDamage(int baseVal, Func<CardModel, Creature?, decimal> bonus, int mult = 1);
+    public static IEnumerable<DynamicVar> MakeCalculatedBlock(int baseVal, Func<CardModel, Creature?, decimal> bonus, int mult = 1);
+    public static IEnumerable<DynamicVar> MakeCalculatedVar(string name, int baseVal, Func<CardModel, Creature?, decimal> bonus, int mult = 1);
+
+    // 内联本地化
+    public virtual List<(string, string)>? Localization => null;
+}
+```
+
+### 值得学的模式
+
+| 模式 | 说明 | 源码位置 |
+|------|------|----------|
+| **CustomCardModel** | 封装自定义卡框/横幅材质/立绘 + `MakeCalculatedDamage/Block/Var` 工厂方法 | `Abstracts/CustomCardModel.cs` |
+| **CustomRelicModel** | 遗物基类，构造自动注册 + `ILocalizationProvider` 内联本地化 | `Abstracts/CustomRelicModel.cs` |
+| **CustomPowerModel** | 能力基类，`CustomPackedIconPath`/`CustomBigIconPath` + `IHealthBarForecastSource` 血条预测 | `Abstracts/CustomPowerModel.cs` |
+| **ModConfig 设置面板** | JSON 持久化 + 防抖保存 + `ConfigChanged` 事件 + 游戏内 UI 面板 | `Config/ModConfig.cs` |
+| **ModConfigRegistry** | 管理所有模组配置实例，统一保存/加载 | `Config/ModConfigRegistry.cs` |
+| **CustomContentDictionary** | 全局模型字典，构造时自动注册，配合 Patch 注入游戏池 | `Patches/Content/` |
+| **ILocalizationProvider** | 接口：返回 `List<(string, string)>`，类内直接定义本地化文本 | `Abstracts/ILocalizationProvider` |
+| **Hooks 系统** | `IHealthBarForecastSource`（血条预测）、`IMaxHandSizeModifier`（手牌上限）、`IHealAmountModifier`（治疗量） | `Hooks/` |
+| **Extensions 工具集** | 30+ 扩展类：`CardExtensions`/`DynamicVarExtensions`/`HarmonyExtensions`/`NodeExtensions`/`PlayerExtensions` 等 | `Extensions/` |
+| **NodeFactory** | Godot 节点工厂，统一创建/缓存 UI 节点 | `Utils/NodeFactories/` |
+| **ShaderUtils** | HSV 着色器材质生成工具 | `Utils/ShaderUtils.cs` |
+| **SpireField** | 类似 STS1 的 SpireField 模式，给任意对象附加自定义数据 | `Utils/SpireField.cs` |
+| **CommonActions** | 可复用卡牌效果动作库 | `Utils/CommonActions.cs` |
+| **CardModifier** | 卡牌修改器抽象，运行时修改卡牌属性 | `Abstracts/CardModifier.cs` |
+| **ConstructedCardModel** | 动态构造卡牌（程序化生成卡牌内容） | `Abstracts/ConstructedCardModel.cs` |
 
 > ⚡ **建议**：BaseLib 适合快速原型，但生产级 Mod 建议理解底层 API 后再决定是否依赖框架。
+
+---
+
+## 📐 ModTemplate 参考（官方模板）
+
+从 [Alchyr/ModTemplate-StS2](https://github.com/Alchyr/ModTemplate-StS2) 提供的三种模板：
+
+| 模板 | 内容 | 适用场景 |
+|------|------|----------|
+| **Empty Mod** | 空项目 + BaseLib 依赖 | 纯补丁/工具类模组 |
+| **Content Mod** | MainFile + Card + Relic + Power + Extensions | 添加卡牌/遗物/能力 |
+| **Character Mod** | 完整角色：CardPool + RelicPool + PotionPool + Character + Card + Relic + Potion + Power | 新角色 |
+
+安装：`dotnet new install Alchyr.Sts2.Templates`，然后 `dotnet new sts2mod` / `sts2content` / `sts2character`。
+
+> 创建解决方案时勾选「Put solution and project in same directory」，否则 Godot 无法识别。
 
 ---
 
@@ -1310,14 +1414,3 @@ public override decimal ModifyDamageReceived(DamageInfo info, decimal damage) =>
 | dotnet 找不到 | `build_and_deploy.sh` 里按顺序 fallback 找 dotnet 路径 |
 
 ---
-
-## 🙏 鸣谢
-
-- **[StephenSHorton/STS2Plus](https://github.com/StephenSHorton/STS2Plus)** — STS2 社区最成熟的参考实现，多角色兼容、保存安全、修正器架构、联机同步等模式来源
-- **[s1f102500012/sts2mod](https://github.com/s1f102500012/sts2mod)** — Natsuki 的 12 个独立模组合集，涵盖角色/符文/无尽/难度/UI/构建等全方位参考
-- **[YuWan886/Sts2-YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard)** — 生产级角色 Mod，Builder 链式构造、分阶段初始化、SavedProperty 序列化
-- **[Alchyr/BaseLib-StS2](https://github.com/Alchyr/BaseLib-StS2)** — 社区框架，CustomModel 快捷封装、ModConfig 设置面板
-- **[Alchyr/ModTemplate-StS2](https://github.com/Alchyr/ModTemplate-StS2)** — 官方模板，dotnet new 一键创建（空/内容/角色三种）
-- **[yehuoshun/sts2-res](https://github.com/yehuoshun/sts2-res)** — STS2 反编译源码参考（用于 API 查询）
-- **[Megadot](https://megadot.megacrit.com)** — STS2 专用 Godot 引擎
-- **B 站教程系列** — 从环境搭建到自定义怪物，9 篇完整 step-by-step
