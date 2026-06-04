@@ -33,7 +33,7 @@ dotnet new install Alchyr.Sts2.Templates
 | 8 | [自定义角色 + Spine 动画](https://www.bilibili.com/opus/1182961747166756931) | ⭐⭐⭐⭐ | 4 h |
 | 9 | [自定义怪物 + 遭遇](https://www.bilibili.com/opus/1183380755590414377) | ⭐⭐⭐ | 2 h |
 
-> B 站教程是完整的 step-by-step，从环境到每种内容类型都有对应视频/图文。
+> 以上教程均来自 B 站图文/视频系列，从环境搭建到每种内容类型都有完整的 step-by-step。
 
 ---
 
@@ -186,7 +186,6 @@ public class HelloWorld : CardModel
 - **[ModTemplate](https://github.com/Alchyr/ModTemplate-StS2)** — 官方模板
 - **[sts2-res](https://github.com/yehuoshun/sts2-res)** — 反编译源码参考
 - **[Megadot](https://megadot.megacrit.com)** — STS2 专用引擎
-- **B 站教程系列** — 9 篇完整 step-by-step
 
 ---
 
