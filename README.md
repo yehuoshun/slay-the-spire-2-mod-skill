@@ -113,20 +113,6 @@ public class HelloWorld : CardModel
 
 ---
 
-## 🚀 参考项目
-
-| 项目 | 值得学什么 |
-|------|-----------|
-| [STS2Plus](https://github.com/StephenSHorton/STS2Plus) | 修正器架构、动态 Patch、安全检测、联机同步 |
-| [sts2mod](https://github.com/s1f102500012/sts2mod) | Natsuki 12 个独立模组合集，角色/符文/无尽/难度全方位参考 |
-| [YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard) | 生产级角色 Mod，Builder 模式、SavedProperty 序列化 |
-| [BaseLib](https://github.com/Alchyr/BaseLib-StS2) | 社区框架，CustomModel 封装、ModConfig 面板 |
-| [ModTemplate](https://github.com/Alchyr/ModTemplate-StS2) | 官方模板 |
-
-> ⚡ 建议：先看 STS2Plus 的 Patches 目录学 Harmony，再看 YuWanCard 学架构，Natsuki 合集查具体实现。
-
----
-
 ## 📚 进阶参考
 
 - **[references/architecture.md](references/architecture.md)** — STS2Plus / Natsuki / YuWanCard 架构分析
