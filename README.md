@@ -19,24 +19,6 @@ dotnet new install Alchyr.Sts2.Templates
 
 ---
 
-## 🎯 教程路线（按难度递增）
-
-| 序号 | 内容 | 难度 | 预计时间 |
-|------|------|------|----------|
-| 1 | [环境搭建 + 创建项目](https://www.bilibili.com/opus/1179300682687053826) | ⭐ | 30 min |
-| 2 | [自定义遗物](https://www.bilibili.com/opus/1179604439936270359) | ⭐⭐ | 1 h |
-| 3 | [自定义卡牌](https://www.bilibili.com/opus/1179979923167641608) | ⭐⭐ | 1 h |
-| 4 | [自定义药水](https://www.bilibili.com/opus/1180032536494997541) | ⭐⭐ | 30 min |
-| 5 | [自定义附魔](https://www.bilibili.com/opus/1180713881530531843) | ⭐⭐ | 30 min |
-| 6 | [自定义事件 + 先古之民](https://www.bilibili.com/opus/1180714323922649110) | ⭐⭐⭐ | 2 h |
-| 7 | [自定义能力 Buff/Debuff](https://www.bilibili.com/opus/1181126133981118470) | ⭐⭐ | 1 h |
-| 8 | [自定义角色 + Spine 动画](https://www.bilibili.com/opus/1182961747166756931) | ⭐⭐⭐⭐ | 4 h |
-| 9 | [自定义怪物 + 遭遇](https://www.bilibili.com/opus/1183380755590414377) | ⭐⭐⭐ | 2 h |
-
-> 以上教程均来自 B 站图文/视频系列，从环境搭建到每种内容类型都有完整的 step-by-step。
-
----
-
 ## 🗂 项目结构
 
 ```
@@ -186,6 +168,19 @@ public class HelloWorld : CardModel
 - **[ModTemplate](https://github.com/Alchyr/ModTemplate-StS2)** — 官方模板
 - **[sts2-res](https://github.com/yehuoshun/sts2-res)** — 反编译源码参考
 - **[Megadot](https://megadot.megacrit.com)** — STS2 专用引擎
+- **B 站教程系列** — 9 篇完整 step-by-step：
+
+| 序号 | 内容 | 难度 | 预计时间 |
+|------|------|------|----------|
+| 1 | [环境搭建 + 创建项目](https://www.bilibili.com/opus/1179300682687053826) | ⭐ | 30 min |
+| 2 | [自定义遗物](https://www.bilibili.com/opus/1179604439936270359) | ⭐⭐ | 1 h |
+| 3 | [自定义卡牌](https://www.bilibili.com/opus/1179979923167641608) | ⭐⭐ | 1 h |
+| 4 | [自定义药水](https://www.bilibili.com/opus/1180032536494997541) | ⭐⭐ | 30 min |
+| 5 | [自定义附魔](https://www.bilibili.com/opus/1180713881530531843) | ⭐⭐ | 30 min |
+| 6 | [自定义事件 + 先古之民](https://www.bilibili.com/opus/1180714323922649110) | ⭐⭐⭐ | 2 h |
+| 7 | [自定义能力 Buff/Debuff](https://www.bilibili.com/opus/1181126133981118470) | ⭐⭐ | 1 h |
+| 8 | [自定义角色 + Spine 动画](https://www.bilibili.com/opus/1182961747166756931) | ⭐⭐⭐⭐ | 4 h |
+| 9 | [自定义怪物 + 遭遇](https://www.bilibili.com/opus/1183380755590414377) | ⭐⭐⭐ | 2 h |
 
 ---
 
