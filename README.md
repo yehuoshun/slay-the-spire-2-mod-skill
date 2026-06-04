@@ -138,7 +138,7 @@ public class HelloWorld : CardModel
 
 | 问题 | 解决 |
 |------|------|
-| 图标不显示 | 创建 `.tres` AtlasTexture 文件，确保 PNG 路径正确 |
+| 图标不显示 | 检查 PNG 是否打包进 PCK、路径与代码中 `PortraitPath`/`Icon` 是否一致 |
 | 本地化不生效 | 用 **Publish** 不是 Build，本地化是资源文件 |
 | Harmony 报 .NET 版本错 | 编辑 `GodotPlugins.runtimeconfig.json` → `"version": "9.0.0"` |
 | 场景脚本找不到 | 初始化调 `ScriptManagerBridge.LookupScriptsInAssembly` |
