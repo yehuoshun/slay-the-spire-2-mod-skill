@@ -168,7 +168,7 @@ public class HelloWorld : CardModel
 - **[ModTemplate](https://github.com/Alchyr/ModTemplate-StS2)** — 官方模板
 - **[sts2-res](https://github.com/yehuoshun/sts2-res)** — 反编译源码参考
 - **[Megadot](https://megadot.megacrit.com)** — STS2 专用引擎
-- **B 站教程系列** — 9 篇完整 step-by-step：
+- **[烟汐忆梦_YM](https://space.bilibili.com/481430814)** — B 站教程系列，9 篇完整 step-by-step：
 
 | 序号 | 内容 | 难度 | 预计时间 |
 |------|------|------|----------|
