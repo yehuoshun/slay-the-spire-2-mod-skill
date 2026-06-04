@@ -37,87 +37,78 @@ dotnet new install Alchyr.Sts2.Templates
 
 ---
 
-## 🗂 项目结构（推荐）
+## 🗂 项目结构
 
 ```
 MyMod/
-├── MyMod.csproj
-├── mod_manifest.json
-├── MyModCode/
-│   ├── MainFile.cs            ← 入口：[ModInitializer]
-│   ├── Cards/                 ← 卡牌类
-│   ├── Relics/                ← 遗物类
-│   ├── Potions/               ← 药水类
-│   ├── Powers/                ← 能力类
-│   ├── Events/                ← 事件类
-│   └── Patches/               ← Harmony 补丁
-├── images/                    ← 贴图资源
-│   ├── cards/
-│   ├── relics/
-│   ├── potions/
-│   └── powers/
-└── localization/              ← 本地化文本
-    └── zh/
-        ├── cards.json
-        ├── relics.json
-        └── ...
+├── assets/
+│   ├── MyMod.json              ← 模组清单
+│   ├── images/
+│   │   ├── cards/
+│   │   ├── relics/
+│   │   ├── powers/
+│   │   └── events/
+│   └── localization/
+│       ├── zhs/                ← 简体中文
+│       └── eng/                ← 英文
+├── src/
+│   ├── MyMod.csproj
+│   ├── ModEntry.cs             ← 入口
+│   ├── ModInfo.cs              ← 常量
+│   ├── Cards/
+│   ├── Relics/
+│   ├── Powers/
+│   ├── Events/
+│   └── Patches/
+├── tools/                      ← 构建脚本
+└── dist/                       ← 构建输出（不提交 git）
 ```
+
+快速创建：`dotnet new sts2mod -n MyMod` / `sts2content` / `sts2character`
 
 ---
 
-## 🧩 核心概念（5 分钟速览）
+## 🧩 核心概念速览
 
-### 1. Harmony 补丁
+### Harmony 补丁
 
-游戏代码你改不了，但可以用 Harmony 在运行时注入你的逻辑：
+游戏代码改不了，用 Harmony 在运行时注入：
 
 ```csharp
 [HarmonyPatch(typeof(CardModel), "MaxUpgradeLevel", MethodType.Getter)]
-static void Postfix(ref int __result)
-{
-    __result = 99;  // 所有卡牌可以升到 99 级
-}
+static void Postfix(ref int __result) => __result = 99;
 ```
 
-### 2. ModelDb — 模型注册表
+### ModelDb — 模型注册
 
-游戏的「类型数据库」。你需要让游戏知道你的卡牌/遗物存在：
+让游戏知道你的卡牌/遗物存在：
 
 ```csharp
-// 方法一：[Pool] 自动注册（推荐）
-[Pool(typeof(ColorlessCardPool))]
+[Pool(typeof(ColorlessCardPool))]     // 自动注册
 public class MyCard : CardModel { }
-
-// 方法二：手动注册
-ModHelper.AddModelToPool(typeof(SharedRelicPool), typeof(MyRelic));
 ```
 
-### 3. DynamicVars — 动态变量
+### DynamicVars — 动态变量
 
-所有数值显示/修改都走 DynamicVar 系统。升级、遗物效果、能力层数都靠它：
+所有数值显示/修改都走它：
 
 ```csharp
-DynamicVars["Damage"].SetBase(8);       // 基础伤害 8
-DynamicVars["Damage"].UpgradeValueBy(3); // 升级 +3 → 11
+DynamicVars["Damage"].SetBase(8);
+DynamicVars["Damage"].UpgradeValueBy(3);  // 8→11
 ```
 
-### 4. Build vs Publish
+### Build vs Publish
 
 | 操作 | 做什么 | 什么时候用 |
 |------|--------|-----------|
-| **Build** | 仅编译 .dll → 复制到 mods | 纯代码改动 |
-| **Publish** | 编译 + 生成 .pck + 复制全部 | 有资源改动（图片/场景/本地化） |
+| **Build** | 编译 .dll → 复制到 mods | 纯代码改动 |
+| **Publish** | 编译 + .pck + 全部资源 | 有图片/场景/本地化改动 |
 
 ---
 
-## 🃏 第一张卡牌（Hello World）
+## 🃏 Hello World：第一张卡牌
 
 ```csharp
-using MegaCrit.Sts2.Core.Models;
-using MegaCrit.Sts2.Core.Commands;
-
-namespace MyMod.Cards;
-
 [Pool(typeof(ColorlessCardPool))]
 public class HelloWorld : CardModel
 {
@@ -127,44 +118,16 @@ public class HelloWorld : CardModel
 
     protected override async Task OnPlay(PlayerChoiceContext ctx, CardPlay play)
     {
-        await DamageCmd.Attack(6)
-            .FromCard(this)
-            .Targeting(ctx.Targets.First())
-            .Execute();
+        await DamageCmd.Attack(6).FromCard(this).Targeting(ctx.Targets.First()).Execute();
     }
 
     protected override void OnUpgrade()
     {
         base.OnUpgrade();
-        DynamicVars["Damage"].UpgradeValueBy(3);  // 6→9
+        DynamicVars["Damage"].UpgradeValueBy(3);
     }
 }
 ```
-
-四步：构造 → 图路径 → 打出效果 → 升级。就这么简单。
-
----
-
-## 🔍 怎么查 API？（最重要的技能）
-
-### 不猜签名——直接查源码
-
-```bash
-# 搜索 CardModel 类的 MaxUpgradeLevel
-grep -rn "MaxUpgradeLevel" ~/sts2-res/src/
-
-# 搜索 DamageCmd 的攻击链方法
-grep -rn "class DamageCmd\|Attack(" ~/sts2-res/src/
-
-# 搜索 RelicModel 有哪些可重写方法
-grep -rn "virtual.*Task\|override.*Task" ~/sts2-res/src/Models/RelicModel.cs
-```
-
-### Rider 里更快
-
-- `Ctrl+Click` 任意 STS2 类型 → 跳到反编译源码
-- `Find Usages` 看调用方式
-- `Shift+Shift` 全局搜索
 
 ---
 
@@ -172,12 +135,20 @@ grep -rn "virtual.*Task\|override.*Task" ~/sts2-res/src/Models/RelicModel.cs
 
 | 项目 | 值得学什么 |
 |------|-----------|
-| [STS2Plus](https://github.com/StephenSHorton/STS2Plus) | 修正器架构、TargetMethods 动态 Patch、安全检测、联机同步 |
-| [YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard) | 生产级角色 Mod、Builder 链式构造、分阶段初始化、SavedProperty 序列化 |
-| [BaseLib](https://github.com/Alchyr/BaseLib-StS2) | CustomModel 快捷封装、ModConfig 设置面板 |
-| [ModTemplate](https://github.com/Alchyr/ModTemplate-StS2) | 官方模板（空/内容/角色三种） |
+| [STS2Plus](https://github.com/StephenSHorton/STS2Plus) | 修正器架构、动态 Patch、安全检测、联机同步 |
+| [sts2mod](https://github.com/s1f102500012/sts2mod) | Natsuki 12 个独立模组合集，角色/符文/无尽/难度全方位参考 |
+| [YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard) | 生产级角色 Mod，Builder 模式、SavedProperty 序列化 |
+| [BaseLib](https://github.com/Alchyr/BaseLib-StS2) | 社区框架，CustomModel 封装、ModConfig 面板 |
+| [ModTemplate](https://github.com/Alchyr/ModTemplate-StS2) | 官方模板 |
 
-> ⚡ **建议**：先看 STS2Plus 的 Patches 目录，理解 Harmony 补丁怎么写；再看 YuWanCard 的整体架构，理解生产级 Mod 怎么组织。
+> ⚡ 建议：先看 STS2Plus 的 Patches 目录学 Harmony，再看 YuWanCard 学架构，Natsuki 合集查具体实现。
+
+---
+
+## 📚 进阶参考
+
+- **[references/architecture.md](references/architecture.md)** — STS2Plus / Natsuki / YuWanCard 架构分析
+- **[references/appendices.md](references/appendices.md)** — API 速查、资源路径、本地化、清单 JSON、生命周期钩子、常见坑
 
 ---
 
@@ -185,18 +156,19 @@ grep -rn "virtual.*Task\|override.*Task" ~/sts2-res/src/Models/RelicModel.cs
 
 | 问题 | 解决 |
 |------|------|
-| 图标不显示 | 创建 `.tres` AtlasTexture 文件，确保引用 PNG 路径正确 |
-| 本地化不生效 | 用 **Publish**（不是 Build），因为本地化是资源文件 |
+| 图标不显示 | 创建 `.tres` AtlasTexture 文件，确保 PNG 路径正确 |
+| 本地化不生效 | 用 **Publish** 不是 Build，本地化是资源文件 |
 | Harmony 报 .NET 版本错 | 编辑 `GodotPlugins.runtimeconfig.json` → `"version": "9.0.0"` |
-| 场景脚本找不到 | 初始化调用 `ScriptManagerBridge.LookupScriptsInAssembly` |
-| Build 通过但 Mod 不加载 | 检查 `mod_manifest.json` 的 `id` 和文件名是否一致 |
-| 搜不到某个类 | Rider 里 `Shift+Shift` 搜 STS2 源码；或 grep sts2-res |
+| 场景脚本找不到 | 初始化调 `ScriptManagerBridge.LookupScriptsInAssembly` |
+| Mod 不加载 | 检查 `assets/MyMod.json` 的 `id` 和文件名是否一致 |
+| 自定义属性不保存 | 检查是否调了 `SavedPropertiesTypeCache.InjectTypeIntoCache()` |
+| 搜不到某个类 | Rider `Shift+Shift` 搜 STS2 源码；或 `grep sts2-res` |
 
 ---
 
-## 🛠 AI 助手使用
+## 🛠 AI 助手
 
-本仓库也是 AI 开发助手的知识库。向你的 AI 助手下指令，它会按这份指南帮你写代码：
+本仓库也是 AI 开发助手的知识库。向你的 AI 助手下指令，它会按 SKILL.md 的完整工作流帮你写代码：
 
 - "帮我做一个 2 费攻击卡，伤害 8，升级后 11"
 - "帮我做一个遗物，每回合 +1 能量"
@@ -207,14 +179,14 @@ grep -rn "virtual.*Task\|override.*Task" ~/sts2-res/src/Models/RelicModel.cs
 
 ## 鸣谢
 
-- **[STS2Plus](https://github.com/StephenSHorton/STS2Plus)** — 修正器架构、多 modifier、联机同步参考实现
-- **[sts2mod](https://github.com/s1f102500012/sts2mod)** — Natsuki 的 12 个独立模组合集，涵盖角色/符文/无尽/难度/UI/构建等全方位参考
-- **[YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard)** — 生产级角色 Mod，分阶段初始化、SavedProperty、Builder Pattern
-- **[BaseLib](https://github.com/Alchyr/BaseLib-StS2)** — 社区框架，CustomModel 系列、ModConfig 面板
-- **[ModTemplate](https://github.com/Alchyr/ModTemplate-StS2)** — 官方模板，dotnet new 一键创建
-- **[sts2-res](https://github.com/yehuoshun/sts2-res)** — STS2 反编译源码参考（用于 API 查询）
-- **[Megadot](https://megadot.megacrit.com)** — STS2 专用 Godot 引擎
-- **B 站教程系列** — 从环境到怪物，9 篇完整 step-by-step
+- **[STS2Plus](https://github.com/StephenSHorton/STS2Plus)** — 修正器架构、联机同步参考
+- **[sts2mod](https://github.com/s1f102500012/sts2mod)** — Natsuki 12 模组合集
+- **[YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard)** — 生产级角色 Mod
+- **[BaseLib](https://github.com/Alchyr/BaseLib-StS2)** — 社区框架
+- **[ModTemplate](https://github.com/Alchyr/ModTemplate-StS2)** — 官方模板
+- **[sts2-res](https://github.com/yehuoshun/sts2-res)** — 反编译源码参考
+- **[Megadot](https://megadot.megacrit.com)** — STS2 专用引擎
+- **B 站教程系列** — 9 篇完整 step-by-step
 
 ---
 
