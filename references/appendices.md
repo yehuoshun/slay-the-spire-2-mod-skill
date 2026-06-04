@@ -287,7 +287,7 @@ public override decimal ModifyDamageReceived(DamageInfo info, decimal damage) =>
 
 | 坑 | 对策 |
 |----|------|
-| 图标不显示 | `.tres` AtlasTexture 没创建、或 PNG 路径不对 |
+| 图标不显示 | 检查 PNG 是否打包进 PCK、路径与代码中 PortraitPath/Icon 是否一致 |
 | 本地化不生效 | 非代码资源必须 **Publish**（非 Build）生成 .pck |
 | Harmony 报版本错 | 编辑 `GodotPlugins.runtimeconfig.json` 强制 .NET 9.0 |
 | 场景找不到脚本 | `LookupScriptsInAssembly` 或 `ScanAssembly` 修复 |
