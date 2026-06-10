@@ -218,13 +218,21 @@ cp build/MyMod.* /path/to/SlayTheSpire2/mods/
 
 ## 📂 模式速查
 
-| 需求 | 文件 | 内容 |
-|------|------|------|
-| 所有内容类型（卡/遗物/药水/能力/附魔/事件/先古之民） | [references/modes-content.md](references/modes-content.md) | 模式一~七 |
-| 高级（Harmony/角色/怪物/注册序列化） | [references/modes-advanced.md](references/modes-advanced.md) | 模式八~十一 |
-| 真实项目写法模式 | [references/real-code-patterns.md](references/real-code-patterns.md) | 从 STS2Plus/YuWanCard/Natsuki 提炼 |
-| 项目构建 & 部署 | [references/project-scaffold.md](references/project-scaffold.md) | 详细 csproj/构建脚本/打包 |
-| 附录（枚举/本地化完整格式/常见坑） | [references/appendices.md](references/appendices.md) | API 速查表/枚举值/本地化全格式 |
+| 需求 | 文件 |
+|------|------|
+| 卡牌 | [references/modes-card.md](references/modes-card.md) |
+| 遗物 | [references/modes-relic.md](references/modes-relic.md) |
+| 药水 | [references/modes-potion.md](references/modes-potion.md) |
+| 能力（Buff/Debuff） | [references/modes-power.md](references/modes-power.md) |
+| 附魔 | [references/modes-enchantment.md](references/modes-enchantment.md) |
+| 事件 & 先古之民 | [references/modes-event.md](references/modes-event.md) |
+| Harmony 补丁 | [references/modes-harmony.md](references/modes-harmony.md) |
+| 角色 | [references/modes-character.md](references/modes-character.md) |
+| 怪物 & 遭遇 | [references/modes-monster.md](references/modes-monster.md) |
+| 序列化 & 注册 | [references/modes-serialization.md](references/modes-serialization.md) |
+| 真实项目写法模式 | [references/real-code-patterns.md](references/real-code-patterns.md) |
+| 项目构建 & 部署 | [references/project-scaffold.md](references/project-scaffold.md) |
+| 附录（枚举/本地化/常见坑） | [references/appendices.md](references/appendices.md) |
 
 ---
 
