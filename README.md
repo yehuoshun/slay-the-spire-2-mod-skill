@@ -1,4 +1,25 @@
-# 杀戮尖塔 2 Mod 开发指南
+# 杀戮尖塔 2 Mod 开发 — AI 工作流
+
+> 🦞 纯原生 Mod 开发指南。只依赖 `0Harmony.dll` + `sts2.dll`，不依赖任何第三方模组。
+
+## 📂 文件结构
+
+| 文件 | 内容 |
+|------|------|
+| `SKILL.md` | 主入口：总工作流、脚手架、API 速查、常见坑 |
+| `references/modes-card.md` | 自定义卡牌 |
+| `references/modes-relic.md` | 自定义遗物 |
+| `references/modes-potion.md` | 自定义药水 |
+| `references/modes-power.md` | 自定义能力（Buff/Debuff） |
+| `references/modes-enchantment.md` | 自定义附魔 |
+| `references/modes-event.md` | 自定义事件 & 先古之民 |
+| `references/modes-harmony.md` | Harmony 补丁 |
+| `references/modes-character.md` | 自定义角色 |
+| `references/modes-monster.md` | 自定义怪物 & 遭遇 |
+| `references/modes-serialization.md` | 序列化 & 注册 |
+| `references/real-code-patterns.md` | 实战写法模式（YuWanCard/Natsuki/STS2Plus） |
+| `references/project-scaffold.md` | 项目构建 & 部署 |
+| `references/appendices.md` | 附录：API 速查、枚举、常见坑 |
 
 ## 鸣谢
 
