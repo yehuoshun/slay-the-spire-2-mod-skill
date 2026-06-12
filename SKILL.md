@@ -1,7 +1,8 @@
 # 杀戮尖塔 2 Mod 开发 — AI 工作流
 
-> 🦞 纯原生 Mod 开发指南。只依赖 `0Harmony.dll` + `sts2.dll`，不依赖任何第三方模组。
+> 🦞 STS2 Mod 开发指南。依赖 `0Harmony.dll` + `sts2.dll`，不依赖第三方模组。
 > 主文件只是索引，具体模式见 references/。
+> 设置界面学 [ModConfig](https://github.com/xhyrzldf/ModConfig-STS2) 架构自研：零 Harmony 注入 + 双向绑定 + 持久化 debounce。
 
 ---
 
@@ -10,7 +11,7 @@
 ```
 用户说"帮我做 X"
     │
-    ├─ 1. 确定类型：卡牌/遗物/药水/能力/附魔/事件/先古之民/怪物/角色/Patch？
+    ├─ 1. 确定类型：卡牌/遗物/药水/能力/附魔/事件/先古之民/怪物/角色/Patch/设置界面？
     │
     ├─ 2. 查 API（强制）
     │      ls ~/.openclaw/workspace/code/sts2-res/src/ 2>/dev/null ||
@@ -232,6 +233,7 @@ cp build/MyMod.* /path/to/SlayTheSpire2/mods/
 | 序列化 & 注册 | [references/modes-serialization.md](references/modes-serialization.md) |
 | 真实项目写法模式 | [references/real-code-patterns.md](references/real-code-patterns.md) |
 | 项目构建 & 部署 | [references/project-scaffold.md](references/project-scaffold.md) |
+| 设置界面（学 ModConfig 自研） | [references/modes-settings-ui.md](references/modes-settings-ui.md) |
 | 附录（枚举/本地化/常见坑） | [references/appendices.md](references/appendices.md) |
 
 ---
@@ -249,3 +251,4 @@ cp build/MyMod.* /path/to/SlayTheSpire2/mods/
 | `AddModelToPool` 泛型报错 | 用 `ModHelper.AddModelToPool(poolType, modelType)` 反射重载 |
 | 遗物 `Rarity=Starter` 但池里不出现 | Starter 稀有度不走随机池，需 Patch 或用事件给 |
 | Harmony PatchAll 异常 | 单类 try-catch 包裹，防止一个类炸了全挂 |
+| 设置 UI 自己写容易出 bug | 学习 modes-settings-ui.md 的架构：零 Harmony 注入、双向绑定、持久化 debounce |
