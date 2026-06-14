@@ -4,130 +4,68 @@
 
 ## A. 完整 API 速查表
 
-### 玩家操作（PlayerCmd）
+| API | 签名 | 说明 |
+|-----|------|------|
+| `CardModel` | `CardModel(cost, type, rarity, target)` | 卡牌基类 |
+| `RelicModel` | `RelicModel()` | 遗物基类 |
+| `PotionModel` | `PotionModel()` | 药水基类 |
+| `PowerModel` | `PowerModel()` | 能力基类 |
+| `EnchantmentModel` | `EnchantmentModel()` | 附魔基类 |
+| `EventModel` | `EventModel()` | 事件基类 |
+| `AncientEventModel` | `AncientEventModel()` | 先古之民基类 |
+| `CharacterModel` | `CharacterModel()` | 角色基类 |
+| `MonsterModel` | `MonsterModel()` | 怪物基类 |
+| `EncounterModel` | `EncounterModel()` | 遭遇基类 |
+| `CardPoolModel` | `CardPoolModel()` | 卡池基类 |
+| `RelicPoolModel` | `RelicPoolModel()` | 遗物池基类 |
+| `PotionPoolModel` | `PotionPoolModel()` | 药水池基类 |
 
-```csharp
-await PlayerCmd.GainEnergy(player, amount);
-await PlayerCmd.GainBlock(player, amount);
-await PlayerCmd.GainGold(player, amount);
-await PlayerCmd.Damage(player, amount, source);
-await PlayerCmd.Heal(player, amount);
-await PlayerCmd.ApplyPower(player, powerType, amount, source, cardSource);
-await PlayerCmd.EndTurn(player);
-```
+### 命令（Cmd）
 
-### 伤害链（DamageCmd）
+| API | 说明 |
+|-----|------|
+| `CreatureCmd.Damage(ctx, target, amount, source, card)` | 造成伤害 |
+| `CreatureCmd.GainBlock(target, amount, source)` | 获得格挡 |
+| `PlayerCmd.GainEnergy(ctx, amount)` | 获得能量 |
+| `PlayerCmd.GainGold(ctx, amount)` | 获得金币 |
+| `PlayerCmd.Heal(ctx, amount)` | 治疗 |
+| `PlayerCmd.Damage(ctx, amount)` | 玩家受伤 |
+| `PowerCmd.Apply<T>(target, amount, source, card)` | 应用能力 |
+| `PowerCmd.Remove<T>(target, amount)` | 移除能力 |
+| `CardCmd.Discard(ctx, cards)` | 弃牌 |
+| `CardCmd.Upgrade(ctx, card)` | 升级卡牌 |
+| `CardCmd.Enchant(ctx, card, enchantment)` | 附魔 |
+| `CardPileCmd.Draw(ctx, count, player)` | 抽牌 |
+| `CardSelectCmd.FromHandGeneric(ctx, ...)` | 从手牌选择 |
+| `CardSelectCmd.FromDeckGeneric(ctx, ...)` | 从牌库选择 |
+| `OrbCmd.EvokeNext(ctx, player)` | 激发下一个充能球 |
+| `OrbCmd.AddSlots(player, count)` | 增加充能球槽位 |
 
-```csharp
-// 单体伤害
-await DamageCmd.Attack(6).FromCard(this).Targeting(target).Execute();
+### 模型数据库
 
-// 全体伤害
-await DamageCmd.Attack(10).FromCard(this).TargetingAllOpponents(combatState).Execute();
+| API | 说明 |
+|-----|------|
+| `ModelDb.GetId(type)` | 获取模型 ID |
+| `ModelDb.GetByIdOrNull<T>(id)` | 按 ID 获取模型 |
+| `ModelDb.Card<T>()` | 获取卡牌实例 |
+| `ModelDb.Relic<T>()` | 获取遗物实例 |
+| `ModelDb.Potion<T>()` | 获取药水实例 |
+| `ModelDb.CardPool<T>()` | 获取卡池实例 |
+| `ModelDb.RelicPool<T>()` | 获取遗物池实例 |
+| `ModelDb.PotionPool<T>()` | 获取药水池实例 |
+| `ModelDb.Monster<T>()` | 获取怪物实例 |
+| `ModelDb.Inject(type)` | 运行时注入模型 |
+| `ModelDb.Contains(type)` | 检查模型是否已注册 |
 
-// 随机目标
-await DamageCmd.Attack(5).FromCard(this).TargetingRandomOpponents(combatState, allowRepeat: false).Execute();
+### 注册
 
-// 带特效
-await DamageCmd.Attack(8).FromCard(this).Targeting(target)
-    .WithHitFx("animations/vfx_slash.tscn", null, null)
-    .WithHitCount(3) // 攻击 3 次
-    .Execute();
-```
-
-### 卡牌操作（CardCmd / CardPileCmd）
-
-```csharp
-// 丢弃
-await CardCmd.Discard(card);
-
-// 升级
-card.Upgrade();
-
-// 附魔
-await CardCmd.Enchant(card, typeof(MyEnchantment), amount);
-
-// 抽牌
-await CardPileCmd.Draw(player, count);
-
-// 添加卡牌到牌堆
-await CardPileCmd.Add(card, PileType.Deck);
-await CardPileCmd.Add(card, PileType.Hand);
-await CardPileCmd.Add(card, PileType.Discard);
-```
-
-### 选牌（CardSelectCmd）
-
-```csharp
-// 从手牌选一张
-var selected = await CardSelectCmd.FromHandGeneric(ctx, player,
-    new CardSelectorPrefs("提示文本", selectCount: 1),
-    filter: card => true, source: this);
-
-// 从手牌选一张升级
-var selected = await CardSelectCmd.FromHandForUpgrade(ctx, player,
-    new CardSelectorPrefs("选择要升级的牌", 1),
-    filter: card => card.CanUpgrade(), source: this);
-
-// 从手牌选一张丢弃
-var selected = await CardSelectCmd.FromHandForDiscard(ctx, player,
-    new CardSelectorPrefs("选择要丢弃的牌", 1),
-    filter: card => true, source: this);
-
-// 从牌库选
-var selected = await CardSelectCmd.FromDeckGeneric(ctx, player,
-    new CardSelectorPrefs("从牌库选择", 1),
-    filter: card => true, source: this);
-```
-
-### 模型数据库（ModelDb）
-
-```csharp
-// 获取 ID
-ModelId id = ModelDb.GetId<MyCard>();
-ModelId id = ModelDb.GetId(typeof(MyCard));
-
-// 获取实例
-var card = ModelDb.GetById<CardModel>(id);
-var card = ModelDb.GetByIdOrNull<CardModel>(id);
-
-// 所有卡牌/遗物
-var allCards = ModelDb.AllCards;
-var allRelics = ModelDb.AllRelics;
-
-// 获取特定卡池
-var pool = ModelDb.CardPool<ColorlessCardPool>();
-```
-
-### 生物操作（CreatureCmd）
-
-```csharp
-// 施加能力
-await CreatureCmd.ApplyPower(target, typeof(VulnerablePower), amount, source, cardSource);
-
-// 移除能力
-await CreatureCmd.RemovePower(target, typeof(VulnerablePower));
-
-// 造成伤害
-await CreatureCmd.Damage(ctx, target, amount, source, cardSource);
-
-// 获得格挡
-await CreatureCmd.GainBlock(target, amount);
-```
-
-### 战斗状态
-
-```csharp
-// 当前战斗
-var combat = CombatManager.Instance;
-bool inCombat = combat.IsInProgress;
-bool ending = combat.IsOverOrEnding;
-
-// 战斗状态
-var state = player.Creature.CombatState;
-int round = state.RoundNumber;
-var side = player.Creature.Side; // CombatSide.Player / CombatSide.Enemy
-```
+| API | 说明 |
+|-----|------|
+| `ModHelper.AddModelToPool<T>(poolType, modelType)` | 注册模型到池 |
+| `SavedPropertiesTypeCache.InjectTypeIntoCache(type)` | 注入序列化缓存 |
+| `ScriptManagerBridge.LookupScriptsInAssembly(assembly)` | 场景脚本映射 |
+| `Harmony.PatchAll(assembly)` | 批量 Harmony 补丁 |
+| `Harmony.PatchCategory(assembly, category)` | 按分组打补丁 |
 
 ---
 
@@ -135,175 +73,86 @@ var side = player.Creature.Side; // CombatSide.Player / CombatSide.Enemy
 
 ### CardType
 
-`Attack` | `Skill` | `Power` | `Status` | `Curse` | `Token` | `Quest`
+| 值 | 说明 |
+|----|------|
+| `Attack` | 攻击牌 |
+| `Skill` | 技能牌 |
+| `Power` | 能力牌 |
+| `Curse` | 诅咒牌 |
+| `Status` | 状态牌 |
 
 ### CardRarity
 
-`Basic` | `Common` | `Uncommon` | `Rare` | `Event` | `Token` | `Status` | `Curse` | `Ancient` | `Quest`
+| 值 | 说明 |
+|----|------|
+| `Basic` | 基础牌 |
+| `Common` | 普通牌 |
+| `Uncommon` | 罕见牌 |
+| `Rare` | 稀有牌 |
+| `Token` | 衍生物 |
+| `Special` | 特殊牌 |
 
 ### TargetType
 
-`None` | `Opponent` | `AllOpponents` | `Ally` | `AllAllies` | `AnyEnemy` | `Self` | `Osty` | `TargetedNoCreature`
+| 值 | 说明 |
+|----|------|
+| `Self` | 自己 |
+| `AnyEnemy` | 任意敌人 |
+| `AllEnemies` | 所有敌人 |
+| `Any` | 任意目标 |
+| `None` | 无目标 |
+
+### CardKeyword
+
+常用：`Exhaust` `Ethereal` `Retain` `Innate` `Heavy` `Strike` `Defend`
 
 ### RelicRarity
 
-`Starter` | `Common` | `Uncommon` | `Rare` | `Boss` | `Shop` | `Event` | `Ancient`
-
-### PotionRarity
-
-`Common` | `Uncommon` | `Rare`
-
-### PotionUsage
-
-`CombatOnly` | `AnyTime` | `Triggered`
+| 值 | 获取方式 |
+|----|---------|
+| `Common` | 普通池 |
+| `Uncommon` | 稀有池 |
+| `Rare` | BOSS 池 |
+| `Starter` | 初始遗物（不走随机池） |
+| `Shop` | 商店 |
+| `Special` | 特殊获取 |
+| `Event` | 事件专属 |
 
 ### PowerType
 
-`Buff` | `Debuff`
-
-### PowerStackType
-
-`Intensity` | `Duration`
-
-### CardKeyword（常用）
-
-`Exhaust` | `Retain` | `Innate` | `Ethereal` | `Unplayable`
-
-### CardTag（常用）
-
-`Strike` | `Defend`
-
-### RoomType
-
-`Monster` | `Elite` | `Boss` | `Event` | `Shop` | `Rest` | `Treasure`
-
-### MonsterIntent（常用）
-
-`Attack` | `Defend` | `Buff` | `Debuff` | `StrongAttack` | `Charge` | `Summon` | `Sleep`
-
-### CombatSide
-
-`Player` | `Enemy`
-
-### PileType
-
-`Deck` | `Hand` | `Discard` | `Exhaust`
-
-### CharacterGender
-
-`Male` | `Female` | `Other`
-
----
-
-## C. 遗物池列表
-
-| 池 | 说明 |
+| 值 | 说明 |
 |----|------|
-| `SharedRelicPool` | 公共池（宝箱+精英+商店） |
-| `IroncladRelicPool` | 铁血战士专属 |
-| `SilentRelicPool` | 静默猎人专属 |
-| `DefectRelicPool` | 机器人专属 |
-| `NecrobinderRelicPool` | 亡灵契约师专属 |
-| `RegentRelicPool` | 储君专属 |
-| `EventRelicPool` | 事件专属 |
-| `ShopRelicPool` | 商店专属 |
-| `BossRelicPool` | Boss 掉落 |
-| `FallbackRelicPool` | 兜底池（Circlet） |
-| `DeprecatedRelicPool` | 废弃池 |
+| `Buff` | 增益 |
+| `Debuff` | 减益 |
+
+### StackType
+
+| 值 | 说明 |
+|----|------|
+| `Intensity` | 数值叠加 |
+| `Duration` | 回合叠加 |
+| `None` | 不叠加 |
 
 ---
 
-## D. 药水池列表
+## C. 常见坑速览
 
-`SharedPotionPool` / `IroncladPotionPool` / `SilentPotionPool` / `DefectPotionPool` / `NecrobinderPotionPool` / `RegentPotionPool`
-
----
-
-## E. 卡池列表
-
-`IroncladCardPool` / `SilentCardPool` / `DefectCardPool` / `NecrobinderCardPool` / `RegentCardPool` / `ColorlessCardPool` / `TokenCardPool` / `CurseCardPool` / `StatusCardPool`
-
----
-
-## F. 常见坑详解
-
-### 1. 图标不显示
-
-**根因**：PNG 图片没有被 Megadot 识别为资源文件，因此不会被打包进 PCK。
-
-**解决**：
-- 确保 PNG 在 Megadot 项目文件系统中可见
-- 重新 Publish（不是 Build）
-- 检查代码中的路径与资源路径完全一致
-
-### 2. 本地化不生效
-
-**根因**：本地化 JSON 是资源文件，Build 只编译 DLL，不处理资源。
-
-**解决**：必须用 Publish 或导出 PCK。
-
-### 3. Harmony 报 .NET 版本错误
-
-**现象**：`Could not load file or assembly 'System.Runtime, Version=8.0.0.0'`
-
-**解决**：编辑 `GodotPlugins.runtimeconfig.json`：
-```json
-{
-  "runtimeOptions": {
-    "framework": {
-      "name": "Microsoft.NETCore.App",
-      "version": "9.0.0"
-    }
-  }
-}
-```
-
-### 4. 场景脚本找不到
-
-**现象**：`Can't find script` 或场景实例化失败
-
-**解决**：在 `ModEntry.Initialize()` 中调用：
-```csharp
-ScriptManagerBridge.LookupScriptsInAssembly(Assembly.GetExecutingAssembly());
-```
-
-### 5. 自定义属性不保存
-
-**现象**：`[SavedProperty]` 标注的属性在存档加载后丢失
-
-**解决**：在初始化时注入类型缓存：
-```csharp
-SavedPropertiesTypeCache.InjectTypeIntoCache(typeof(MyCard));
-SavedPropertiesTypeCache.InjectTypeIntoCache(typeof(MyRelic));
-```
-
-### 6. Starter 稀有度遗物不出现
-
-**根因**：`RelicRarity.Starter` 的遗物不走随机池。
-
-**解决**：用 Harmony Patch 修改角色的 `StartingRelics` Getter，或通过事件给予。
-
-### 7. 重复初始化导致崩溃
-
-**解决**：用双重检查锁防止重复初始化（见 real-code-patterns.md 模式 H）。
-
-### 8. 卡牌在百科中不显示
-
-**解决**：
-- 检查 `shouldShowInCardLibrary` 参数（CardModel 构造第5参数）
-- 确保已注册到正确的卡池
-- 确保本地化 JSON 中有关键字条目
-
-### 9. AddModelToPool 泛型报错
-
-**解决**：使用反射重载：
-```csharp
-ModHelper.AddModelToPool(typeof(SharedRelicPool), typeof(MyRelic));
-```
-
-### 10. 联机时模组不生效
-
-**解决**：
-- `affects_gameplay` 设为 `true`
-- 确保所有联机玩家安装了相同模组
-- 联机同步相关数据需要用 `[SavedProperty]` 序列化
+| 问题 | 解决 |
+|------|------|
+| 图标不显示 | PNG 未打包进 PCK；检查路径与代码一致 |
+| 本地化不生效 | 必须 **Publish**（非 Build），本地化是资源文件 |
+| Harmony 报 .NET 版本 | `GodotPlugins.runtimeconfig.json` → `"version": "9.0.0"` |
+| 场景脚本找不到 | `ScriptManagerBridge.LookupScriptsInAssembly` |
+| Mod 不加载 | `assets/MyMod.json` 的 `id` 和文件名一致 |
+| 自定义属性不保存 | 没调 `SavedPropertiesTypeCache.InjectTypeIntoCache()` |
+| `AddModelToPool` 泛型报错 | 用 `ModHelper.AddModelToPool(poolType, modelType)` 反射重载 |
+| 遗物 `Rarity=Starter` 但池里不出现 | Starter 稀有度不走随机池，需 Patch 或用事件给 |
+| Harmony PatchAll 异常 | 单类 try-catch 包裹，防止一个类炸了全挂 |
+| 设置 UI 自己写容易出 bug | 参考 modes-settings-ui.md 零 Harmony 方案 |
+| 自定义属性序列化丢失 | `[SavedProperty]` + `SavedPropertiesTypeCache.InjectTypeIntoCache()` |
+| ModelDb 已初始化后注册模型 | 用 `ModelDb.Inject(type)` 而非 `AddModelToPool` |
+| 角色卡池缓存不刷新 | 反射重置 `CardPoolModel._allCards` / `ModelDb._allCards` 等缓存字段 |
+| 先古之民对话不显示 | Patch `AncientDialogueSet.GetValidDialogues` + `DefineDialogues` |
+| 卡牌 Pool 返回 null | 检查 `IsMutable && Owner != null` 条件判断 |
+| 事件不触发 | 事件不走 `AddModelToPool`，需要特殊注册 |
+| 多个 Mod 补丁同一方法 | 用 `HarmonyPriority` 控制执行顺序 |

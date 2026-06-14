@@ -1,75 +1,105 @@
-# 模式五：自定义附魔
+# 自定义附魔
 
-## 最简示例
+> 附魔是 STS2 的特色系统——给卡牌附加额外属性。
+
+---
+
+## 最简附魔（加伤害）
 
 ```csharp
+using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Enchantments;
 
 namespace MyMod.Enchantments;
 
-public class SharpEnchantment : EnchantmentModel
+public sealed class SharpEnchantment : EnchantmentModel
 {
-    // 增加攻击力
-    public override decimal EnchantDamageAdditive(CardModel card) => Amount * 2;
+    public override EnchantmentRarity Rarity => EnchantmentRarity.Common;
+    public override string PortraitPath => "res://MyMod/images/enchantments/sharp.png";
+    public override IEnumerable<string> AllPortraitPaths => [PortraitPath];
 
-    // 增加格挡
-    public override decimal EnchantBlockAdditive(CardModel card) => Amount;
+    public SharpEnchantment() : base()
+    {
+    }
 
-    protected override string IconPath => "res://MyMod/images/enchantments/sharp_enchantment.png";
+    public override void ModifyCard(CardModel card)
+    {
+        // 给卡牌加 3 点伤害
+        var damageVar = card.DynamicVars.FirstOrDefault(v => v is DamageVar) as DamageVar;
+        if (damageVar != null)
+        {
+            damageVar.BaseValue += 3;
+        }
+    }
 }
 ```
 
-## 核心回调
+---
 
-| 回调 | 用途 |
+## 附魔基类关键成员
+
+| 成员 | 说明 |
 |------|------|
-| `EnchantDamageAdditive(card)` | 修改卡牌的伤害加成 |
-| `EnchantBlockAdditive(card)` | 修改卡牌的格挡加成 |
-| `ModifyCard(card)` | 修改卡牌本身属性（如关键词） |
+| `Rarity` | Common / Uncommon / Rare |
+| `ModifyCard(card)` | 核心方法——修改卡牌属性 |
+| `PortraitPath` / `AllPortraitPaths` | 图标 |
+| `CanEnchant(card)` | 覆盖以限制可附魔的卡牌类型 |
 
-## 移除卡牌关键词示例
+---
+
+## 限定卡牌类型的附魔
 
 ```csharp
-public class RemoveExhaustEnchantment : EnchantmentModel
+public sealed class AttackOnlyEnchantment : EnchantmentModel
+{
+    public override bool CanEnchant(CardModel card)
+    {
+        return card.Type == CardType.Attack;
+    }
+
+    public override void ModifyCard(CardModel card)
+    {
+        // 只对攻击牌生效
+    }
+}
+```
+
+---
+
+## 附带能力的附魔
+
+```csharp
+public sealed class PoisonousEnchantment : EnchantmentModel
 {
     public override void ModifyCard(CardModel card)
     {
-        if (card.Keywords.Contains(CardKeyword.Exhaust))
-            card.RemoveKeyword(CardKeyword.Exhaust);
+        // 给卡牌附加中毒能力
+        // 需要 Patch 卡牌打出逻辑来应用 PowerCmd.Apply<PoisonPower>
     }
-
-    protected override string IconPath => "res://MyMod/images/enchantments/remove_exhaust.png";
 }
 ```
 
-## 为卡牌附魔
+---
 
-```csharp
-await CardCmd.Enchant(card, typeof(SharpEnchantment), 3); // 3 层附魔
-```
+## 本地化
 
-## 控制台测试命令
-
-```
-# 为手牌第 N 张牌附魔
-enchant_hand <N> <附魔ID> <层数>
-```
-
-## 附魔资源
-
-| 资源 | 路径 |
-|------|------|
-| 图标 | `images/enchantments/<附魔ID小写>.png` |
-
-## 附魔本地化
+`assets/localization/zhs/enchantments.json`：
 
 ```json
-// assets/localization/zhs/enchantments.json
 {
-  "SHARP_ENCHANTMENT": {
-    "title": "锋利",
-    "description": "增加 {Amount} 点伤害和 {Amount} 点格挡。"
+  "SharpEnchantment": {
+    "NAME": "锋利",
+    "DESCRIPTION": "附魔后卡牌伤害 +3。"
   }
 }
 ```
+
+---
+
+## 常见问题
+
+| 问题 | 解决 |
+|------|------|
+| 附魔不出现在选择界面 | 检查 `Rarity` 和 `CanEnchant` 逻辑 |
+| ModifyCard 不生效 | 确保在卡牌实例化后调用，检查变量名匹配 |

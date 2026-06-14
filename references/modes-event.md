@@ -1,168 +1,189 @@
-# 模式六：自定义事件 & 先古之民
+# 自定义事件 & 先古之民
+
+---
 
 ## 普通事件
 
 ### 最简示例（两个选项）
 
 ```csharp
-using MegaCrit.Sts2.Core.Localization;
+using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Events;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Events;
 
 namespace MyMod.Events;
 
-public class MyCustomEvent : EventModel
+[EventPool]  // ← 自动注册
+public sealed class MysteriousAltarEvent : EventModel
 {
-    public override string BackgroundImagePath => "res://MyMod/images/events/my_custom_event.png";
+    public override EventRarity Rarity => EventRarity.Common;
+    public override string PortraitPath => "res://MyMod/images/events/altar.png";
 
-    protected override IEnumerable<EventOption> GenerateInitialOptions()
+    public override IEnumerable<EventOption> GenerateInitialOptions()
     {
         return new[]
         {
-            new EventOption(
-                "MY_CUSTOM_EVENT.pages.INITIAL.options.OPTION_1.title",
-                async ctx =>
+            new EventOption("祈祷", "获得 30 金币")
+                .OnSelect(async context =>
                 {
-                    var card = ctx.RunState.CreateCard<StrikeCard>(ctx.Player);
-                    await CardPileCmd.Add(card, PileType.Deck);
-                    await SetEventFinished("MY_CUSTOM_EVENT.pages.RESULT.description");
-                }
-            ),
-            new EventOption(
-                "MY_CUSTOM_EVENT.pages.INITIAL.options.OPTION_2.title",
-                async ctx =>
+                    await PlayerCmd.GainGold(context, 30);
+                }),
+
+            new EventOption("献祭", "失去 10 HP，获得一张稀有卡牌")
+                .OnSelect(async context =>
                 {
-                    await PlayerCmd.GainGold(ctx.Player, 50);
-                    await SetEventFinished("MY_CUSTOM_EVENT.pages.RESULT2.description");
-                }
-            ),
+                    await PlayerCmd.Damage(context, 10);
+                    // 给一张随机稀有卡牌
+                }),
+
+            new EventOption("离开")
+                .OnSelect(_ => Task.CompletedTask)
         };
     }
 }
 ```
 
-### 多页选项
+---
+
+## 带条件选项
 
 ```csharp
-await SetEventState("MY_CUSTOM_EVENT.pages.PAGE2.description",
-    new[]
+public override IEnumerable<EventOption> GenerateInitialOptions()
+{
+    var options = new List<EventOption>();
+
+    // 总是可用
+    options.Add(new EventOption("离开").OnSelect(_ => Task.CompletedTask));
+
+    // 需要金币
+    if (Owner.Gold >= 50)
     {
-        new EventOption("选项A", async ctx => { SetEventFinished("..."); }),
-        new EventOption("选项B", async ctx => { SetEventFinished("..."); }),
-    });
-```
-
-### 注册到事件列表
-
-```csharp
-[HarmonyPatch(typeof(Overgrowth), "AllEvents", MethodType.Getter)]
-static void Postfix(ref IEnumerable<EventModel> __result)
-{
-    __result = __result.Append(new MyCustomEvent());
-}
-```
-
-### 事件本地化
-
-```json
-{
-  "MY_CUSTOM_EVENT": {
-    "title": "神秘事件",
-    "pages": {
-      "INITIAL": {
-        "description": "你遇到了一个神秘商人...",
-        "options": {
-          "OPTION_1": { "title": "[交易] 获得一张卡牌" },
-          "OPTION_2": { "title": "[离开] 获得 50 金币" }
-        }
-      },
-      "RESULT": { "description": "你获得了一张强力卡牌！" },
-      "RESULT2": { "description": "你带着金币离开了。" }
+        options.Add(new EventOption("购买遗物", "花费 50 金币")
+            .OnSelect(async context =>
+            {
+                await PlayerCmd.GainGold(context, -50);
+                // 给一个随机遗物
+            }));
     }
-  }
+
+    // 需要特定遗物
+    if (Owner.Relics.Any(r => r is GoldenIdol))
+    {
+        options.Add(new EventOption("献上金像", "失去金像，获得 100 金币")
+            .OnSelect(async context =>
+            {
+                // 移除金像，获得金币
+                await PlayerCmd.GainGold(context, 100);
+            }));
+    }
+
+    return options;
 }
 ```
-
-### 事件资源
-
-| 资源 | 路径 |
-|------|------|
-| 背景图 | `images/events/<事件ID小写>.png`（推荐 3440×1613） |
 
 ---
 
-## 先古之民事件
+## 先古之民（Ancient Event）
 
-### 最简示例
+先古之民是带对话树的事件。需要覆盖 `DefineDialogues()`。
 
 ```csharp
-using MegaCrit.Sts2.Core.Models;
-using MegaCrit.Sts2.Core.Models.Events;
-
-namespace MyMod.Events;
-
-public class MyAncient : AncientEventModel
+public sealed class ElderTreeAncient : AncientEventModel
 {
-    public override string BackgroundImagePath => "res://MyMod/images/events/my_ancient.png";
+    public override string PortraitPath => "res://MyMod/images/events/elder_tree.png";
 
-    protected override IEnumerable<EventOption> AllPossibleOptions => new[]
+    public override IEnumerable<AncientDialogue> DefineDialogues()
     {
-        // 所有可能的选项
-    };
+        return new[]
+        {
+            new AncientDialogue("elder_tree_greeting")
+                .SetText("古老的大树在你面前低语...")
+                .AddOption("倾听", "获得 2 点力量")
+                    .OnSelect(async context =>
+                    {
+                        await PowerCmd.Apply<StrengthPower>(
+                            Owner.Creature, 2, Owner.Creature, this);
+                    })
+                    .NextDialogue("elder_tree_thanks"),
 
-    protected override AncientDialogueSet DefineDialogues()
-    {
-        var dialogues = new AncientDialogueSet();
-        // 定义对话...
-        return dialogues;
+            new AncientDialogue("elder_tree_thanks")
+                .SetText("大树满意地摇晃着枝叶。")
+                .AddOption("离开")
+                    .OnSelect(_ => Task.CompletedTask)
+        };
     }
 }
 ```
 
-### 先古之民资源（5 种缺一不可）
+---
 
-| 资源 | 路径 |
-|------|------|
-| 背景图 | `images/events/<id小写>.png` |
-| 地图图标 | `images/packed/map/ancients/ancient_node_<id小写>.png` |
-| 地图描边 | `images/packed/map/ancients/ancient_node_<id小写>_outline.png` |
-| 历史头像 | `images/ui/run_history/<id小写>.png` |
-| 背景场景 | `scenes/events/background_scenes/<id小写>.tscn` |
+## 事件注册
 
-### 先古之民本地化
+事件不走 `AddModelToPool`，需要特殊处理：
+
+```csharp
+// 方案一：Patch ModelDb.Init 时注入
+[HarmonyPatch(typeof(ModelDb), nameof(ModelDb.Init))]
+public static class EventRegistrationPatch
+{
+    public static void Postfix()
+    {
+        // 在 ModelDb 初始化后注册自定义事件
+        CustomEventRegistry.Register<MysteriousAltarEvent>();
+    }
+}
+
+// 方案二：用 ShunMod 的 EventPoolAttribute + EventRegistry
+// 在 ContentRegistry.RegisterAll 中自动收集
+```
+
+---
+
+## 本地化
+
+`assets/localization/zhs/events.json`：
 
 ```json
 {
-  "MY_ANCIENT": {
-    "title": "神秘先古之民",
-    "epithet": "远古守护者",
-    "talk": {
-      "firstVisitEver": {
-        "0-0": "你好，旅行者...",
-        "0-1": "欢迎来到我的领域。"
-      }
-    }
+  "MysteriousAltar": {
+    "NAME": "神秘祭坛",
+    "DESCRIPTIONS": [
+      "你发现了一座古老的祭坛，上面刻着模糊的文字。",
+      "祈祷",
+      "获得 30 金币",
+      "献祭",
+      "失去 10 HP，获得一张稀有卡牌",
+      "离开"
+    ]
   }
 }
 ```
 
-本地化键规则：
-- 名字：`<先古ID>.title`
-- 称号：`<先古ID>.epithet`
-- 首次对话：`<先古ID>.talk.firstVisitEver.<组索引>-<行索引>`
-- 角色特殊对话：`<先古ID>.talk.<角色ID>.<组索引>-<行索引>`
-- 通用对话：`<先古ID>.talk.ANY.<组索引>-<行索引>r`
+`assets/localization/zhs/ancients.json`：
 
-对话行类型后缀：`ancient`（先古之民发言）/ `char`（角色发言）/ `next`（选项分支）
-
-### 注册先古之民
-
-```csharp
-[HarmonyPatch(typeof(Hive), "AllAncients", MethodType.Getter)]
-static void Postfix(ref IEnumerable<AncientEventModel> __result)
+```json
 {
-    __result = __result.Append(new MyAncient());
+  "ElderTree": {
+    "NAME": "古老大树",
+    "DESCRIPTIONS": [
+      "古老的大树在你面前低语...",
+      "倾听",
+      "获得 2 点力量",
+      "大树满意地摇晃着枝叶。",
+      "离开"
+    ]
+  }
 }
 ```
 
-或将自定义事件加入 `ActModel.AllEvents` 随机池（与普通事件注册方式相同）。
+---
+
+## 常见问题
+
+| 问题 | 解决 |
+|------|------|
+| 事件不触发 | 检查 `EventRarity` 和注册方式 |
+| 先古之民对话不显示 | Patch `AncientDialogueSet.GetValidDialogues` + `DefineDialogues` |
+| 选项条件不更新 | 条件在 `GenerateInitialOptions` 中实时计算 |

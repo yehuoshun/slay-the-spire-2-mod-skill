@@ -1,4 +1,8 @@
-# 模式七：Harmony 补丁
+# Harmony 补丁
+
+> 三种组织方式：最简 → 分组 → 生产级。从 STS2Plus / YuWanCard / 海克斯符文提炼。
+
+---
 
 ## 基本语法
 
@@ -8,181 +12,157 @@ using HarmonyLib;
 namespace MyMod.Patches;
 
 // 前置补丁：在原方法执行前运行
-[HarmonyPatch(typeof(GameClass), "MethodName")]
+[HarmonyPatch(typeof(TargetClass), nameof(TargetClass.TargetMethod))]
 [HarmonyPrefix]
-static void Prefix() { /* 在原方法前 */ }
+public static bool Prefix(TargetClass __instance)
+{
+    // 返回 false 跳过原方法
+    return true;
+}
 
 // 后置补丁：在原方法执行后运行
-[HarmonyPatch(typeof(GameClass), "MethodName")]
+[HarmonyPatch(typeof(TargetClass), nameof(TargetClass.TargetMethod))]
 [HarmonyPostfix]
-static void Postfix(ref int __result) { /* 可修改返回值 */ }
-
-// 修改 Getter
-[HarmonyPatch(typeof(GameClass), "PropertyName", MethodType.Getter)]
-[HarmonyPostfix]
-static void Postfix(ref string __result) { __result = "new value"; }
-
-// 修改 Setter
-[HarmonyPatch(typeof(GameClass), "PropertyName", MethodType.Setter)]
-[HarmonyPrefix]
-static void Prefix(ref string value) { value = "new input"; }
-
-// Transpiler：修改方法体 IL（高级）
-[HarmonyPatch(typeof(GameClass), "MethodName")]
-[HarmonyTranspiler]
-static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+public static void Postfix(TargetClass __instance, ref int __result)
 {
-    return new CodeMatcher(instructions).InstructionEnumeration();
+    // 可以修改 __result
+}
+
+// 完全替换
+[HarmonyPatch(typeof(TargetClass), nameof(TargetClass.TargetMethod))]
+[HarmonyPrefix]
+public static bool Prefix(TargetClass __instance, ref int __result)
+{
+    __result = 42;
+    return false; // 跳过原方法
 }
 ```
 
-## 安全安装：逐类 try-catch
+---
+
+## 组织方式一：最简（1-2 个 Patch）
 
 ```csharp
-public static void Initialize()
-{
-    var harmony = new Harmony("MyMod");
-    var assembly = Assembly.GetExecutingAssembly();
+// ModEntry.cs 中直接 PatchAll
+_harmony.PatchAll(Assembly.GetExecutingAssembly());
+```
 
-    // PatchAll 自动发现所有 [HarmonyPatch] 类
-    harmony.PatchAll(assembly);
-}
+---
 
-// 更安全：逐类 try-catch，一个类失败不影响其他
-public static void PatchAllSafe(Harmony harmony, Assembly assembly)
+## 组织方式二：分组 Patch（学 STS2Plus）
+
+用 `HarmonyPatchCategory` 分组，按需加载：
+
+```csharp
+// Patch 类上标记分组
+[HarmonyPatchCategory("MoreRules")]
+[HarmonyPatch(typeof(CombatManager), nameof(CombatManager.EndTurn))]
+public static class EndTurnPatch { ... }
+
+// ModEntry 中按分组加载
+private static void PatchCategory(string category)
 {
-    foreach (var type in assembly.GetTypes())
+    try
     {
-        try
-        {
-            if (type.GetCustomAttribute<HarmonyPatch>() != null)
-                harmony.CreateClassProcessor(type).Patch();
-        }
-        catch (Exception ex)
-        {
-            Log.Warn($"Patch failed: {type.Name}: {ex.Message}");
-        }
+        _harmony.PatchCategory(typeof(ModEntry).Assembly, category);
+        Log.Info($"Module loaded: {category}");
+    }
+    catch (Exception e)
+    {
+        Log.Error($"Module failed: {category} -> {e}");
     }
 }
 ```
 
-## 分组安装（可选组失败不影响核心）
+---
+
+## 组织方式三：生产级（学海克斯符文 + YuWanCard）
+
+### 方案 A：Try-Install 模式（海克斯符文）
+
+每个 Hook 组独立 try-catch，一个挂了不影响其他：
 
 ```csharp
-TryInstall("cards", () => harmony.PatchAll(typeof(CardPatches).Assembly));
-TryInstall("relics", () => harmony.PatchAll(typeof(RelicPatches).Assembly));
+public static void Initialize()
+{
+    var harmony = new Harmony(HarmonyId);
 
-private static void TryInstall(string label, Action install)
+    // 核心补丁——必须成功
+    HextechRunLifecycleHooks.Install(harmony);
+    HextechCombatHooks.Install(harmony);
+
+    // 可选补丁——挂了也不影响
+    TryInstallOptionalHookGroup("shop forge", () => HextechShopForgeHooks.Install(harmony));
+    TryInstallOptionalHookGroup("inspect relic", () => HextechInspectHooks.Install(harmony));
+}
+
+private static void TryInstallOptionalHookGroup(string label, Action install)
 {
     try { install(); }
-    catch (Exception ex) { Log.Warn($"Optional group skipped: {label}: {ex.Message}"); }
+    catch (Exception ex) { Log.Warn($"Optional hook skipped: {label}: {ex.Message}"); }
 }
 ```
 
-## 分类安装（Harmony.PatchCategory）
+### 方案 B：ModPatcher 模式（YuWanCard）
 
-如果每个 Patch 类声明了 `[HarmonyPatchCategory("Core")]`，可以按分类安装：
-
-```csharp
-// PatchCategory 自动发现 assembly 中所有标记为指定 category 的 Patch 类
-harmony.PatchCategory(assembly, "Core");
-harmony.PatchCategory(assembly, "DpsMeter");
-```
-
-比 PatchAll 更精细，可以控制哪些功能组启用。
-
-## 手动 Patch（精确控制目标方法）
-
-当不能用 `[HarmonyPatch]` 属性声明时，手动构造 HarmonyMethod：
+注册-应用-回滚，关键 Patch 失败时全量回滚：
 
 ```csharp
-// Patch 属性 Getter
-harmony.Patch(
-    typeof(ModelDb).GetProperty(nameof(ModelDb.AllCharacters),
-        BindingFlags.Static | BindingFlags.Public)!.GetMethod,
-    postfix: new HarmonyMethod(typeof(MyPatches), nameof(AllCharactersPostfix))
-);
-
-// Patch 实例方法
-harmony.Patch(
-    typeof(AncientDialogueSet).GetMethod(nameof(AncientDialogueSet.GetValidDialogues)),
-    prefix: new HarmonyMethod(typeof(MyPatches), nameof(GetValidDialoguesPrefix))
-);
-```
-
-**适用场景**：
-- 方法签名有多个重载，需要精确匹配参数类型
-- 目标类型在运行时才确定
-- 需要给多个无关类 Patch 同一个 Postfix
-
-## 常用 Patch 场景
-
-### 修改角色初始遗物
-
-```csharp
-[HarmonyPatch(typeof(Ironclad), "StartingRelics", MethodType.Getter)]
-[HarmonyPostfix]
-static void Postfix(ref IEnumerable<RelicModel> __result)
+public class ModPatcher
 {
-    __result = __result.Append(new MyRelic());
-}
-```
+    private readonly Harmony _harmony;
+    private readonly List<ModPatchInfo> _registered = [];
 
-### 添加事件到地图
-
-```csharp
-[HarmonyPatch(typeof(Overgrowth), "AllEvents", MethodType.Getter)]
-static void Postfix(ref IEnumerable<EventModel> __result)
-{
-    __result = __result.Append(new MyCustomEvent());
-}
-```
-
-### 添加遭遇
-
-```csharp
-[HarmonyPatch(typeof(Overgrowth), nameof(Overgrowth.GenerateAllEncounters))]
-[HarmonyPostfix]
-static void Postfix(ref IEnumerable<EncounterModel> __result)
-{
-    __result = __result.Append(new GoblinEncounter());
-}
-```
-
-### 注册角色
-
-```csharp
-[HarmonyPatch(typeof(ModelDb), "AllCharacters", MethodType.Getter)]
-[HarmonyPostfix]
-static void Postfix(ref IEnumerable<CharacterModel> __result)
-{
-    __result = __result.Append(new WatcherCharacter());
-}
-```
-
-### 修改卡牌升级上限
-
-```csharp
-[HarmonyPatch(typeof(CardModel), "MaxUpgradeLevel", MethodType.Getter)]
-static void Postfix(ref int __result) => __result = 99;
-```
-
-## 防重复初始化
-
-```csharp
-private static bool _initialized;
-private static readonly object _lock = new();
-
-public static void Initialize()
-{
-    if (_initialized) return;
-    lock (_lock)
+    public void RegisterPatch<T>() where T : IPatchMethod, new() { ... }
+    public void ApplySingle(Action<Harmony> apply, string id)
     {
-        if (_initialized) return;
-        // ... 初始化逻辑 ...
-        _initialized = true;
+        try { apply(_harmony); }
+        catch (Exception ex) { Log.Warn($"[Patcher] {id} failed: {ex.Message}"); }
+    }
+
+    public bool PatchAll()
+    {
+        // 逐个应用，关键失败则全量回滚
     }
 }
 ```
 
-游戏可能在多个时机调用 `Initialize`（主菜单和进入游戏时各一次），必须防重复。
+---
+
+## 常用 Patch 目标
+
+| 目标 | 说明 |
+|------|------|
+| `CardModel.OnPlay` | 卡牌打出 |
+| `CombatManager.StartCombat` | 战斗开始 |
+| `CombatManager.EndCombat` | 战斗结束 |
+| `CombatManager.EndTurn` | 回合结束 |
+| `Player.Damage` | 玩家受伤 |
+| `Player.Heal` | 玩家治疗 |
+| `CardPileCmd.Add` | 卡牌加入牌堆 |
+| `RewardScreen.GenerateRewards` | 奖励生成 |
+| `MapNode.OnEnter` | 进入地图节点 |
+| `RunState.StartRun` | 开始一局 |
+| `ModelDb.Init` | 模型数据库初始化 |
+| `AncientDialogueSet.GetValidDialogues` | 先古之民对话获取 |
+
+---
+
+## 补丁安全原则
+
+1. **每个 Patch 类独立 try-catch**——一个挂了不影响其他
+2. **可选补丁用 TryInstall**——非核心功能允许失败
+3. **关键补丁失败 → 全量回滚**——避免半初始化状态
+4. **Prefix 返回 false 要小心**——可能破坏其他 Mod 的 Postfix
+5. **避免 Patch 构造函数**——用 `ModelDb.Init` 后注入代替
+
+---
+
+## 常见问题
+
+| 问题 | 解决 |
+|------|------|
+| Harmony 报 .NET 版本 | `GodotPlugins.runtimeconfig.json` → `"version": "9.0.0"` |
+| PatchAll 一个类炸了全挂 | 单类 try-catch 包裹 |
+| 多个 Mod Patch 同一方法冲突 | 用 `HarmonyPriority` 控制顺序 |
+| 找不到目标方法 | 检查方法名和参数签名，用 `MethodType` 区分重载 |

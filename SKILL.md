@@ -1,190 +1,48 @@
-# 杀戮尖塔 2 Mod 开发 — AI 工作流
+# 杀戮尖塔 2 纯原生 Mod 开发 — AI 工作流
 
-> 🦞 STS2 Mod 开发指南。依赖 `0Harmony.dll` + `sts2.dll`，不依赖第三方模组。
-> 主文件只是索引，具体模式见 references/。
-
----
+> 🦞 零第三方依赖。只靠 `0Harmony.dll` + `sts2.dll` 和你的脑子。
 
 ## 🚦 总工作流
 
 ```
 用户说"帮我做 X"
-    │
-    ├─ 1. 确定类型：卡牌/遗物/药水/能力/附魔/事件/先古之民/怪物/角色/Patch/设置界面？
-    │
-    ├─ 2. 查 API（强制）
-    │      ls ~/.openclaw/workspace/code/sts2-res/src/ 2>/dev/null ||
-    │        git clone --depth 1 https://github.com/yehuoshun/sts2-res ~/.openclaw/workspace/code/sts2-res
-    │      grep -rn "ClassName\|MethodName" ~/.openclaw/workspace/code/sts2-res/src/
-    │
-    ├─ 3. 查 references/<对应模式文件> 获取代码模板
-    │
-    ├─ 4. 写代码（C# + 本地化 JSON）
-    │
-    ├─ 5. 构建 → 部署 → 测试
-    │
-    └─ 6. 提交推送
+  │
+  ├─ 1. 确定类型：卡牌 / 遗物 / 药水 / 能力 / 附魔 / 事件 / 先古之民 / 怪物 / 角色 / Patch / 设置界面？
+  │
+  ├─ 2. 查 API（强制）
+  │      ls ~/.openclaw/workspace/code/sts2-res/src/ 2>/dev/null ||
+  │        git clone --depth 1 https://github.com/yehuoshun/sts2-res ~/.openclaw/workspace/code/sts2-res
+  │      grep -rn "ClassName\|MethodName" ~/.openclaw/workspace/code/sts2-res/src/
+  │
+  ├─ 3. 查 references/<模式文件> 获取代码模板
+  │
+  ├─ 4. 写 C# 代码 + 本地化 JSON
+  │
+  ├─ 5. 构建 → 部署 → 测试
+  │
+  └─ 6. Commit + Push
 ```
 
 ---
 
-## 📦 项目脚手架（新建模组的完整步骤）
+## 📂 模式速查
 
-### 环境要求
-
-| 工具 | 用途 |
+| 需求 | 文件 |
 |------|------|
-| .NET 9.0 SDK | 编译 |
-| Megadot 编辑器 | 打包 PCK / 创建资源 |
-| Rider / VS Code | 写代码 |
-
-### 1. 创建 Godot 项目
-
-```
-打开 Megadot → 新建项目 → 名称用模组ID（英文）
-→ 兼容渲染器 → 创建C#解决方案（项目→工具→C#→创建C#解决方案）
-```
-
-### 2. 目录结构
-
-```
-MyMod/
-├── assets/
-│   ├── MyMod.json            ← 模组清单
-│   ├── images/
-│   │   ├── cards/
-│   │   ├── relics/
-│   │   ├── powers/
-│   │   ├── potions/
-│   │   ├── enchantments/
-│   │   └── events/
-│   └── localization/
-│       └── zhs/              ← 简体中文
-│           ├── cards.json
-│           ├── relics.json
-│           ├── powers.json
-│           ├── potions.json
-│           ├── enchantments.json
-│           ├── events.json
-│           ├── ancients.json
-│           ├── monsters.json
-│           └── encounters.json
-├── src/
-│   ├── MyMod.csproj
-│   ├── ModEntry.cs           ← 模组入口
-│   ├── ModInfo.cs            ← 常量
-│   ├── Cards/
-│   ├── Relics/
-│   ├── Powers/
-│   ├── Potions/
-│   ├── Enchantments/
-│   ├── Events/
-│   ├── Monsters/
-│   └── Patches/
-├── libs/                     ← 依赖 DLL
-│   ├── 0Harmony.dll
-│   └── sts2.dll
-├── tools/                    ← 构建脚本
-├── build/                    ← 输出目录
-├── project.godot
-└── MyMod.sln
-```
-
-### 3. 添加依赖 DLL
-
-从游戏目录 `data_sts2_<platform>/` 复制 `0Harmony.dll` 和 `sts2.dll` 到 `libs/`，然后在 .csproj 中添加引用，或在 Rider 中右键依赖项→添加项目引用→浏览添加。
-
-### 4. ModInfo.cs
-
-```csharp
-namespace MyMod;
-
-internal static class ModInfo
-{
-    public const string Id = "MyMod";
-    public const string DisplayName = "我的模组";
-    public const string TargetGameVersion = "0.103.2";
-}
-```
-
-### 5. ModEntry.cs（最简入口）
-
-```csharp
-using System.Reflection;
-using HarmonyLib;
-using MegaCrit.Sts2.Core.Logging;
-using MegaCrit.Sts2.Core.Modding;
-
-namespace MyMod;
-
-[ModInitializer(nameof(Initialize))]
-public static class ModEntry
-{
-    private const string HarmonyId = "Author.MyMod";
-    private static Harmony? _harmony;
-
-    public static void Initialize()
-    {
-        _harmony = new Harmony(HarmonyId);
-        _harmony.PatchAll(Assembly.GetExecutingAssembly());
-        Log.Info($"[{ModInfo.Id}] Loaded for {ModInfo.TargetGameVersion}");
-    }
-}
-```
-
-### 6. 模组清单 assets/MyMod.json
-
-```json
-{
-  "id": "MyMod",
-  "name": "我的模组",
-  "version": "1.0.0",
-  "author": "作者名",
-  "description": "模组描述",
-  "has_pck": true,
-  "has_dll": true,
-  "affects_gameplay": true,
-  "dependencies": []
-}
-```
-
-### 7. .csproj 关键配置
-
-```xml
-<Project Sdk="Godot.NET.Sdk/4.5.1">
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <LangVersion>13</LangVersion>
-    <RootNamespace>MyMod</RootNamespace>
-    <Nullable>enable</Nullable>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="0Harmony"><HintPath>../libs/0Harmony.dll</HintPath></Reference>
-    <Reference Include="sts2"><HintPath>../libs/sts2.dll</HintPath></Reference>
-  </ItemGroup>
-  <Target Name="CopyDllToBuild" AfterTargets="Build">
-    <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="../build/" />
-  </Target>
-</Project>
-```
-
-### 8. 构建 & 部署
-
-```bash
-# 编译 DLL
-dotnet build src/MyMod.csproj
-
-# 打包 PCK（在 Megadot 中：项目→导出→导出PCK/ZIP→保存到 build/MyMod.pck）
-
-# 三个文件放一起：
-# build/MyMod.dll
-# build/MyMod.pck
-# build/MyMod.json
-
-# 复制到游戏 mods/ 目录测试
-cp build/MyMod.* /path/to/SlayTheSpire2/mods/
-```
+| 项目搭建（脚手架、目录、csproj、构建部署） | [references/project-scaffold.md](references/project-scaffold.md) |
+| 卡牌 | [references/modes-card.md](references/modes-card.md) |
+| 遗物 | [references/modes-relic.md](references/modes-relic.md) |
+| 药水 | [references/modes-potion.md](references/modes-potion.md) |
+| 能力（Buff/Debuff） | [references/modes-power.md](references/modes-power.md) |
+| 附魔 | [references/modes-enchantment.md](references/modes-enchantment.md) |
+| 事件 & 先古之民 | [references/modes-event.md](references/modes-event.md) |
+| Harmony 补丁 | [references/modes-harmony.md](references/modes-harmony.md) |
+| 角色 | [references/modes-character.md](references/modes-character.md) |
+| 怪物 & 遭遇 | [references/modes-monster.md](references/modes-monster.md) |
+| 序列化 & 注册 | [references/modes-serialization.md](references/modes-serialization.md) |
+| 设置界面 | [references/modes-settings-ui.md](references/modes-settings-ui.md) |
+| 实战写法模式（从 STS2Plus / YuWanCard / 海克斯符文提炼） | [references/real-code-patterns.md](references/real-code-patterns.md) |
+| 附录（API 速查、枚举、常见坑） | [references/appendices.md](references/appendices.md) |
 
 ---
 
@@ -211,33 +69,11 @@ cp build/MyMod.* /path/to/SlayTheSpire2/mods/
 | `CardSelectCmd` | 选牌：`FromHandGeneric`/`FromDeckGeneric` |
 | `ModelDb` | 反射注册：`GetId`/`GetByIdOrNull`/`AllCards`/`AllRelics` |
 | `ModHelper.AddModelToPool<T>()` | 注册模型到对应池 |
+| `ModelDb.Inject(type)` | 绕过 Init 直接注入模型（ModelDb 已初始化后使用） |
 | `SavedPropertiesTypeCache.InjectTypeIntoCache()` | 自定义属性序列化缓存注入 |
 | `ScriptManagerBridge.LookupScriptsInAssembly` | 场景脚本映射（有自定义场景时必须） |
 | `Harmony.PatchAll` | 批量 Harmony 补丁。用 try-catch 包裹防止一个类炸了全挂 |
-| `ModelDb.Inject(type)` | 绕过 Init 直接注入模型（ModelDb 已初始化后使用） |
-| `ModelDb.Contains(type)` | 检查模型是否已注册 |
 | `SavedProperty` 特性 | 标记需要序列化保存的自定义属性 |
-
----
-
-## 📂 模式速查
-
-| 需求 | 文件 |
-|------|------|
-| 卡牌 | [references/modes-card.md](references/modes-card.md) |
-| 遗物 | [references/modes-relic.md](references/modes-relic.md) |
-| 药水 | [references/modes-potion.md](references/modes-potion.md) |
-| 能力（Buff/Debuff） | [references/modes-power.md](references/modes-power.md) |
-| 附魔 | [references/modes-enchantment.md](references/modes-enchantment.md) |
-| 事件 & 先古之民 | [references/modes-event.md](references/modes-event.md) |
-| Harmony 补丁 | [references/modes-harmony.md](references/modes-harmony.md) |
-| 角色 | [references/modes-character.md](references/modes-character.md) |
-| 怪物 & 遭遇 | [references/modes-monster.md](references/modes-monster.md) |
-| 序列化 & 注册 | [references/modes-serialization.md](references/modes-serialization.md) |
-| 真实项目写法模式 | [references/real-code-patterns.md](references/real-code-patterns.md) |
-| 项目构建 & 部署 | [references/project-scaffold.md](references/project-scaffold.md) |
-| 设置界面 | [references/modes-settings-ui.md](references/modes-settings-ui.md) |
-| 附录（枚举/本地化/常见坑） | [references/appendices.md](references/appendices.md) |
 
 ---
 
@@ -254,10 +90,8 @@ cp build/MyMod.* /path/to/SlayTheSpire2/mods/
 | `AddModelToPool` 泛型报错 | 用 `ModHelper.AddModelToPool(poolType, modelType)` 反射重载 |
 | 遗物 `Rarity=Starter` 但池里不出现 | Starter 稀有度不走随机池，需 Patch 或用事件给 |
 | Harmony PatchAll 异常 | 单类 try-catch 包裹，防止一个类炸了全挂 |
-| 设置 UI 自己写容易出 bug | 参考 modes-settings-ui.md 自研架构 |
+| 设置 UI 自己写容易出 bug | 参考 modes-settings-ui.md 零 Harmony + Godot 纯信号方案 |
 | 自定义属性序列化丢失 | `[SavedProperty]` + `SavedPropertiesTypeCache.InjectTypeIntoCache()` |
 | ModelDb 已初始化后注册模型 | 用 `ModelDb.Inject(type)` 而非 `AddModelToPool` |
 | 角色卡池缓存不刷新 | 反射重置 `CardPoolModel._allCards` / `ModelDb._allCards` 等缓存字段 |
 | 先古之民对话不显示 | Patch `AncientDialogueSet.GetValidDialogues` + `DefineDialogues` |
-
----

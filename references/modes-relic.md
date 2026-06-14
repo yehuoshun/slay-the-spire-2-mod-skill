@@ -1,116 +1,179 @@
-# 模式二：自定义遗物
+# 自定义遗物
 
-## 最简示例
+> 学海克斯符文的 RelicBase 抽象 + YuWanCard 的自动注册。
+
+---
+
+## 最简遗物
 
 ```csharp
-using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Combat;
+using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Entities.Creatures;
+using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.ValueProps;
 
 namespace MyMod.Relics;
 
-public class EnergyRelic : RelicModel
+[RelicPool(typeof(SharedPool))]
+public sealed class LuckyCoinRelic : RelicModel
 {
-    // 稀有度决定获取途径
-    public override RelicRarity Rarity => RelicRarity.Boss;
-
-    // 图标
-    protected override string BigIconPath => "res://MyMod/images/relics/energy_relic.png";
+    public override Rarity Rarity => Rarity.Common;
+    public override string BigIconPath => "res://MyMod/images/relics/lucky_coin.png";
     public override string PackedIconPath => BigIconPath;
     protected override string PackedIconOutlinePath => BigIconPath;
 
-    // 回合开始钩子
-    public override async Task AfterSideTurnStart(CombatSide side,
-        IReadOnlyList<Creature> participants, HextechCombatState combatState)
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new DynamicVar("GoldPerCombat", 10m)
+    ];
+
+    public override async Task AfterCombatEnd(PlayerChoiceContext context)
     {
-        if (side == Owner.Creature.Side)
+        if (Owner == null) return;
+        Flash();
+        await PlayerCmd.GainGold(context, DynamicVars["GoldPerCombat"].IntValue);
+    }
+}
+```
+
+---
+
+## Rarity 决定获取途径
+
+| Rarity | 获取方式 |
+|--------|---------|
+| `Common` | 普通遗物池 |
+| `Uncommon` | 稀有遗物池 |
+| `Rare` | BOSS 遗物池 |
+| `Starter` | **不走随机池**，需 Patch 或用事件给 |
+| `Shop` | 商店遗物池 |
+| `Special` | 特殊事件获取 |
+| `Event` | 事件专属 |
+
+---
+
+## 常用生命周期钩子
+
+| 钩子 | 触发时机 |
+|------|---------|
+| `AfterCombatEnd(context)` | 战斗结束后 |
+| `AfterPlayerTurnStart(context, player)` | 玩家回合开始 |
+| `AfterPlayerTurnEnd(context, player)` | 玩家回合结束 |
+| `AfterCardPlayed(context, cardPlay)` | 打出卡牌后 |
+| `OnPlayerDamaged(context, damageTaken)` | 玩家受伤时 |
+| `OnPlayerKill(context, target)` | 玩家击杀敌人时 |
+| `BeforePlayerBlockLost(context, amountLost)` | 格挡消失前 |
+| `AfterPlayerHeal(context, amountHealed)` | 玩家治疗后 |
+
+---
+
+## 角色限定遗物
+
+```csharp
+public sealed class IroncladOnlyRelic : RelicModel
+{
+    public override bool IsAvailableForPlayer(Player player)
+    {
+        return player.Character is Ironclad;
+    }
+}
+```
+
+---
+
+## 带计数器的遗物
+
+```csharp
+public sealed class CounterRelic : RelicModel
+{
+    // SavedProperty 确保计数器序列化保存
+    [SavedProperty] public int KillCount { get; set; }
+
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new DynamicVar("KillsNeeded", 5m)
+    ];
+
+    public override async Task OnPlayerKill(PlayerChoiceContext context, Creature target)
+    {
+        KillCount++;
+        if (KillCount >= DynamicVars["KillsNeeded"].IntValue)
         {
+            KillCount = 0;
             Flash();
-            await PlayerCmd.GainEnergy(Owner, 1);
+            await PlayerCmd.Heal(context, 10);
         }
     }
 }
 ```
 
-## RelicRarity 枚举
+---
 
-| 值 | 获取途径 |
-|----|---------|
-| `Starter` | 初始遗物（不进入随机池） |
-| `Common` | 宝箱/精英/商店 |
-| `Uncommon` | 宝箱/精英/商店 |
-| `Rare` | 宝箱/精英/商店 |
-| `Boss` | Boss 掉落 |
-| `Shop` | 仅商店 |
-| `Event` | 仅事件 |
-| `Ancient` | 仅先古之民 |
-
-## 注册到遗物池
+## 战斗开始/战斗结束遗物
 
 ```csharp
-ModHelper.AddModelToPool<SharedRelicPool, EnergyRelic>();
-// 或角色专属
-ModHelper.AddModelToPool<IroncladRelicPool, EnergyRelic>();
-```
-
-## 常用钩子
-
-```csharp
-// 回合开始前
-BeforeSideTurnStart(PlayerChoiceContext, CombatSide, IReadOnlyList<Creature>, CombatState)
-// 回合开始后
-AfterSideTurnStart(CombatSide, IReadOnlyList<Creature>, CombatState)
-// 回合结束前
-BeforeSideTurnEnd(PlayerChoiceContext, CombatSide, IEnumerable<Creature>)
-// 回合结束后
-AfterSideTurnEnd(PlayerChoiceContext, CombatSide, IEnumerable<Creature>)
-// 战斗开始前
-BeforeCombatStart() / BeforeCombatStart(PlayerChoiceContext)
-// 战斗结束后
-AfterCombatEnd(CombatRoom)
-// 获取遗物时
-OnObtained()
-// 失去遗物时
-OnLost()
-// 卡牌打出后
-AfterCardPlayed(CardModel, CardPlay)
-// 受到伤害后
-AfterReceiveDamage(PlayerChoiceContext, Creature, decimal)
-```
-
-## 显示计数器
-
-```csharp
-public override bool ShowCounter => true;
-public override int DisplayAmount => _counter;
-
-protected override IEnumerable<DynamicVar> CanonicalVars => [
-    new DynamicVar("Counter", () => _counter)
-];
-```
-
-## 遗物池列表
-
-| 池 | 说明 |
-|----|------|
-| `SharedRelicPool` | 公共池（宝箱+精英+商店） |
-| `IroncladRelicPool` | 铁血战士专属 |
-| `SilentRelicPool` | 静默猎人专属 |
-| `DefectRelicPool` | 机器人专属 |
-| `NecrobinderRelicPool` | 亡灵契约师专属 |
-| `RegentRelicPool` | 储君专属 |
-| `EventRelicPool` | 事件专属 |
-| `ShopRelicPool` | 商店专用 |
-| `BossRelicPool` | Boss 掉落 |
-| `FallbackRelicPool` | 兜底池（Circlet） |
-
-## 修改角色初始遗物（Harmony Patch）
-
-```csharp
-[HarmonyPatch(typeof(Ironclad), "StartingRelics", MethodType.Getter)]
-[HarmonyPostfix]
-static void Postfix(ref IEnumerable<RelicModel> __result)
+public sealed class BattleRageRelic : RelicModel
 {
-    __result = __result.Append(new MyRelic());
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new PowerVar<StrengthPower>(1m)
+    ];
+
+    public override async Task AfterCombatStart(PlayerChoiceContext context)
+    {
+        Flash();
+        await PowerCmd.Apply<StrengthPower>(
+            Owner.Creature, DynamicVars["StrengthPower"].BaseValue, Owner.Creature, this);
+    }
 }
 ```
+
+---
+
+## 遗物本地化
+
+`assets/localization/zhs/relics.json`：
+
+```json
+{
+  "LuckyCoin": {
+    "NAME": "幸运硬币",
+    "FLAVOR": "一面是字，一面是花——但两面都写着赢。",
+    "DESCRIPTIONS": ["每场战斗结束后获得 !GoldPerCombat! 金币。"]
+  }
+}
+```
+
+---
+
+## Builder 模式遗物（学 YuWanCard）
+
+```csharp
+public sealed class LuckyCoinRelic : YuWanRelicModel
+{
+    // 构造函数中 autoAdd = true → 自动注册
+    public LuckyCoinRelic() : base(autoAdd: true)
+    {
+        Rarity = Rarity.Common;
+    }
+
+    public override async Task AfterCombatEnd(PlayerChoiceContext context)
+    {
+        Flash();
+        await PlayerCmd.GainGold(context, 10);
+    }
+}
+```
+
+---
+
+## 常见问题
+
+| 问题 | 解决 |
+|------|------|
+| Starter 遗物不出现 | Starter 不走随机池，需手动 Patch 给 |
+| 计数器不保存 | 加 `[SavedProperty]` 特性 |
+| 图标模糊 | PNG 分辨率 128x128 以上 |
+| `IsAvailableForPlayer` 不生效 | 检查 `Owner` 是否已初始化 |

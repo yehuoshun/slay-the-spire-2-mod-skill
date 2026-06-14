@@ -1,91 +1,101 @@
-# 模式三：自定义药水
+# 自定义药水
 
-## 最简示例（伤害药水）
+---
+
+## 最简药水
 
 ```csharp
 using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Entities.Creatures;
+using MegaCrit.Sts2.Core.Entities.Potions;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models;
-using MegaCrit.Sts2.Core.Models.Potions;
 
 namespace MyMod.Potions;
 
-public class DamagePotion : PotionModel
+public sealed class FirePotion : PotionModel
 {
     public override PotionRarity Rarity => PotionRarity.Common;
-    public override PotionUsage Usage => PotionUsage.CombatOnly;
+    public override TargetType TargetType => TargetType.AnyEnemy;
+    public override string PortraitPath => "res://MyMod/images/potions/fire.png";
+    public override IEnumerable<string> AllPortraitPaths => [PortraitPath];
 
-    protected override string BigIconPath => "res://MyMod/images/potions/damage_potion.png";
-    public override string PackedIconPath => BigIconPath;
-    protected override string PackedIconOutlinePath => BigIconPath;
-
-    protected override async Task OnUse(PlayerChoiceContext ctx, PotionUse use)
+    public FirePotion() : base()
     {
-        await DamageCmd.Attack(20)
-            .FromCard(null) // 药水没有来源卡牌
-            .TargetingAllOpponents(ctx.CombatState)
-            .Execute();
+    }
+
+    public override async Task Use(PlayerChoiceContext context, Creature target)
+    {
+        await CreatureCmd.Damage(context, target, 20, Owner.Creature, this);
     }
 }
 ```
 
-## PotionUsage 枚举
+---
 
-| 值 | 说明 |
-|----|------|
-| `CombatOnly` | 仅战斗中使用 |
-| `AnyTime` | 随时可用（如鲜血药水） |
-| `Triggered` | 代码触发（如瓶中精灵） |
+## Usage 决定使用场景
 
-## PotionRarity 枚举
+| Usage | 说明 |
+|-------|------|
+| `PotionUsage.Combat` | 仅战斗中使用 |
+| `PotionUsage.OutOfCombat` | 战斗外使用 |
+| `PotionUsage.Any` | 任意场景 |
 
-`Common` / `Uncommon` / `Rare`
+---
 
-## 效果药水示例（自伤换 BUFF）
+## 治疗药水
 
 ```csharp
-public class BuffPotion : PotionModel
+public sealed class HealingSalve : PotionModel
+{
+    public override PotionRarity Rarity => PotionRarity.Common;
+    public override TargetType TargetType => TargetType.Self;
+    public override PotionUsage Usage => PotionUsage.Any;
+
+    public override async Task Use(PlayerChoiceContext context, Creature target)
+    {
+        await PlayerCmd.Heal(context, 10);
+    }
+}
+```
+
+---
+
+## 目标型药水
+
+```csharp
+public sealed class WeakeningDraft : PotionModel
 {
     public override PotionRarity Rarity => PotionRarity.Uncommon;
-    public override PotionUsage Usage => PotionUsage.CombatOnly;
+    public override TargetType TargetType => TargetType.AnyEnemy;
 
-    protected override async Task OnUse(PlayerChoiceContext ctx, PotionUse use)
+    public override async Task Use(PlayerChoiceContext context, Creature target)
     {
-        await PlayerCmd.Damage(ctx.Player, 10, null);
-        await CreatureCmd.ApplyPower(ctx.Player.Creature, typeof(IntangiblePower), 2,
-            ctx.Player.Creature, null);
+        await PowerCmd.Apply<WeakPower>(target, 3, Owner.Creature, this);
     }
 }
 ```
 
-## 自动触发药水示例（死亡时复活）
+---
 
-```csharp
-public class RevivePotion : PotionModel
+## 本地化
+
+`assets/localization/zhs/potions.json`：
+
+```json
 {
-    public override PotionRarity Rarity => PotionRarity.Rare;
-    public override PotionUsage Usage => PotionUsage.Triggered;
-    public override bool CanBeGeneratedInCombat => false; // 不在随机药水中出现
-
-    protected override async Task OnUse(PlayerChoiceContext ctx, PotionUse use) { /* 手动使用无效 */ }
-
-    // 阻止死亡
-    public override bool ShouldDie(Creature creature) => creature == Owner?.Creature ? false : true;
-
-    // 阻止死亡后触发
-    public override async Task AfterPreventingDeath(Creature creature)
-    {
-        await PlayerCmd.Heal(Owner, 10);
-        // 消耗药水：从药水栏移除
-    }
+  "FirePotion": {
+    "NAME": "火焰药水",
+    "DESCRIPTION": "对一名敌人造成 20 点伤害。"
+  }
 }
 ```
 
-## 注册到药水池
+---
 
-```csharp
-ModHelper.AddModelToPool<SharedPotionPool, DamagePotion>();
-```
+## 常见问题
 
-## 药水池列表
-
-`SharedPotionPool` / `IroncladPotionPool` / `SilentPotionPool` / `DefectPotionPool` / `NecrobinderPotionPool` / `RegentPotionPool`
+| 问题 | 解决 |
+|------|------|
+| 药水不出现 | 确认 `PotionRarity` 不是 `Special` |
+| 战斗外无法使用 | 改 `Usage = PotionUsage.Any` |
