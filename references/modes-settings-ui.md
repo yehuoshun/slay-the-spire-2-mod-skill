@@ -1,6 +1,7 @@
-# 模式十二：设置界面 — 学 ModConfig 架构自己实现
+# 模式十二：设置界面
 
-> 学习 [xhyrzldf/ModConfig-STS2](https://github.com/xhyrzldf/ModConfig-STS2) 的核心设计，自己造轮子。
+> 可自研（参考下方架构），也可直接接入 [ModConfig v0.2.2](https://github.com/xhyrzldf/ModConfig-STS2) 框架。
+> ModConfig 支持：Toggle / Slider / Dropdown / KeyBind / TextInput / ColorPicker / Button / Header / Separator。
 > 关键设计：零 Harmony 注入、延迟注册、双向绑定、持久化 debounce。
 
 ---

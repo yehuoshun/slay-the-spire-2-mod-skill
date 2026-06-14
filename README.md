@@ -25,11 +25,10 @@
 
 ### 🔥 活跃参考
 
-- **[STS2Mod](https://github.com/xhyrzldf/STS2Mod)** — 核心社区模组框架，API 扩展与工具链
-- **[YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard)** — 生产级角色 Mod，Builder 模式 + 反射注册
-- **[BaseLib](https://github.com/Alchyr/BaseLib-StS2)** — 基础库，通用工具方法与扩展
-- **[ModTemplate](https://github.com/Alchyr/ModTemplate-StS2)** — 模组脚手架模板
-- **[ModConfig](https://github.com/xhyrzldf/ModConfig-STS2)** — 设置界面架构（零 Harmony、双向绑定、持久化 debounce）
+- **[YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard)** — 生产级角色 Mod，Builder 模式 + 反射注册 + 完整抽象基类体系（2026-06-14）
+- **[BaseLib](https://github.com/Alchyr/BaseLib-StS2)** — 基础库，Hooks 接口 + 反射/角色/怪物工具 + 异步 Patch 辅助（2026-06-10）
+- **[ModTemplate](https://github.com/Alchyr/ModTemplate-StS2)** — 模组脚手架模板，ContentMod / CharacterMod 双模板（2026-05-11）
+- **[ModConfig](https://github.com/xhyrzldf/ModConfig-STS2)** — 设置界面框架 v0.2.2，零 Harmony + 双向绑定 + 持久化 debounce，支持 Toggle/Slider/Dropdown/KeyBind/TextInput/ColorPicker/Button（2026-04-19）
 
 ### 其他参考
 
