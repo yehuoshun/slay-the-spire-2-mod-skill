@@ -217,8 +217,6 @@ cp build/MyMod.* /path/to/SlayTheSpire2/mods/
 | `ModelDb.Inject(type)` | 绕过 Init 直接注入模型（ModelDb 已初始化后使用） |
 | `ModelDb.Contains(type)` | 检查模型是否已注册 |
 | `SavedProperty` 特性 | 标记需要序列化保存的自定义属性 |
-| `ModConfigApi.Register/GetValue/SetValue` | 接入 ModConfig 设置框架 |
-| `BaseLib Hooks` 接口 | `IMaxHandSizeModifier`/`IHealAmountModifier`/`IAfterCardDowngraded`/`IHealthBarForecastSource` |
 
 ---
 
@@ -256,7 +254,7 @@ cp build/MyMod.* /path/to/SlayTheSpire2/mods/
 | `AddModelToPool` 泛型报错 | 用 `ModHelper.AddModelToPool(poolType, modelType)` 反射重载 |
 | 遗物 `Rarity=Starter` 但池里不出现 | Starter 稀有度不走随机池，需 Patch 或用事件给 |
 | Harmony PatchAll 异常 | 单类 try-catch 包裹，防止一个类炸了全挂 |
-| 设置 UI 自己写容易出 bug | 参考 modes-settings-ui.md 或接入 ModConfig 框架 |
+| 设置 UI 自己写容易出 bug | 参考 modes-settings-ui.md 自研架构 |
 | 自定义属性序列化丢失 | `[SavedProperty]` + `SavedPropertiesTypeCache.InjectTypeIntoCache()` |
 | ModelDb 已初始化后注册模型 | 用 `ModelDb.Inject(type)` 而非 `AddModelToPool` |
 | 角色卡池缓存不刷新 | 反射重置 `CardPoolModel._allCards` / `ModelDb._allCards` 等缓存字段 |
