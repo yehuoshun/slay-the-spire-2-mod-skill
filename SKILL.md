@@ -253,3 +253,81 @@ cp build/MyMod.* /path/to/SlayTheSpire2/mods/
 | 设置 UI 自己写容易出 bug | 参考 modes-settings-ui.md 或接入 ModConfig 框架 |
 
 ---
+
+## 🧠 活跃参考仓库学习笔记（2026-06-14）
+
+### YuWanCard — Builder 模式 + 反射注册体系
+
+**卡牌 Builder 链式构造**（`YuWanCardModel`）：
+```csharp
+// 构造函数中自动注册到 ContentRegistry
+class MyCard : YuWanCardModel {
+    public MyCard() : base(1, CardType.Attack, CardRarity.Common, TargetType.Enemy)
+        .WithDamage(7, 3)           // DamageVar(7) + 升级+3
+        .WithBlock(5)               // BlockVar(5)
+        .WithVar("custom", 3, 1)    // 自定义 DynamicVar
+        .WithPower<MyPower>(2)      // PowerVar + 自动 HoverTip
+        .WithKeywords(CardKeyword.Exhaust)
+        .WithHandGlowGold(c => ...) // 手牌金色高亮条件
+        .WithCostUpgradeBy(-1)      // 升级减费
+    { }
+}
+```
+
+**注册体系**（`ContentRegistry`）：
+- `[Pool]` 属性 → `ModHelper.AddModelToPool` 自动注册
+- `[RegisterEvent]` / `[RegisterAncient]` / `[RegisterBoss]` / `[RegisterCharacter]` / `[RegisterOrb]` / `[RegisterMonster]` / `[RegisterEnchantment]` / `[RegisterSingleton]` 等属性
+- `AssemblyScanner.GetLoadableTypes` 安全类型扫描（Android/Mono 兼容）
+- `Freeze()` 机制：ModelDb.Init 后冻结，防止延迟注册
+- `InitDeDuplicationPatch`：SafeInit 去重构造，跳过已存在的 ModelId
+
+**Patch 管理**（`ModPatcher`）：
+- `PatchAllSafe`：单类 try-catch，一个类炸了不影响其他
+- `ApplySingle`：手动控制特定 Patch 的加载（如平台条件 Patch）
+- `ModLifecycle.Publish(phase)`：生命周期事件发布
+
+**跨模组通信**（`ModInterop`）：
+- `[ModInterop]` 属性标记接口方法
+- `ModInteropProcessor` 自动扫描并连接
+
+### BaseLib — Hooks 接口 + 工具集
+
+**Hooks 接口扩展**：
+- `IMaxHandSizeModifier` — 修改最大手牌数
+- `IHealAmountModifier` — 修改治疗量
+- `IAfterCardDowngraded` — 卡牌降级后回调
+- `IHealthBarForecastSource` — 血条预测数据源
+
+**工具集**：
+- `ReflectionUtils` / `CustomCharacterUtils` / `MonsterActions` / `CustomLocTableManager` / `NodeFactory`
+- `Patching/AsyncMethodCall` — 异步方法 IL 级 Patch 辅助
+- `ModConfigRegistry.Register` — 注册到 ModConfig 框架
+
+### ModTemplate — 双模板脚手架
+
+- **ContentMod**：纯内容模组（卡牌/遗物/药水等），最简入口
+- **CharacterMod**：角色模组，含 `CardPool` / `RelicPool` / `PotionPool` / `Character`
+- 模板自带 `ScriptManagerBridge.LookupScriptsInAssembly` 注释（有自定义场景时取消注释）
+
+### ModConfig v0.2.2 — 设置框架
+
+**控件类型**：Toggle / Slider / Dropdown / KeyBind / TextInput / ColorPicker / Button / Header / Separator
+
+**公共 API**（`ModConfigApi`）：
+```csharp
+ModConfigApi.Register(modId, displayName, entries);
+ModConfigApi.Register(modId, displayName, displayNames, entries); // 多语言
+ModConfigApi.GetValue<T>(modId, key);
+ModConfigApi.SetValue(modId, key, value);
+```
+
+**关键设计**：
+- 零 Harmony 注入（`SceneTree.NodeAdded` 信号检测 `NSettingsTabManager`）
+- `ModConfigManager` 持久化 debounce（`ProcessFrame` 合并写入）
+- `I18n` 多语言支持（`LabelKey` / `Labels` 字典）
+- `CollapsedMods` UI 折叠状态持久化
+- `ColorPicker` 颜色规范化（`NormalizeColorHexOrDefault`）
+- `ConfigEntry.Validator` 输入校验（TextInput 红框反馈）
+- `Button` 类型支持（可绑定回调动作）
+
+---
