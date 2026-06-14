@@ -2,7 +2,6 @@
 
 > 🦞 STS2 Mod 开发指南。依赖 `0Harmony.dll` + `sts2.dll`，不依赖第三方模组。
 > 主文件只是索引，具体模式见 references/。
-> 设置界面学 [ModConfig](https://github.com/xhyrzldf/ModConfig-STS2) 架构自研：零 Harmony 注入 + 双向绑定 + 持久化 debounce。
 
 ---
 
@@ -254,9 +253,3 @@ cp build/MyMod.* /path/to/SlayTheSpire2/mods/
 | 设置 UI 自己写容易出 bug | 学习 modes-settings-ui.md 的架构：零 Harmony 注入、双向绑定、持久化 debounce |
 
 ---
-
-## 鸣谢
-
-- [ModConfig-STS2](https://github.com/xhyrzldf/ModConfig-STS2) — 设置界面架构参考（零 Harmony 注入、双向绑定、持久化 debounce）
-- [STS2Plus](https://github.com/StephenSHorton/STS2Plus) — 生产级模组参考
-- [YuWanCard / 鱼丸](https://github.com/YuWan886/Sts2-YuWanCard) — Builder 模式 + 反射注册参考

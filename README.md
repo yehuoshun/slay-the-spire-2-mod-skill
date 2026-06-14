@@ -23,11 +23,17 @@
 
 ## 鸣谢
 
+### 🔥 活跃参考
+
+- **[STS2Mod](https://github.com/xhyrzldf/STS2Mod)** — 核心社区模组框架，API 扩展与工具链
+- **[YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard)** — 生产级角色 Mod，Builder 模式 + 反射注册
+- **[BaseLib](https://github.com/Alchyr/BaseLib-StS2)** — 基础库，通用工具方法与扩展
+- **[ModTemplate](https://github.com/Alchyr/ModTemplate-StS2)** — 模组脚手架模板
+- **[ModConfig](https://github.com/xhyrzldf/ModConfig-STS2)** — 设置界面架构（零 Harmony、双向绑定、持久化 debounce）
+
+### 其他参考
+
 - **[STS2Plus](https://github.com/StephenSHorton/STS2Plus)** — 修正器架构、联机同步参考
-- **[sts2mod](https://github.com/s1f102500012/sts2mod)** — Natsuki 12 模组合集
-- **[YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard)** — 生产级角色 Mod
-- **[BaseLib](https://github.com/Alchyr/BaseLib-StS2)** — 社区框架
-- **[ModTemplate](https://github.com/Alchyr/ModTemplate-StS2)** — 官方模板
 - **[sts2-res](https://github.com/yehuoshun/sts2-res)** — 反编译源码参考
 - **[Megadot](https://megadot.megacrit.com)** — STS2 专用引擎
 - [环境搭建 + 创建项目](https://www.bilibili.com/opus/1179300682687053826) — [烟汐忆梦_YM](https://space.bilibili.com/481430814)
