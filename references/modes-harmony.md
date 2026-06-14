@@ -79,6 +79,42 @@ private static void TryInstall(string label, Action install)
 }
 ```
 
+## 分类安装（Harmony.PatchCategory）
+
+如果每个 Patch 类声明了 `[HarmonyPatchCategory("Core")]`，可以按分类安装：
+
+```csharp
+// PatchCategory 自动发现 assembly 中所有标记为指定 category 的 Patch 类
+harmony.PatchCategory(assembly, "Core");
+harmony.PatchCategory(assembly, "DpsMeter");
+```
+
+比 PatchAll 更精细，可以控制哪些功能组启用。
+
+## 手动 Patch（精确控制目标方法）
+
+当不能用 `[HarmonyPatch]` 属性声明时，手动构造 HarmonyMethod：
+
+```csharp
+// Patch 属性 Getter
+harmony.Patch(
+    typeof(ModelDb).GetProperty(nameof(ModelDb.AllCharacters),
+        BindingFlags.Static | BindingFlags.Public)!.GetMethod,
+    postfix: new HarmonyMethod(typeof(MyPatches), nameof(AllCharactersPostfix))
+);
+
+// Patch 实例方法
+harmony.Patch(
+    typeof(AncientDialogueSet).GetMethod(nameof(AncientDialogueSet.GetValidDialogues)),
+    prefix: new HarmonyMethod(typeof(MyPatches), nameof(GetValidDialoguesPrefix))
+);
+```
+
+**适用场景**：
+- 方法签名有多个重载，需要精确匹配参数类型
+- 目标类型在运行时才确定
+- 需要给多个无关类 Patch 同一个 Postfix
+
 ## 常用 Patch 场景
 
 ### 修改角色初始遗物

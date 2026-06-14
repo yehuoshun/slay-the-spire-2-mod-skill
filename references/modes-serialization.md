@@ -114,3 +114,45 @@ public static void Initialize()
 ```
 
 **关键顺序**：补丁 → 序列化 → 注册 → 场景映射 → 资源。不能颠倒。
+
+---
+
+## ModelDb 已初始化后的延迟注册
+
+当 ModelDb 已经 Init 后（比如模组加载顺序导致），不能用 `AddModelToPool`，需要直接注入：
+
+```csharp
+// 检查 ModelDb 是否已初始化
+if (ModelDb.Contains(typeof(Ironclad)))
+{
+    // 已初始化，用 Inject 绕过 Init
+    foreach (Type type in ModelTypes)
+    {
+        if (ModelDb.Contains(type)) continue;
+        ModelDb.Inject(type);
+        ModelId id = ModelDb.GetId(type);
+        ModelDb.GetById<AbstractModel>(id).InitId(id);
+    }
+}
+```
+
+---
+
+## 注册后刷新 ModelDb 缓存
+
+注册新模型后，ModelDb 的内部缓存可能还是旧的，需要反射重置：
+
+```csharp
+string[] cacheFields = { "_allCards", "_allCardPools", "_allRelics", "_allPotions" };
+foreach (string fieldName in cacheFields)
+{
+    FieldInfo? field = typeof(ModelDb).GetField(fieldName,
+        BindingFlags.Static | BindingFlags.NonPublic);
+    field?.SetValue(null, null);
+}
+
+// 卡池自身的缓存也要重置
+FieldInfo? poolField = typeof(CardPoolModel).GetField("_allCards",
+    BindingFlags.Instance | BindingFlags.NonPublic);
+poolField?.SetValue(cardPool, null);
+```

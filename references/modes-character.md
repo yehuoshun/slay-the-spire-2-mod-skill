@@ -149,6 +149,53 @@ static void Postfix(ref IEnumerable<CharacterModel> __result)
 }
 ```
 
+## 先古之民对话注入
+
+每个先古之民（Neow/Darv/Orobas 等）对每个角色有独立对话。自定义角色需要 Patch 每个 NPC 的 `DefineDialogues()`：
+
+```csharp
+// 对每个 NPC 做 Postfix
+private static void NeowDefineDialoguesPostfix(AncientDialogueSet __result)
+{
+    string entry = ModelDb.GetId<MyCharacter>().Entry;
+    __result.CharacterDialogues[entry] = new []
+    {
+        new AncientDialogue(["sfx/npcs/neow/neow_welcome", "",
+            "sfx/npcs/neow/neow_sleepy", ""])
+        { VisitIndex = 0 },  // 第一次见
+        new AncientDialogue(["sfx/npcs/neow/neow_welcome", "", "", ""])
+        { VisitIndex = 1 },  // 第2-3次
+        new AncientDialogue(["sfx/npcs/neow/neow_sleepy", "", "sfx/..."])
+        { VisitIndex = 4 }   // 第5次及以上
+    };
+}
+```
+
+## 先古对话系统 Patch
+
+除了对话内容，还需要 Patch `AncientDialogueSet.GetValidDialogues` 来处理角色对话索引：
+
+```csharp
+[HarmonyPrefix]
+[HarmonyPatch(typeof(AncientDialogueSet), "GetValidDialogues")]
+static bool Prefix(AncientDialogueSet __instance, ref List<AncientDialogue> __result,
+    ModelId characterId, int visits)
+{
+    if (!__instance.CharacterDialogues.TryGetValue(characterId.Entry, out var dialogues))
+        return true; // 非自定义角色，走原逻辑
+
+    // 优先匹配 exact visit，其次 repeating
+    var exact = dialogues.Where(d => d.VisitIndex == visits).ToList();
+    if (exact.Count > 0) { __result = exact; return false; }
+
+    var repeating = dialogues.Where(d => d.IsRepeating
+        && (!d.VisitIndex.HasValue || visits >= d.VisitIndex.Value)).ToList();
+    if (repeating.Count > 0) { __result = repeating; return false; }
+
+    return true;
+}
+```
+
 ## 角色本地化
 
 ```json
