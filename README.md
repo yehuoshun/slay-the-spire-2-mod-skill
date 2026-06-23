@@ -35,10 +35,10 @@
 
 ### 🔥 活跃参考
 
-- **[STS2Mod](https://github.com/s1f102500012/sts2mod)** — Natsuki 模组合集，多角色/符文/无尽模式等生产级参考（学习：2026-06-14）
-- **[YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard)** — 生产级角色 Mod，Builder 模式 + 反射注册 + 完整抽象基类体系（学习：2026-06-14）
-- **[BaseLib](https://github.com/Alchyr/BaseLib-StS2)** — 基础库，Hooks 接口 + 反射/角色/怪物工具 + 异步 Patch 辅助（学习：2026-06-14）
-- **[ModTemplate](https://github.com/Alchyr/ModTemplate-StS2)** — 模组脚手架模板，ContentMod / CharacterMod 双模板（学习：2026-06-14）
+- **[STS2Mod](https://github.com/s1f102500012/sts2mod)** — Natsuki 模组合集，多角色/符文/无尽模式/集成战略事件等生产级参考（学习：2026-06-23）
+- **[YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard)** — 生产级角色 Mod，Builder 模式 + 反射注册 + 完整抽象基类体系 + 确定性随机 + ModelId 去重（学习：2026-06-23）
+- **[BaseLib](https://github.com/Alchyr/BaseLib-StS2)** — 基础库 v3.3.2，Hooks 接口 + MoveBuilder + MultiPileCardSelect + CardTransformReward + ITrashHeap + CustomCharacterUtils + CustomActModel + Pet 目标类型（学习：2026-06-23）
+- **[ModTemplate](https://github.com/Alchyr/ModTemplate-StS2)** — 模组脚手架模板，ContentMod / CharacterMod 双模板，更新 .NET 9.0 兼容（学习：2026-06-23）
 - **[ModConfig](https://github.com/xhyrzldf/ModConfig-STS2)** — 设置界面框架 v0.2.2，零 Harmony + 双向绑定 + 持久化 debounce，支持 Toggle/Slider/Dropdown/KeyBind/TextInput/ColorPicker/Button（学习：2026-06-14）
 
 ### 其他参考

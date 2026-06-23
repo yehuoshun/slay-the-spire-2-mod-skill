@@ -134,6 +134,7 @@ public class ModPatcher
 | 目标 | 说明 |
 |------|------|
 | `CardModel.OnPlay` | 卡牌打出 |
+| `CardModel.OnAfterPlayed` | 卡牌打出后 |
 | `CombatManager.StartCombat` | 战斗开始 |
 | `CombatManager.EndCombat` | 战斗结束 |
 | `CombatManager.EndTurn` | 回合结束 |
@@ -142,9 +143,13 @@ public class ModPatcher
 | `CardPileCmd.Add` | 卡牌加入牌堆 |
 | `RewardScreen.GenerateRewards` | 奖励生成 |
 | `MapNode.OnEnter` | 进入地图节点 |
+| `MapGenerator.Generate` | 地图生成 |
 | `RunState.StartRun` | 开始一局 |
 | `ModelDb.Init` | 模型数据库初始化 |
+| `ModelId.ToTypeNameMap` | ModelId 序列化映射 |
 | `AncientDialogueSet.GetValidDialogues` | 先古之民对话获取 |
+| `CompendiumScreen.GenerateCards` | 图鉴生成 |
+| `CharacterSelectScreen.OnEnter` | 角色选择界面 |
 
 ---
 

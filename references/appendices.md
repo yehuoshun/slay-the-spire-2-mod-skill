@@ -40,6 +40,9 @@
 | `CardSelectCmd.FromDeckGeneric(ctx, ...)` | 从牌库选择 |
 | `OrbCmd.EvokeNext(ctx, player)` | 激发下一个充能球 |
 | `OrbCmd.AddSlots(player, count)` | 增加充能球槽位 |
+| `CardCmd.Downgrade(ctx, card)` | 降级卡牌 |
+| `CardPileCmd.Shuffle(ctx, player)` | 洗牌 |
+| `CardSelectCmd.MultiPileSelect(ctx, ...)` | 多牌堆选牌（BaseLib 3.3.0+） |
 
 ### 模型数据库
 
@@ -156,3 +159,12 @@
 | 卡牌 Pool 返回 null | 检查 `IsMutable && Owner != null` 条件判断 |
 | 事件不触发 | 事件不走 `AddModelToPool`，需要特殊注册 |
 | 多个 Mod 补丁同一方法 | 用 `HarmonyPriority` 控制执行顺序 |
+| 多人模式状态不同步 | 用**确定性随机**（`DeterministicRandomUtils`）替代 `System.Random` |
+| ModelId 序列化缓存重复 | Patch `ModelId.ToTypeNameMap` getter 注入时去重 |
+| 多人模式专属卡牌 | 添加 `IsMultiplayerOnly` 标记防止单人模式卡死 |
+| 先古遗物不在图鉴显示 | 实现 `CustomAncientRegistry` + `AncientRelicCompendiumPatch` |
+| 卡牌降级 Hook | 实现 `IAfterCardDowngraded` 接口（BaseLib 3.3.0+） |
+| 废品堆机制 | 实现 `ITrashHeapCard`/`ITrashHeapRelic` 接口（BaseLib 3.3.0+） |
+| 自定义关卡 | 继承 `CustomActModel`（BaseLib 3.3.0+） |
+| 角色初始化复杂 | 用 `CustomCharacterUtils` 简化（BaseLib 3.3.0+） |
+| 宠物/宠物或自身目标 | 用 `CustomTargetType.Pet`/`PetOrSelf`（BaseLib 3.3.0+） |

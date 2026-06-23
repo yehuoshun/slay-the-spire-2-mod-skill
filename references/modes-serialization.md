@@ -173,6 +173,68 @@ private static void RegisterModels()
 
 ---
 
+## ModelId 序列化缓存去重（学 YuWanCard）
+
+多人模式下 `ModelId.ToTypeNameMap` 可能重复注入导致序列化异常：
+
+```csharp
+[HarmonyPatch(typeof(ModelId), nameof(ModelId.ToTypeNameMap), MethodType.Getter)]
+public static class ModelIdSerializationCachePatch
+{
+    private static bool _patched;
+
+    public static void Postfix(ref Dictionary<string, Type> __result)
+    {
+        if (_patched) return;
+        _patched = true;
+
+        var assembly = Assembly.GetExecutingAssembly();
+        foreach (var type in assembly.GetTypes())
+        {
+            if (type.IsAbstract || !typeof(AbstractModel).IsAssignableFrom(type))
+                continue;
+
+            var id = ModelDb.GetId(type);
+            if (!string.IsNullOrEmpty(id) && !__result.ContainsKey(id))
+                __result[id] = type;
+        }
+    }
+}
+```
+
+---
+
+## 确定性随机（学 YuWanCard）
+
+多人模式必须用确定性随机替代 `System.Random`，否则状态不同步：
+
+```csharp
+public static class DeterministicRandomUtils
+{
+    // 基于种子 + 回合数 + 实体 ID 生成确定性随机数
+    public static int Next(int seed, int turn, string entityId, int max)
+    {
+        var hash = HashCode.Combine(seed, turn, entityId);
+        return Math.Abs(hash) % max;
+    }
+
+    // 洗牌
+    public static void Shuffle<T>(int seed, int turn, string sourceId, IList<T> list)
+    {
+        var rng = new Random(HashCode.Combine(seed, turn, sourceId));
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int j = rng.Next(i + 1);
+            (list[i], list[j]) = (list[j], list[i]);
+        }
+    }
+}
+```
+
+**关键**：所有随机操作（抽牌、伤害浮动、遗物触发）必须走确定性随机，否则多人模式会炸。
+
+---
+
 ## 常见问题
 
 | 问题 | 解决 |
@@ -182,3 +244,5 @@ private static void RegisterModels()
 | 重复注册 | 加 `_initialized` 锁 + `Contains` 检查 |
 | ModelDb 已初始化后注册 | 用 `ModelDb.Inject(type)` |
 | 角色卡池缓存不刷新 | 反射重置 `CardPoolModel._allCards` |
+| ModelId 序列化重复报错 | Patch `ModelId.ToTypeNameMap` getter 做去重（学 YuWanCard） |
+| 多人模式随机结果不同步 | 用 `DeterministicRandomUtils` 替代 `System.Random`（学 YuWanCard） |

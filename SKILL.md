@@ -63,17 +63,30 @@
 | `CardPoolModel` | 卡池基类。`GenerateAllCards()` |
 | `DynamicVars` | 动态变量集合。`["Name"].UpgradeValueBy(n)` |
 | `PlayerCmd` | 玩家操作：`GainEnergy`/`GainBlock`/`GainGold`/`Damage`/`Heal`/`ApplyPower` |
-| `CardCmd` | 卡牌：`Enchant`/`Discard`/`Upgrade` |
+| `CardCmd` | 卡牌：`Enchant`/`Discard`/`Upgrade`/`Downgrade` |
 | `DamageCmd` | 伤害链：`Attack().FromCard().Targeting().Execute()` |
-| `CardPileCmd` | 牌堆：`Draw` |
-| `CardSelectCmd` | 选牌：`FromHandGeneric`/`FromDeckGeneric` |
+| `CardPileCmd` | 牌堆：`Draw`/`Shuffle` |
+| `CardSelectCmd` | 选牌：`FromHandGeneric`/`FromDeckGeneric`/`MultiPileSelect` |
+| `OrbCmd` | 充能球：`EvokeNext`/`AddSlots` |
 | `ModelDb` | 反射注册：`GetId`/`GetByIdOrNull`/`AllCards`/`AllRelics` |
 | `ModHelper.AddModelToPool<T>()` | 注册模型到对应池 |
 | `ModelDb.Inject(type)` | 绕过 Init 直接注入模型（ModelDb 已初始化后使用） |
+| `ModelDb.Contains(type)` | 检查模型是否已注册 |
 | `SavedPropertiesTypeCache.InjectTypeIntoCache()` | 自定义属性序列化缓存注入 |
 | `ScriptManagerBridge.LookupScriptsInAssembly` | 场景脚本映射（有自定义场景时必须） |
 | `Harmony.PatchAll` | 批量 Harmony 补丁。用 try-catch 包裹防止一个类炸了全挂 |
+| `Harmony.PatchCategory(assembly, category)` | 按分组打补丁 |
 | `SavedProperty` 特性 | 标记需要序列化保存的自定义属性 |
+| `MoveBuilder` (BaseLib 3.3.0+) | 怪物状态机构建器，流式 API |
+| `MultiPileCardSelect` (BaseLib 3.3.0+) | 多牌堆选牌 UI（手牌+牌库+弃牌堆） |
+| `CardTransformReward` (BaseLib 3.3.0+) | 卡牌变形奖励 |
+| `CardUpgradeReward` (BaseLib 3.3.0+) | 卡牌升级奖励 |
+| `RandomCardUpgradeReward` (BaseLib 3.3.0+) | 随机卡牌升级奖励 |
+| `ITrashHeapCard/ITrashHeapRelic` (BaseLib 3.3.0+) | 废品堆接口，标记可被移除的卡/遗物 |
+| `IAfterCardDowngraded` (BaseLib 3.3.0+) | 卡牌降级后 Hook |
+| `CustomCharacterUtils` (BaseLib 3.3.0+) | 角色工具类，简化角色初始化 |
+| `CustomActModel` (BaseLib 3.3.0+) | 自定义关卡模型 |
+| `CustomTargetType.Pet/PetOrSelf` (BaseLib 3.3.0+) | 宠物/宠物或自身目标类型 |
 
 ---
 
@@ -95,3 +108,7 @@
 | ModelDb 已初始化后注册模型 | 用 `ModelDb.Inject(type)` 而非 `AddModelToPool` |
 | 角色卡池缓存不刷新 | 反射重置 `CardPoolModel._allCards` / `ModelDb._allCards` 等缓存字段 |
 | 先古之民对话不显示 | Patch `AncientDialogueSet.GetValidDialogues` + `DefineDialogues` |
+| 先古遗物不在图鉴显示 | 实现 `AncientRelicCompendiumPatch` 自定义注册表（学 YuWanCard） |
+| 多人模式状态不同步 | 用**确定性随机**（`DeterministicRandomUtils`）替代 `System.Random`（学 YuWanCard） |
+| ModelId 序列化缓存重复 | Patch `ModelId.ToTypeNameMap` 注入时去重（学 YuWanCard `ModelIdSerializationCachePatch`） |
+| 多人模式专属卡牌 | 添加 `IsMultiplayerOnly` 标记防止单人模式卡死（学 YuWanCard） |

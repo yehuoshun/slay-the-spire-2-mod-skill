@@ -56,6 +56,50 @@ public sealed class GoblinScout : MonsterModel
 }
 ```
 
+### MoveBuilder 流式构建（BaseLib 3.3.0+）
+
+学 STS2Mod 集成战略事件。BaseLib 提供 `MoveBuilder` 替代手写 `MoveState`：
+
+```csharp
+public override IEnumerable<MoveState> GenerateMoveStateMachine()
+{
+    return new[]
+    {
+        MoveBuilder.Create("Idle")
+            .Intent(IntentType.Unknown)
+            .Text("观察")
+            .Execute(ctx => Task.CompletedTask)
+            .Next("ChooseAction"),
+
+        MoveBuilder.Create("ChooseAction")
+            .Intent(IntentType.Unknown)
+            .Text("选择行动")
+            .Execute(ctx => Task.CompletedTask)
+            .Transition("Enrage", ctx => ctx.Monster.HpPercent < 0.3f)
+            .Transition("Attack", ctx => ctx.Monster.HpPercent >= 0.3f),
+
+        MoveBuilder.Create("Attack")
+            .Intent(IntentType.Attack)
+            .Text("猛击")
+            .Damage(12)
+            .Execute(async ctx =>
+            {
+                await CreatureCmd.Damage(ctx, ctx.Player, 12, this, this);
+            })
+            .Next("ChooseAction"),
+
+        MoveBuilder.Create("Enrage")
+            .Intent(IntentType.Buff)
+            .Text("狂暴")
+            .Execute(async ctx =>
+            {
+                await PowerCmd.Apply<StrengthPower>(this, 3, this, this);
+            })
+            .Next("Attack")
+    };
+}
+```
+
 ---
 
 ## 带条件转移的状态机
@@ -193,3 +237,6 @@ ModHelper.AddModelToPool(typeof(MonsterPool), typeof(GoblinScout));
 | 怪物不攻击 | 检查状态机 `NextState` 是否正确 |
 | 条件转移不触发 | 检查 `AddTransition` 的条件表达式 |
 | 怪物不出现 | 检查遭遇注册和 `ValidAct` |
+| 怪物状态机复杂 | 用 `MoveBuilder` 流式 API 替代手写 `MoveState`（BaseLib 3.3.0+） |
+| 怪物动画不播放 | 检查 Spine 资源路径和 `.tscn` 场景文件 |
+| 遭遇音乐不播放 | 实现 `EncounterMusicController` 绑定 BGM（学 STS2Mod） |
