@@ -129,5 +129,5 @@ rm -rf /tmp/sts-study
 
 ## 上次更新
 
-- **日期**: 2026-06-23
-- **版本**: BaseLib v3.3.2, YuWanCard v0.5.8, STS2Mod 海克斯 0.7.6
+- **日期**: 2026-07-10
+- **版本**: BaseLib v3.3.4, YuWanCard v0.5.10, STS2Mod 海克斯 0.8.5 / 集成战略事件 0.5.0

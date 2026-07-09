@@ -87,6 +87,9 @@
 | `CustomCharacterUtils` (BaseLib 3.3.0+) | 角色工具类，简化角色初始化 |
 | `CustomActModel` (BaseLib 3.3.0+) | 自定义关卡模型 |
 | `CustomTargetType.Pet/PetOrSelf` (BaseLib 3.3.0+) | 宠物/宠物或自身目标类型 |
+| `IBetaCompatTempPower.IgnoreNextInstance()` (BaseLib 3.3.3+) | 临时能力 Beta 版本兼容，忽略下一次实例化 |
+| `CardRewardSerializationCompatibility` (BaseLib 3.3.4+) | 自定义卡池序列化兼容层，支持旧版 `CardCreationOptions.CustomCardPool` |
+| `CustomTemporaryPowerModel` (BaseLib 3.3.3+) | 临时能力基类，内置核分支兼容（`ITemporaryPower` + `IBetaCompatTempPower`） |
 
 ---
 
@@ -112,3 +115,8 @@
 | 多人模式状态不同步 | 用**确定性随机**（`DeterministicRandomUtils`）替代 `System.Random`（学 YuWanCard） |
 | ModelId 序列化缓存重复 | Patch `ModelId.ToTypeNameMap` 注入时去重（学 YuWanCard `ModelIdSerializationCachePatch`） |
 | 多人模式专属卡牌 | 添加 `IsMultiplayerOnly` 标记防止单人模式卡死（学 YuWanCard） |
+| 卡牌奖励序列化丢失自定义卡池 | 需要 `CardRewardSerializationCompatibility` 兼容层（BaseLib 3.3.4+） |
+| 临时能力核分支兼容 | 继承 `CustomTemporaryPowerModel` 并实现 `IBetaCompatTempPower`（BaseLib 3.3.3+） |
+| 外部 Mod 卡牌目标兼容 | 用 `ExternalCardTargetingCompat` 桥接层反射调用外部 Mod 的自定义目标类型（学 YuWanCard） |
+| 角色皮肤系统 | 实现 `IYuWanCharacterSkinProvider` 接口 + `CharacterSkinSelectionManager` 持久化选择（学 YuWanCard） |
+| 配置系统只依赖 RitsuLib | YuWanCard v0.5.10 已移除 BaseLib 配置支持，仅保留 RitsuLib（学 YuWanCard） |

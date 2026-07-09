@@ -195,3 +195,118 @@ public static void Initialize()
 | 10+ 内容 | 集中注册表 + Try-Install 补丁 |
 | 自定义角色 | ModTemplate 角色模板 + 属性扫描 |
 | 需要设置界面 | ModConfig 框架（或用 ShunMod 自研方案） |
+
+---
+
+## 模式六（YuWanCard）：外部 Mod 卡牌目标兼容层
+
+当你的 Mod 使用自定义 `TargetType`，其他 Mod 的卡牌通过反射无法正确选择目标时，可用桥接模式兼容外部 Mod。
+
+**核心思路**：
+1. 通过 `ModCompat.TryGetAssembly(modId)` 获取外部 Mod 程序集
+2. 反射扫描 `CustomTargetType` 类中的 `IsCustomSingleTargetType`/`IsCustomMultiTargetType` 方法
+3. 反射扫描 `CardModelTargetingExtensions` 中的 `GetTargets` 方法
+4. 缓存 `ExternalTargetingBridge` 避免重复反射
+5. `Assembly.GetTypes()` 必须用 try-catch 包裹 `ReflectionTypeLoadException`
+
+```csharp
+internal static class ExternalCardTargetingCompat
+{
+    private static readonly string[] CandidateModIds = ["STS2-RitsuLib", "BaseLib"];
+    private static readonly Lock SyncRoot = new();
+    private static IReadOnlyList<ExternalTargetingBridge>? _cachedBridges;
+
+    internal static bool TryGetSelectableTargets(CardModel card, ICombatState state, out List<Creature> targets)
+    {
+        foreach (var bridge in GetBridges())
+            if (bridge.TryGetSelectableTargets(card, state, out targets))
+                return true;
+        targets = [];
+        return false;
+    }
+
+    private static IReadOnlyList<ExternalTargetingBridge> GetBridges()
+    {
+        lock (SyncRoot)
+            return _cachedBridges ??= BuildBridges();
+    }
+
+    private static IReadOnlyList<ExternalTargetingBridge> BuildBridges()
+    {
+        List<ExternalTargetingBridge> bridges = [];
+        foreach (var modId in CandidateModIds)
+        {
+            if (!ModCompat.TryGetAssembly(modId, out var assembly) || assembly == null) continue;
+            if (TryCreateBridge(modId, assembly) is { } bridge)
+                bridges.Add(bridge);
+        }
+        return bridges;
+    }
+
+    private static ExternalTargetingBridge? TryCreateBridge(string modId, Assembly assembly)
+    {
+        Type? customTargetType = null, targetingExtensionsType = null;
+        foreach (var type in GetTypesSafely(assembly))
+        {
+            if (customTargetType == null && type.Name == "CustomTargetType"
+                && FindStaticMethod(type, "IsCustomSingleTargetType", typeof(TargetType)) != null)
+                customTargetType = type;
+            if (targetingExtensionsType == null && type.Name == "CardModelTargetingExtensions"
+                && FindStaticMethod(type, "GetTargets", typeof(CardModel), typeof(Creature)) != null)
+                targetingExtensionsType = type;
+        }
+        if (customTargetType == null || targetingExtensionsType == null) return null;
+
+        var isSingle = FindStaticMethod(customTargetType, "IsCustomSingleTargetType", typeof(TargetType));
+        var isMulti = FindStaticMethod(customTargetType, "IsCustomMultiTargetType", typeof(TargetType));
+        var getTargets = FindStaticMethod(targetingExtensionsType, "GetTargets", typeof(CardModel), typeof(Creature));
+        if (isSingle == null || isMulti == null || getTargets == null) return null;
+
+        return new ExternalTargetingBridge(modId, isSingle, isMulti, getTargets);
+    }
+
+    private static IEnumerable<Type> GetTypesSafely(Assembly assembly)
+    {
+        try { return assembly.GetTypes(); }
+        catch (ReflectionTypeLoadException ex) { return ex.Types.OfType<Type>(); }
+    }
+
+    private sealed class ExternalTargetingBridge(string modId, MethodInfo isSingle, MethodInfo isMulti, MethodInfo getTargets)
+    {
+        internal bool TryGetSelectableTargets(CardModel card, ICombatState state, out List<Creature> targets)
+        {
+            if (InvokeBool(isSingle, card.TargetType))
+            {
+                targets = state.Creatures.Where(card.IsValidTarget).ToList();
+                return true;
+            }
+            if (!InvokeBool(isMulti, card.TargetType)) { targets = []; return false; }
+            targets = InvokeTargets(card);
+            return true;
+        }
+    }
+}
+```
+
+## 模式七（YuWanCard）：角色皮肤系统
+
+通过 `IYuWanCharacterSkinProvider` 接口 + `CharacterSkinSelectionManager` 实现角色皮肤切换，JSON 文件持久化。
+
+```csharp
+public sealed record YuWanCharacterSkinDefinition(
+    string Id,
+    string DisplayNameLocKey,
+    string? VisualPath = null,
+    string? MerchantAnimPath = null,
+    string? IconTexturePath = null,
+    string? IconOutlineTexturePath = null);
+
+public interface IYuWanCharacterSkinProvider
+{
+    IReadOnlyList<YuWanCharacterSkinDefinition> CharacterSkins { get; }
+}
+
+// CharacterModel 实现 IYuWanCharacterSkinProvider
+// 资源路径处用 CharacterSkinSelectionManager.ResolveVisualPath() 替换
+// 切换时调用 CharacterSkinSelectionManager.TryCycleSkin(character, delta)
+```

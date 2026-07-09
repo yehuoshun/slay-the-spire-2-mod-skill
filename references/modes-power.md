@@ -114,6 +114,41 @@ public sealed class TemporaryStrengthPower : PowerModel
 }
 ```
 
+## BaseLib 临时能力（3.3.3+）
+
+BaseLib 提供 `CustomTemporaryPowerModel` 基类，内置 `ITemporaryPower` + `IBetaCompatTempPower` 支持，自动处理核分支兼容。
+
+```csharp
+using BaseLib.Abstracts;
+
+// 继承 CustomTemporaryPowerModel 而非 PowerModel
+public sealed class MyTemporaryPower : CustomTemporaryPowerModel
+{
+    public override PowerType Type => PowerType.Buff;
+    public override StackType StackType => StackType.Intensity;
+    public override bool IsDebuff => false;
+    public override string BigIconPath => "res://...";
+    public override string SmallIconPath => BigIconPath;
+
+    public MyTemporaryPower() : base() { }
+
+    public override async Task<int> OnAttacked(PlayerChoiceContext context, Creature attacker, int damage)
+    {
+        // 实现效果
+        return damage;
+    }
+
+    public override string GetEffectDescription()
+    {
+        return $"临时效果，持续 {Amount} 层。";
+    }
+}
+```
+
+**`IBetaCompatTempPower` 接口**：
+- `IgnoreNextInstance()` — 在核分支版本中，临时能力可能被重复实例化，调用此方法跳过下一次实例化
+- `CustomTemporaryPowerModel` 已自动实现此接口，一般无需
+
 ---
 
 ## 本地化

@@ -20,6 +20,16 @@
 | `RelicPoolModel` | `RelicPoolModel()` | 遗物池基类 |
 | `PotionPoolModel` | `PotionPoolModel()` | 药水池基类 |
 
+### BaseLib 扩展（3.3.3+）
+
+| API | 说明 |
+|-----|------|
+| `CustomTemporaryPowerModel` | 临时能力基类，支持 `ITemporaryPower` + `IBetaCompatTempPower` |
+| `IBetaCompatTempPower.IgnoreNextInstance()` | 忽略下一次能力实例化（核分支兼容） |
+| `CardRewardSerializationCompatibility.SupportsLegacyCustomCardPool` | 检查当前 STS2 版本是否支持旧版 `CustomCardPool` |
+| `CardRewardSerializationCompatibility.GetCustomCardPool(options)` | 获取 `CardCreationOptions` 的自定义卡池 |
+| `CardRewardSerializationCompatibility.CreateCustomPoolOptions(cards, source, rarityOdds)` | 创建兼容旧版的自定义卡池 `CardCreationOptions` |
+
 ### 命令（Cmd）
 
 | API | 说明 |
@@ -168,3 +178,9 @@
 | 自定义关卡 | 继承 `CustomActModel`（BaseLib 3.3.0+） |
 | 角色初始化复杂 | 用 `CustomCharacterUtils` 简化（BaseLib 3.3.0+） |
 | 宠物/宠物或自身目标 | 用 `CustomTargetType.Pet`/`PetOrSelf`（BaseLib 3.3.0+） |
+| 卡牌奖励序列化丢失自定义卡池 | `CardRewardSerializationCompatibility` 兼容层（BaseLib 3.3.4+） |
+| 临时能力核分支兼容 | 继承 `CustomTemporaryPowerModel` + `IBetaCompatTempPower`（BaseLib 3.3.3+） |
+| 外部 Mod 卡牌目标兼容 | 反射桥接 `ExternalCardTargetingCompat`；`Assembly.GetTypes()` 需 try-catch `ReflectionTypeLoadException` |
+| 角色皮肤持久化 | `CharacterSkinSelectionManager` JSON 文件存储 + `IYuWanCharacterSkinProvider` 接口 |
+| 集成战略事件 0.5.0 前置变更 | 必须安装 RitsuLib 替代旧前置 |
+| 卡牌奖励序列化（旧版 STS2） | 无 `CustomCardPool` 属性的版本，用 `BuildSpecificCardsExt` 存储具体卡牌 ID 列表 |

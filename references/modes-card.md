@@ -195,3 +195,5 @@ Key 是类名（去掉 Card 后缀）。
 | 动态变量数值不对 | `CanonicalVars` 返回的变量名必须和 `DynamicVars["Name"]` 一致 |
 | 升级不生效 | `OnUpgrade()` 中调 `UpgradeValueBy()` 而非直接改值 |
 | Token 卡牌不显示 | `shouldShowInCardLibrary: true` |
+| 卡牌奖励序列化丢失自定义卡池 | 旧版 STS2 无 `CardCreationOptions.CustomCardPool` 属性，需用 `CardRewardSerializationCompatibility` 兼容层（BaseLib 3.3.4+）存储具体卡牌 ID 列表 |
+| 卡牌奖励序列化后重连不恢复 | 检查 `CardRewardToSerializablePatch` 和 `CardRewardFromSerializablePatch` 是否已启用（BaseLib 3.3.4+ 已修复此项） |
