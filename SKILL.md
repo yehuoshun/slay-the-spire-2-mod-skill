@@ -2,94 +2,75 @@
 
 > 🦞 零第三方依赖。只靠 `0Harmony.dll` + `sts2.dll` 和你的脑子。
 
+---
+
+## 🚫 硬规则（优先级高于一切，必须逐条遵守）
+
+### 一、写前必读
+1. 写代码前必须读 references 对应模式文件，完整读完，不准凭训练数据记忆写
+2. 写代码前必须查 API 签名：`grep -rn "方法名" sts2-res/src/` 确认参数类型和顺序
+3. 不准复制外部 mod 源码，只准用 references 模板 + 原生 `sts2.dll` API
+
+### 二、代码规范
+4. 所有模型类必须加 `[CardPool]`/`[RelicPool]` 属性（除非手动注册）
+5. 所有 `[SavedProperty]` 必须调 `InjectTypeIntoCache`
+6. 所有 Harmony Patch 必须用 try-catch 包裹
+7. `OnPlay` 必须有 `if (cardPlay.Target == null) return;` 空值检查
+8. `OnUpgrade` 必须调 `UpgradeValueBy()`，不能直接改字段值
+
+### 三、结构完整
+9. 必须包含 `ModEntry.cs`（三阶段初始化）+ `ModInfo.cs`（常量）+ 至少一个模型类 + 本地化 JSON + 清单 JSON
+10. `ModEntry.Initialize` 必须三阶段：Harmony → 注册 → 设置，缺一不可
+
+### 四、静态验证
+11. 逐行对照 API 源码检查：方法名存在、命名空间正确、无外部 mod 依赖、`[SavedProperty]` 有对应 `InjectTypeIntoCache`、Harmony 有 try-catch
+12. 文件清单完整：入口 + 模型 + 本地化 JSON + 清单 JSON，缺一不可输出
+
+### 五、GitHub 工作流（如果项目托管在 GitHub 且配置了 CI）
+13. 修改完成后必须 commit + push 到对应分支
+14. 必须观察 Actions 运行结果
+15. CI 报错必须回退修改，改完重新 commit+push，循环直到 CI 通过
+
+---
+
 ## 🚦 总工作流
 
 ```
 用户说"帮我做 X"
   │
   ├─ 1. 确定类型：卡牌 / 遗物 / 药水 / 能力 / 附魔 / 事件 / 先古之民 / 怪物 / 角色 / Patch / 设置界面？
+  │     （→ 硬规则 1 + 2）
   │
-  ├─ 2. 查 API（强制）
-  │      ls ~/.openclaw/workspace/code/sts2-res/src/ 2>/dev/null ||
-  │        git clone --depth 1 https://github.com/yehuoshun/sts2-res ~/.openclaw/workspace/code/sts2-res
-  │      grep -rn "ClassName\|MethodName" ~/.openclaw/workspace/code/sts2-res/src/
+  ├─ 2. 读 references/rider.md（如果使用 Rider 开发）
+  │     （→ 硬规则 1）
   │
-  ├─ 3. 查 references/<模式文件> 获取代码模板
+  ├─ 3. 查 API 签名
+  │     ls ~/.openclaw/workspace/code/sts2-res/src/ 2>/dev/null ||
+  │       git clone --depth 1 https://github.com/yehuoshun/sts2-res ~/.openclaw/workspace/code/sts2-res
+  │     grep -rn "ClassName\|MethodName" ~/.openclaw/workspace/code/sts2-res/src/
+  │     （→ 硬规则 2）
   │
-  ├─ 4. 写 C# 代码 + 本地化 JSON
+  ├─ 4. 写代码（C# + 本地化 JSON + 清单 JSON）
+  │     （→ 硬规则 3-10）
   │
-  ├─ 5. 构建 → 部署 → 测试
+  ├─ 5. 静态验证（逐行对照 API 源码 + 文件清单完整性）
+  │     （→ 硬规则 11-12）
   │
-  └─ 6. Commit + Push
+  ├─ 6. 如果有 Rider 环境：参考 references/rider.md 处理代码检查
+  │
+  ├─ 7. Commit + Push → 观察 CI
+  │     （→ 硬规则 13-15）
+  │
+  └─ 8. CI 通过 → 输出结果。CI 报错 → 跳回 4 改代码
 ```
 
 ---
 
-## 📂 模式速查
+## 📂 参考资料
 
-| 需求 | 文件 |
+| 文件 | 内容 |
 |------|------|
-| 项目搭建（脚手架、目录、csproj、构建部署） | [references/project-scaffold.md](references/project-scaffold.md) |
-| 卡牌 | [references/modes-card.md](references/modes-card.md) |
-| 遗物 | [references/modes-relic.md](references/modes-relic.md) |
-| 药水 | [references/modes-potion.md](references/modes-potion.md) |
-| 能力（Buff/Debuff） | [references/modes-power.md](references/modes-power.md) |
-| 附魔 | [references/modes-enchantment.md](references/modes-enchantment.md) |
-| 事件 & 先古之民 | [references/modes-event.md](references/modes-event.md) |
-| Harmony 补丁 | [references/modes-harmony.md](references/modes-harmony.md) |
-| 角色 | [references/modes-character.md](references/modes-character.md) |
-| 怪物 & 遭遇 | [references/modes-monster.md](references/modes-monster.md) |
-| 序列化 & 注册 | [references/modes-serialization.md](references/modes-serialization.md) |
-| 设置界面 | [references/modes-settings-ui.md](references/modes-settings-ui.md) |
-| 实战写法模式（从 STS2Plus / YuWanCard / 海克斯符文提炼） | [references/real-code-patterns.md](references/real-code-patterns.md) |
-| 附录（API 速查、枚举、常见坑） | [references/appendices.md](references/appendices.md) |
-
----
-
-## 📋 核心 API 速查
-
-| API | 说明 |
-|-----|------|
-| `CardModel(cost, type, rarity, target)` | 卡牌基类构造 |
-| `RelicModel` | 遗物基类。`Rarity` 决定获取途径 |
-| `PotionModel` | 药水基类。`Usage` 决定使用场景 |
-| `PowerModel` | 能力基类。`Type`/`StackType` 决定行为 |
-| `EnchantmentModel` | 附魔基类。`ModifyCard()` 改卡牌属性 |
-| `EventModel` | 事件基类。`GenerateInitialOptions()` 返回选项 |
-| `AncientEventModel` | 先古之民。`DefineDialogues()` 返回对话 |
-| `CharacterModel` | 角色基类。`CardPool`/`RelicPool`/`StartingDeck` |
-| `MonsterModel` | 怪物基类。`GenerateMoveStateMachine()` |
-| `EncounterModel` | 遭遇基类。`GenerateMonsters()` |
-| `CardPoolModel` | 卡池基类。`GenerateAllCards()` |
-| `DynamicVars` | 动态变量集合。`["Name"].UpgradeValueBy(n)` |
-| `PlayerCmd` | 玩家操作：`GainEnergy`/`GainBlock`/`GainGold`/`Damage`/`Heal`/`ApplyPower` |
-| `CardCmd` | 卡牌：`Enchant`/`Discard`/`Upgrade`/`Downgrade` |
-| `DamageCmd` | 伤害链：`Attack().FromCard().Targeting().Execute()` |
-| `CardPileCmd` | 牌堆：`Draw`/`Shuffle` |
-| `CardSelectCmd` | 选牌：`FromHandGeneric`/`FromDeckGeneric`/`MultiPileSelect` |
-| `OrbCmd` | 充能球：`EvokeNext`/`AddSlots` |
-| `ModelDb` | 反射注册：`GetId`/`GetByIdOrNull`/`AllCards`/`AllRelics` |
-| `ModHelper.AddModelToPool<T>()` | 注册模型到对应池 |
-| `ModelDb.Inject(type)` | 绕过 Init 直接注入模型（ModelDb 已初始化后使用） |
-| `ModelDb.Contains(type)` | 检查模型是否已注册 |
-| `SavedPropertiesTypeCache.InjectTypeIntoCache()` | 自定义属性序列化缓存注入 |
-| `ScriptManagerBridge.LookupScriptsInAssembly` | 场景脚本映射（有自定义场景时必须） |
-| `Harmony.PatchAll` | 批量 Harmony 补丁。用 try-catch 包裹防止一个类炸了全挂 |
-| `Harmony.PatchCategory(assembly, category)` | 按分组打补丁 |
-| `SavedProperty` 特性 | 标记需要序列化保存的自定义属性 |
-| `MoveBuilder` (BaseLib 3.3.0+) | 怪物状态机构建器，流式 API |
-| `MultiPileCardSelect` (BaseLib 3.3.0+) | 多牌堆选牌 UI（手牌+牌库+弃牌堆） |
-| `CardTransformReward` (BaseLib 3.3.0+) | 卡牌变形奖励 |
-| `CardUpgradeReward` (BaseLib 3.3.0+) | 卡牌升级奖励 |
-| `RandomCardUpgradeReward` (BaseLib 3.3.0+) | 随机卡牌升级奖励 |
-| `ITrashHeapCard/ITrashHeapRelic` (BaseLib 3.3.0+) | 废品堆接口，标记可被移除的卡/遗物 |
-| `IAfterCardDowngraded` (BaseLib 3.3.0+) | 卡牌降级后 Hook |
-| `CustomCharacterUtils` (BaseLib 3.3.0+) | 角色工具类，简化角色初始化 |
-| `CustomActModel` (BaseLib 3.3.0+) | 自定义关卡模型 |
-| `CustomTargetType.Pet/PetOrSelf` (BaseLib 3.3.0+) | 宠物/宠物或自身目标类型 |
-| `IBetaCompatTempPower.IgnoreNextInstance()` (BaseLib 3.3.3+) | 临时能力 Beta 版本兼容，忽略下一次实例化 |
-| `CardRewardSerializationCompatibility` (BaseLib 3.3.4+) | 自定义卡池序列化兼容层，支持旧版 `CardCreationOptions.CustomCardPool` |
-| `CustomTemporaryPowerModel` (BaseLib 3.3.3+) | 临时能力基类，内置核分支兼容（`ITemporaryPower` + `IBetaCompatTempPower`） |
+| [references/rider.md](references/rider.md) | Rider 开发环境配置（代码检查、Harmony 抑制规则） |
 
 ---
 
@@ -104,19 +85,19 @@
 | Mod 不加载 | `assets/MyMod.json` 的 `id` 和文件名一致 |
 | 自定义属性不保存 | 没调 `SavedPropertiesTypeCache.InjectTypeIntoCache()` |
 | `AddModelToPool` 泛型报错 | 用 `ModHelper.AddModelToPool(poolType, modelType)` 反射重载 |
-| 遗物 `Rarity=Starter` 但池里不出现 | Starter 稀有度不走随机池，需 Patch 或用事件给 |
+| 遗物 `Rarity=Starter` 但池里不出现 | Starter 不走随机池，需 Patch 或用事件给 |
 | Harmony PatchAll 异常 | 单类 try-catch 包裹，防止一个类炸了全挂 |
-| 设置 UI 自己写容易出 bug | 参考 modes-settings-ui.md 零 Harmony + Godot 纯信号方案 |
+| 设置 UI 自己写容易出 bug | 参考 ShunMod 的零 Harmony + Godot 纯信号方案 |
 | 自定义属性序列化丢失 | `[SavedProperty]` + `SavedPropertiesTypeCache.InjectTypeIntoCache()` |
 | ModelDb 已初始化后注册模型 | 用 `ModelDb.Inject(type)` 而非 `AddModelToPool` |
 | 角色卡池缓存不刷新 | 反射重置 `CardPoolModel._allCards` / `ModelDb._allCards` 等缓存字段 |
 | 先古之民对话不显示 | Patch `AncientDialogueSet.GetValidDialogues` + `DefineDialogues` |
-| 先古遗物不在图鉴显示 | 实现 `AncientRelicCompendiumPatch` 自定义注册表（学 YuWanCard） |
-| 多人模式状态不同步 | 用**确定性随机**（`DeterministicRandomUtils`）替代 `System.Random`（学 YuWanCard） |
-| ModelId 序列化缓存重复 | Patch `ModelId.ToTypeNameMap` 注入时去重（学 YuWanCard `ModelIdSerializationCachePatch`） |
-| 多人模式专属卡牌 | 添加 `IsMultiplayerOnly` 标记防止单人模式卡死（学 YuWanCard） |
-| 卡牌奖励序列化丢失自定义卡池 | 需要 `CardRewardSerializationCompatibility` 兼容层（BaseLib 3.3.4+） |
+| 先古遗物不在图鉴显示 | 实现 `AncientRelicCompendiumPatch` 自定义注册表 |
+| 多人模式状态不同步 | 用**确定性随机**（`DeterministicRandomUtils`）替代 `System.Random` |
+| ModelId 序列化缓存重复 | Patch `ModelId.ToTypeNameMap` 注入时去重 |
+| 多人模式专属卡牌 | 添加 `IsMultiplayerOnly` 标记防止单人模式卡死 |
+| 卡牌奖励序列化丢失自定义卡池 | `CardRewardSerializationCompatibility` 兼容层（BaseLib 3.3.4+） |
 | 临时能力核分支兼容 | 继承 `CustomTemporaryPowerModel` 并实现 `IBetaCompatTempPower`（BaseLib 3.3.3+） |
-| 外部 Mod 卡牌目标兼容 | 用 `ExternalCardTargetingCompat` 桥接层反射调用外部 Mod 的自定义目标类型（学 YuWanCard） |
-| 角色皮肤系统 | 实现 `IYuWanCharacterSkinProvider` 接口 + `CharacterSkinSelectionManager` 持久化选择（学 YuWanCard） |
-| 配置系统只依赖 RitsuLib | YuWanCard v0.5.10 已移除 BaseLib 配置支持，仅保留 RitsuLib（学 YuWanCard） |
+| 外部 Mod 卡牌目标兼容 | 用 `ExternalCardTargetingCompat` 桥接层反射调用 |
+| 角色皮肤系统 | 实现 `IYuWanCharacterSkinProvider` 接口 + `CharacterSkinSelectionManager` 持久化选择 |
+| 配置系统只依赖 RitsuLib | YuWanCard v0.5.10 已移除 BaseLib 配置支持，仅保留 RitsuLib |
