@@ -71,6 +71,7 @@
 | 文件 | 内容 |
 |------|------|
 | [references/environment-setup.md](references/environment-setup.md) | 环境搭建、项目创建、PCK 打包、C# 入口 |
+| [references/modes-relic.md](references/modes-relic.md) | 自定义遗物（代码模板、稀有度、池、图标、本地化） |
 | [references/rider.md](references/rider.md) | Rider 开发环境配置（代码检查、Harmony 抑制规则） |
 
 ---

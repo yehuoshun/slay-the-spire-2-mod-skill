@@ -9,6 +9,7 @@
 - [SKILL.md](SKILL.md) — AI 工作流 + 15 条硬规则
 - [LEARN.md](LEARN.md) — 学习流程
 - `references/environment-setup.md` — 环境搭建 & 创建项目
+- `references/modes-relic.md` — 自定义遗物
 - `references/rider.md` — Rider 开发环境配置
 
 ---
@@ -34,7 +35,7 @@
 - [x] Rider.md（保留）
 - [x] 环境搭建 & 创建项目（from 烟汐忆梦_YM 教程）
 - [ ] 卡牌模式
-- [ ] 遗物模式
+- [x] 遗物模式（from 烟汐忆梦_YM 教程）
 - [ ] 药水模式
 - [ ] 能力模式
 - [ ] 附魔模式
