@@ -22,7 +22,7 @@
 
 ## 鸣谢
 
-- **环境搭建 + 创建项目教程** — [烟汐忆梦_YM](https://space.bilibili.com/481430814) 的 [B站教程](https://www.bilibili.com/opus/1179300682687053826) 是本 skill 环境搭建部分的参考来源
+- **环境搭建 + 创建项目教程** — [烟汐忆梦_YM](https://space.bilibili.com/481430814)
 
 ---
 
