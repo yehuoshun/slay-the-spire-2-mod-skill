@@ -70,6 +70,7 @@
 
 | 文件 | 内容 |
 |------|------|
+| [references/environment-setup.md](references/environment-setup.md) | 环境搭建、项目创建、PCK 打包、C# 入口 |
 | [references/rider.md](references/rider.md) | Rider 开发环境配置（代码检查、Harmony 抑制规则） |
 
 ---
