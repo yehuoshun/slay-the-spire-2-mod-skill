@@ -7,6 +7,8 @@
 ## 目录
 
 - [SKILL.md](SKILL.md) — AI 工作流 + 15 条硬规则
+- [LEARN.md](LEARN.md) — 学习流程
+- `references/environment-setup.md` — 环境搭建 & 创建项目
 - `references/rider.md` — Rider 开发环境配置
 
 ---
