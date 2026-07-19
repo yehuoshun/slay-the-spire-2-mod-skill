@@ -72,7 +72,7 @@
 |------|------|------|
 | `setup/` | [environment-setup.md](references/setup/environment-setup.md) | 环境搭建、项目创建、PCK 打包、C# 入口 |
 | `setup/` | [rider.md](references/setup/rider.md) | Rider 开发环境配置（代码检查、Harmony 抑制规则） |
-| `content/` | [modes-relic.md](references/content/modes-relic.md) | 自定义遗物（代码模板、稀有度、池、图标、本地化） |
+| `content/` | [relic.md](references/content/relic.md) | 自定义遗物（代码模板、稀有度、池、图标、本地化） |
 
 ---
 

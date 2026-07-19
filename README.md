@@ -15,7 +15,7 @@
 |------|------|------|
 | `setup/` | `environment-setup.md` | 环境搭建 & 创建项目 |
 | `setup/` | `rider.md` | Rider 开发环境配置 |
-| `content/` | `modes-relic.md` | 自定义遗物 |
+| `content/` | `relic.md` | 自定义遗物 |
 
 ---
 
