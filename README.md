@@ -8,9 +8,14 @@
 
 - [SKILL.md](SKILL.md) — AI 工作流 + 15 条硬规则
 - [LEARN.md](LEARN.md) — 学习流程
-- `references/environment-setup.md` — 环境搭建 & 创建项目
-- `references/modes-relic.md` — 自定义遗物
-- `references/rider.md` — Rider 开发环境配置
+
+### references/
+
+| 分类 | 文件 | 内容 |
+|------|------|------|
+| `setup/` | `environment-setup.md` | 环境搭建 & 创建项目 |
+| `setup/` | `rider.md` | Rider 开发环境配置 |
+| `content/` | `modes-relic.md` | 自定义遗物 |
 
 ---
 

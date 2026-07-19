@@ -41,7 +41,7 @@
   ├─ 1. 确定类型：卡牌 / 遗物 / 药水 / 能力 / 附魔 / 事件 / 先古之民 / 怪物 / 角色 / Patch / 设置界面？
   │     （→ 硬规则 1 + 2）
   │
-  ├─ 2. 读 references/rider.md（如果使用 Rider 开发）
+  ├─ 2. 读 references/setup/rider.md（如果使用 Rider 开发）
   │     （→ 硬规则 1）
   │
   ├─ 3. 查 API 签名
@@ -68,11 +68,11 @@
 
 ## 📂 参考资料
 
-| 文件 | 内容 |
-|------|------|
-| [references/environment-setup.md](references/environment-setup.md) | 环境搭建、项目创建、PCK 打包、C# 入口 |
-| [references/modes-relic.md](references/modes-relic.md) | 自定义遗物（代码模板、稀有度、池、图标、本地化） |
-| [references/rider.md](references/rider.md) | Rider 开发环境配置（代码检查、Harmony 抑制规则） |
+| 分类 | 文件 | 内容 |
+|------|------|------|
+| `setup/` | [environment-setup.md](references/setup/environment-setup.md) | 环境搭建、项目创建、PCK 打包、C# 入口 |
+| `setup/` | [rider.md](references/setup/rider.md) | Rider 开发环境配置（代码检查、Harmony 抑制规则） |
+| `content/` | [modes-relic.md](references/content/modes-relic.md) | 自定义遗物（代码模板、稀有度、池、图标、本地化） |
 
 ---
 
