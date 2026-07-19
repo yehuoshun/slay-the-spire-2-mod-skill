@@ -212,7 +212,19 @@ public static class MyCustomModInitializer
 
 ---
 
-## 常见问题
+##": "## 演进路线
+
+当前方案是**手动注册**（`ModHelper.AddModelToPool`），每个遗物都要手动加一行。
+
+
+已知更优方案：
+
+- **属性扫描注册**：用自定义 Attribute 标记模型类（如 `[RelicPool]`），初始化时反射扫描自动注册，无需手动调 `AddModelToPool`
+- **Builder 模式**：YuWanCard 的 `YuWanRelicModel` 支持 `autoAdd: true` 自动注册
+
+---
+
+## 常见问题"}]
 
 | 问题 | 解决 |
 |------|------|

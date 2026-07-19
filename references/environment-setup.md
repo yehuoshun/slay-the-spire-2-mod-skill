@@ -153,6 +153,18 @@ public static class MyCustomModInitializer
 
 ---
 
+## 演进路线
+
+当前方案是最简的 ModEntry（单文件注册）。
+
+已知更优方案：
+
+- **三阶段初始化**：Harmony → 注册 → 设置，分阶段解耦
+- **属性扫描注册**：用 Attribute 自动发现模型类，无需手动调 `AddModelToPool`
+- **ContentRegistry 模式**：反射扫描 Assembly，自动注册所有带 `[CardPool]`/`[RelicPool]` 属性的类
+
+---
+
 ## 已知问题
 
 | 问题 | 解决 |
