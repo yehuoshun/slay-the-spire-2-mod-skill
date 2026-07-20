@@ -72,7 +72,25 @@
 |------|------|------|
 | `setup/` | [environment-setup.md](references/setup/environment-setup.md) | 环境搭建、项目创建、PCK 打包、C# 入口 |
 | `setup/` | [rider.md](references/setup/rider.md) | Rider 开发环境配置（代码检查、Harmony 抑制规则） |
-| `content/` | [relic.md](references/content/relic.md) | 自定义遗物（代码模板、稀有度、池、图标、本地化） |
+| `relic/` | [relic.md](references/relic/relic.md) | 自定义遗物（代码模板、稀有度、池、图标、本地化） |
+| `card/` | [card.md](references/card/card.md) | 自定义卡牌（构造函数、API 速查、卡池、肖像、本地化） |
+| `potion/` | [potion.md](references/potion/potion.md) | 自定义药水（属性、回调、图标、池、本地化） |
+| `enchantment/` | [enchantment.md](references/enchantment/enchantment.md) | 自定义附魔（回调、附魔、本地化、图标） |
+| `event/` | [event.md](references/event/event.md) | 自定义事件（选项、多页、Patch、本地化） |
+| `event/` | [ancient.md](references/event/ancient.md) | 先古之民事件（对话、纹理、注册） |
+| `power/` | [power.md](references/power/power.md) | 自定义能力（Buff/Debuff、属性、回调、本地化） |
+| `character/` | [character.md](references/character/character.md) | 自定义角色（卡池/遗物池/药水池、场景资源、注册） |
+| `monster/` | [monster.md](references/monster/monster.md) | 自定义敌怪 & 遭遇（状态机、AI 行为树、注册） |
+| `modifier/` | [modifier.md](references/modifier/modifier.md) | 自定义 Modifier（运行规则、Alignment、注册、效果实现） |
+| `orb/` | [orb.md](references/orb/orb.md) | 自定义球体（被动/激发、图标、精灵、随机池） |
+| `act/` | [act.md](references/act/act.md) | 自定义章节（地图背景、音乐、宝箱、房间配置） |
+| `pet/` | [pet.md](references/pet/pet.md) | 自定义宠物（固定不行动 AI、血条、场景） |
+| `harmony/` | [harmony.md](references/harmony/harmony.md) | Harmony 补丁模式（PatchCategory、安全、组织规范） |
+| `serialization/` | [serialization.md](references/serialization/serialization.md) | 序列化与注册（ModelDb、SavedProperty、InjectTypeIntoCache） |
+| `settings/` | [settings.md](references/settings/settings.md) | 设置界面（BaseLib SimpleModConfig、Attribute、本地化） |
+| `patterns/` | [code-patterns.md](references/patterns/code-patterns.md) | 实战写法模式（卡牌/遗物/能力/事件代码片段） |
+| `patterns/` | [api-reference.md](references/patterns/api-reference.md) | API 附录（命名空间、命令类、回调签名、注册点） |
+| `baselib/` | [baselib.md](references/baselib/baselib.md) | BaseLib 集成指南（Custom*Model 基类、[Pool]、Builder） |
 
 ---
 

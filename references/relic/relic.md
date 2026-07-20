@@ -1,6 +1,7 @@
 # 自定义遗物
 
 > 参考：[烟汐忆梦_YM 的 B站教程](https://www.bilibili.com/opus/1179604439936270359)
+> API 签名验证：[Alchyr/BaseLib-StS2](https://github.com/Alchyr/BaseLib-StS2) `Abstracts/CustomRelicModel.cs`
 
 ---
 
@@ -26,7 +27,7 @@ public sealed class MyCustomRelic : RelicModel
     // 稀有度决定获取途径
     public override Rarity Rarity => Rarity.Starter;
 
-    // 图标路径
+    // 图标路径（原生属性）
     public override string BigIconPath => "res://MyCustomMod/images/relics/my_custom_relic.png";
     public override string PackedIconPath => BigIconPath;
     protected override string PackedIconOutlinePath => "res://MyCustomMod/images/relics/my_custom_relic_outline.png";
@@ -44,6 +45,53 @@ public sealed class MyCustomRelic : RelicModel
         Flash();
         await PlayerCmd.GainEnergy(combatState, DynamicVars.Energy.IntValue);
     }
+}
+```
+
+---
+
+## 可覆盖属性（新增）
+
+```csharp
+public class MyCustomRelic : RelicModel
+{
+    // 遗物升级替代
+    // 返回升级后的遗物实例，类似卡牌升级
+    // 返回 null 表示无升级
+    public override RelicModel? GetUpgradeReplacement() => null;
+}
+```
+
+### 属性说明
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `Rarity` | `Rarity` | 稀有度，决定获取途径 |
+| `BigIconPath` | `string` | 大图标路径（256x256） |
+| `PackedIconPath` | `string` | 裁切图标路径 |
+| `PackedIconOutlinePath` | `string` | 描边裁切路径 |
+| `GetUpgradeReplacement()` | `RelicModel?` | 返回升级后的遗物（null=无升级） |
+
+### 升级替代示例
+
+```csharp
+public class MyBasicRelic : RelicModel
+{
+    public override Rarity Rarity => Rarity.Common;
+
+    // 升级后变成 MyPlusRelic
+    public override RelicModel? GetUpgradeReplacement()
+    {
+        var upgraded = ModelDb.Get<MyPlusRelic>().ToMutable();
+        upgraded.FloorAddedToDeck = FloorAddedToDeck;
+        return upgraded;
+    }
+}
+
+public class MyPlusRelic : RelicModel
+{
+    public override Rarity Rarity => Rarity.Uncommon;
+    // 更强的效果...
 }
 ```
 
@@ -212,25 +260,26 @@ public static class MyCustomModInitializer
 
 ---
 
-##": "## 演进路线
+## 演进路线
 
 当前方案是**手动注册**（`ModHelper.AddModelToPool`），每个遗物都要手动加一行。
-
 
 已知更优方案：
 
 - **属性扫描注册**：用自定义 Attribute 标记模型类（如 `[RelicPool]`），初始化时反射扫描自动注册，无需手动调 `AddModelToPool`
 - **Builder 模式**：YuWanCard 的 `YuWanRelicModel` 支持 `autoAdd: true` 自动注册
+- **BaseLib**：`CustomRelicModel` 构造函数自带 `autoAdd` 参数，`[Pool]` 属性自动关联池
 
 ---
 
-## 常见问题"}]
+## 常见问题
 
 | 问题 | 解决 |
 |------|------|
 | 图标不显示 | 检查 atlas `.tres` 路径和文件名是否与遗物 ID 一致 |
 | 描边不对 | 描边纹理大小必须与遗物纹理一致 |
 | Starter 遗物在池中不出现 | Starter 不走随机池，需 Patch 初始遗物列表 |
+| 升级不生效 | 检查 `GetUpgradeReplacement()` 返回的实例是否正确 |
 | 本地化不生效 | 必须 Publish 而非 Build |
 | `.NET 版本冲突` | 修改 `GodotPlugins.runtimeconfig.json` 为 `"version": "9.0.0"` |
 | 遗物 ID 冲突 | 类名必须唯一 |
