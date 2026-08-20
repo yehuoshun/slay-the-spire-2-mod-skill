@@ -35,33 +35,20 @@
 
 ## 🚦 总工作流
 
-```
-用户说"帮我做 X"
-  │
-  ├─ 1. 确定类型：卡牌 / 遗物 / 药水 / 能力 / 附魔 / 事件 / 先古之民 / 怪物 / 角色 / Patch / 设置界面？
-  │     （→ 硬规则 1 + 2）
-  │
-  ├─ 2. 读 references/setup/rider.md（如果使用 Rider 开发）
-  │     （→ 硬规则 1）
-  │
-  ├─ 3. 查 API 签名
-  │     ls ~/.openclaw/workspace/code/sts2-res/src/ 2>/dev/null ||
-  │       git clone --depth 1 https://github.com/yehuoshun/sts2-res ~/.openclaw/workspace/code/sts2-res
-  │     grep -rn "ClassName\|MethodName" ~/.openclaw/workspace/code/sts2-res/src/
-  │     （→ 硬规则 2）
-  │
-  ├─ 4. 写代码（C# + 本地化 JSON + 清单 JSON）
-  │     （→ 硬规则 3-10）
-  │
-  ├─ 5. 静态验证（逐行对照 API 源码 + 文件清单完整性）
-  │     （→ 硬规则 11-12）
-  │
-  ├─ 6. 如果有 Rider 环境：参考 references/rider.md 处理代码检查
-  │
-  ├─ 7. Commit + Push → 观察 CI
-  │     （→ 硬规则 13-15）
-  │
-  └─ 8. CI 通过 → 输出结果。CI 报错 → 跳回 4 改代码
+```mermaid
+graph TD
+    A(["用户说'帮我做 X'"]) --> B{确定类型}
+    B -->|卡牌 / 遗物 / 药水 / 能力 / 附魔<br>事件 / 先古之民 / 怪物 / 角色<br>Patch / 设置界面| C[读 references 对应模式文件<br>硬规则 1]
+    C --> D[查 API 签名<br>grep -rn 方法名 sts2-res/src/<br>硬规则 2]
+    D --> E[写代码<br>C# + 本地化 JSON + 清单 JSON<br>硬规则 3-10]
+    E --> F[静态验证<br>逐行对照 API + 文件清单<br>硬规则 11-12]
+    F --> G{有 Rider 环境?}
+    G -->|是| H[参考 references/rider.md<br>处理代码检查]
+    G -->|否| I[Commit + Push → 观察 CI<br>硬规则 13-15]
+    H --> I
+    I --> J{CI 结果}
+    J -->|通过| K[输出结果 ✅]
+    J -->|报错| E
 ```
 
 ---
