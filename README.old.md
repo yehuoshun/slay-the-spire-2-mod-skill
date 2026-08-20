@@ -1,3 +1,5 @@
+> ⚠️ 旧版 README 存档，内容已过时，请以 [README.md](README.md) 为准。
+
 # 杀戮尖塔 2 Mod 开发 — AI 工作流
 
 > 🦞 纯原生 Mod 开发指南。零第三方依赖，只靠 `0Harmony.dll` + `sts2.dll`。
