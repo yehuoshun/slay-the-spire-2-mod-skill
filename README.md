@@ -76,3 +76,4 @@
 - [x] 设置界面
 - [x] 实战写法模式
 - [x] API 附录
+- [x] BaseLib 集成指南（更新至 3.4.5：CustomResource 系统、CustomCalculatedVar.Create、CustomLargeImagePath）
