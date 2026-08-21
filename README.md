@@ -35,7 +35,7 @@
 | `settings/` | [settings.md](references/settings/settings.md) | 设置界面（BaseLib SimpleModConfig、Attribute、本地化） |
 | `patterns/` | [code-patterns.md](references/patterns/code-patterns.md) | 实战写法模式（卡牌/遗物/能力/事件代码片段） |
 | `patterns/` | [api-reference.md](references/patterns/api-reference.md) | API 附录（命名空间、命令类、回调签名、注册点） |
-| `baselib/` | [baselib.md](references/baselib/baselib.md) | 纯原生设计模式总纲（从 BaseLib 提炼，零第三方依赖） |
+| `baselib/` | [design-patterns.md](references/baselib/design-patterns.md) | 纯原生设计模式总纲（从 BaseLib 提炼，零第三方依赖） |
 
 ---
 
@@ -82,4 +82,4 @@
 - [x] BaseLib 集成指南（更新至 3.4.5：CustomResource 系统、CustomCalculatedVar.Create、CustomLargeImagePath）
 - [x] 14 个子项已升级 **v2**（纯原生进阶，导航模式：`xx.md` 入口 + `xx-v1.md` 存档）
 - [x] 环境搭建升级 v2（生产级骨架：目录规范 + props 路径检测 + 自动打 PCK，学自 ModTemplate 纯原生化）
-- [x] baselib.md 重写为纯原生设计模式总纲
+- [x] baselib.md 重写为 design-patterns.md（纯原生设计模式总纲）
