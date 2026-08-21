@@ -12,7 +12,7 @@
 3. 不准复制外部 mod 源码，只准用 references 模板 + 原生 `sts2.dll` API
 
 ### 二、代码规范
-4. 所有模型类必须加 `[CardPool]`/`[RelicPool]` 属性（除非手动注册）
+4. 所有模型类必须注册（二选一，不混用）：① 自定义 `[XxxPool]`/`[XxxModel]` Attribute + 注册辅助扫描自动注册；② 手动 `ModHelper.AddModelToPool` / `ModelDb.Inject`
 5. 所有 `[SavedProperty]` 必须调 `InjectTypeIntoCache`
 6. 所有 Harmony Patch 必须用 try-catch 包裹
 7. `OnPlay` 必须有 `if (cardPlay.Target == null) return;` 空值检查
@@ -29,7 +29,7 @@
 ### 五、GitHub 工作流（如果项目托管在 GitHub 且配置了 CI）
 13. 修改完成后必须 commit + push 到对应分支
 14. 必须观察 Actions 运行结果
-15. CI 报错必须回退修改，改完重新 commit+push，循环直到 CI 通过
+15. Actions 运行异常时排查修复，重新 commit+push
 
 ---
 
@@ -79,7 +79,7 @@ graph TD
 | `settings/` | [settings.md](references/settings/settings.md) | 设置界面（BaseLib SimpleModConfig、Attribute、本地化） |
 | `patterns/` | [code-patterns.md](references/patterns/code-patterns.md) | 实战写法模式（卡牌/遗物/能力/事件代码片段） |
 | `patterns/` | [api-reference.md](references/patterns/api-reference.md) | API 附录（命名空间、命令类、回调签名、注册点） |
-| `baselib/` | [baselib.md](references/baselib/baselib.md) | 纯原生设计模式总纲（从 BaseLib 提炼，零第三方依赖） |
+| `baselib/` | [design-patterns.md](references/baselib/design-patterns.md) | 纯原生设计模式总纲（从 BaseLib 提炼，零第三方依赖） |
 
 ---
 
