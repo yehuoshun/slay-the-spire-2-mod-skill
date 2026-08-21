@@ -4,7 +4,9 @@
 
 ## 📌 当前最新版
 
-**[environment-setup-v2.md](environment-setup-v2.md)** — 生产级项目骨架（目录规范 + props 自动路径检测 + 构建期自动打 PCK）
+**[environment-setup-v2.md](environment-setup-v2.md)** — 教程（搭建 + 打包 + 调试）
+
+> 生产级工程规范已拆分：**[project-skeleton.md](project-skeleton.md)**（目录结构 + 路径检测 + csproj + 入口）
 
 ## 📚 版本历史
 
