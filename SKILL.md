@@ -61,6 +61,7 @@ graph TD
 |------|------|------|
 | `setup/` | [environment-setup.md](references/setup/environment-setup.md) | 环境搭建、项目创建、PCK 打包、C# 入口 |
 | `setup/` | [rider.md](references/setup/rider.md) | Rider 开发环境配置（代码检查、Harmony 抑制规则） |
+| `setup/` | [modtemplate.md](references/setup/modtemplate.md) | 项目模板（ModTemplate 脚手架，含纯原生化） |
 | `relic/` | [relic.md](references/relic/relic.md) | 自定义遗物（代码模板、稀有度、池、图标、本地化） |
 | `card/` | [card.md](references/card/card.md) | 自定义卡牌（构造函数、API 速查、卡池、肖像、本地化） |
 | `potion/` | [potion.md](references/potion/potion.md) | 自定义药水（属性、回调、图标、池、本地化） |
