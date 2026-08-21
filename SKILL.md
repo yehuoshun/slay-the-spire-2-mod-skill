@@ -60,6 +60,7 @@ graph TD
 | 分类 | 文件 | 内容 |
 |------|------|------|
 | `setup/` | [environment-setup.md](references/setup/environment-setup.md) | 环境搭建、创建项目（v2 生产级骨架：目录规范 + 路径检测 + 自动打 PCK） |
+| `setup/` | [project-skeleton.md](references/setup/project-skeleton.md) | 生产级项目骨架（目录规范 + 路径检测 + 自动打 PCK） |
 | `setup/` | [rider.md](references/setup/rider.md) | Rider 开发环境配置（代码检查、Harmony 抑制规则） |
 | `relic/` | [relic.md](references/relic/relic.md) | 自定义遗物（代码模板、稀有度、池、图标、本地化） |
 | `card/` | [card.md](references/card/card.md) | 自定义卡牌（构造函数、API 速查、卡池、肖像、本地化） |
