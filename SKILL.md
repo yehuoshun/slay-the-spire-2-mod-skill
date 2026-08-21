@@ -7,7 +7,7 @@
 ## 🚫 硬规则（优先级高于一切，必须逐条遵守）
 
 ### 一、写前必读
-1. 写代码前必须读 references 对应模式文件，完整读完，不准凭训练数据记忆写
+1. 写代码前必须读 references 对应模式文件（`xx.md` 为版本入口，按需读取对应版本），完整读完，不准凭训练数据记忆写
 2. 写代码前必须查 API 签名：`grep -rn "方法名" sts2-res/src/` 确认参数类型和顺序
 3. 不准复制外部 mod 源码，只准用 references 模板 + 原生 `sts2.dll` API
 
@@ -59,7 +59,7 @@ graph TD
 
 | 分类 | 文件 | 内容 |
 |------|------|------|
-| `setup/` | [environment-setup.md](references/setup/environment-setup.md) | 环境搭建、项目创建、PCK 打包、C# 入口 |
+| `setup/` | [environment-setup.md](references/setup/environment-setup.md) | 环境搭建、创建项目（v2 生产级骨架：目录规范 + 路径检测 + 自动打 PCK） |
 | `setup/` | [rider.md](references/setup/rider.md) | Rider 开发环境配置（代码检查、Harmony 抑制规则） |
 | `relic/` | [relic.md](references/relic/relic.md) | 自定义遗物（代码模板、稀有度、池、图标、本地化） |
 | `card/` | [card.md](references/card/card.md) | 自定义卡牌（构造函数、API 速查、卡池、肖像、本地化） |
