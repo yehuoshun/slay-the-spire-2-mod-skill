@@ -390,5 +390,5 @@ ModHelper.AddModelToPool(typeof(ExampleStrike), CardPools.Colorless);
 
 - 当前写法：手动 `DamageCmd.Attack().FromCard().Targeting().Execute()` 链式调用（保留为基准）
 - v2 更优：**CardFx 链式辅助方法**（见上方章节）——`this.DealDamage(ctx, play, 6)` 一行完成攻击
-- 卡池注册：v2 用**纯原生自动注册框架**（Attribute + ContentRegistry，见 [serialization.md](serialization.md)），替代手动逐个注册
+- 卡池注册：v2 用**纯原生自动注册框架**（Attribute + ContentRegistry，见 [serialization.md](../serialization/serialization.md)），替代手动逐个注册
 - 灵感来源：BaseLib `ConstructedCardModel` Builder，本方案零第三方依赖
