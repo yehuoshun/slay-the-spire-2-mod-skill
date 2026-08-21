@@ -108,3 +108,4 @@ graph TD
 | 外部 Mod 卡牌目标兼容 | 用 `ExternalCardTargetingCompat` 桥接层反射调用 |
 | 角色皮肤系统 | 实现 `IYuWanCharacterSkinProvider` 接口 + `CharacterSkinSelectionManager` 持久化选择 |
 | 配置系统只依赖 RitsuLib | YuWanCard v0.5.10 已移除 BaseLib 配置支持，仅保留 RitsuLib |
+| 自定义资源每回合不重置 | `BasicCustomResource` 的 `setEachTurn` 或重写 `StartOfTurnReset`（BaseLib 3.4.5+） |
