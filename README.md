@@ -17,6 +17,7 @@
 |------|------|------|
 | `setup/` | [environment-setup.md](references/setup/environment-setup.md) | 环境搭建、项目创建、PCK 打包、C# 入口 |
 | `setup/` | [rider.md](references/setup/rider.md) | Rider 开发环境配置（代码检查、Harmony 抑制规则） |
+| `setup/` | [modtemplate.md](references/setup/modtemplate.md) | 项目模板（ModTemplate 脚手架，含纯原生化） |
 | `relic/` | [relic.md](references/relic/relic.md) | 自定义遗物（代码模板、稀有度、池、图标、本地化） |
 | `card/` | [card.md](references/card/card.md) | 自定义卡牌（构造函数、API 速查、卡池、肖像、本地化） |
 | `potion/` | [potion.md](references/potion/potion.md) | 自定义药水（属性、回调、图标、池、本地化） |
@@ -53,6 +54,7 @@
 ### 活跃仓库
 
 - [Alchyr/BaseLib-StS2](https://github.com/Alchyr/BaseLib-StS2) — 官方模组标准库（Custom*Model 基类、[Pool]、Builder、工具）
+- [Alchyr/ModTemplate-StS2](https://github.com/Alchyr/ModTemplate-StS2) — 官方模组脚手架模板（Empty/Content/Character 三模板，目录结构与路径规范）
 
 ### 不活跃仓库
 
@@ -81,3 +83,4 @@
 - [x] BaseLib 集成指南（更新至 3.4.5：CustomResource 系统、CustomCalculatedVar.Create、CustomLargeImagePath）
 - [x] 14 个子项已升级 **v2**（纯原生进阶，导航模式：`xx.md` 入口 + `xx-v1.md` 存档）
 - [x] baselib.md 重写为纯原生设计模式总纲
+- [x] 项目模板（from ModTemplate-StS2，纯原生化）
