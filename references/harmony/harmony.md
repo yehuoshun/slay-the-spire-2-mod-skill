@@ -278,4 +278,3 @@ Patches/
 
 - 当前：手动 `harmony.PatchAll()` 全量加载
 - 更优：`[HarmonyPatchCategory]` + `PatchCategory()` 分类批量加载
-- 再优：用 `ModAnalyzers` 编译器分析检测 Patch 正确性
