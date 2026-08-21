@@ -53,6 +53,7 @@
 ### 活跃仓库
 
 - [Alchyr/BaseLib-StS2](https://github.com/Alchyr/BaseLib-StS2) — 官方模组标准库（Custom*Model 基类、[Pool]、Builder、工具）
+- [Alchyr/ModTemplate-StS2](https://github.com/Alchyr/ModTemplate-StS2) — 官方模组脚手架模板（工程化思想：骨架自动化、路径检测、目录规范）
 
 ### 不活跃仓库
 
@@ -80,4 +81,5 @@
 - [x] API 附录
 - [x] BaseLib 集成指南（更新至 3.4.5：CustomResource 系统、CustomCalculatedVar.Create、CustomLargeImagePath）
 - [x] 14 个子项已升级 **v2**（纯原生进阶，导航模式：`xx.md` 入口 + `xx-v1.md` 存档）
+- [x] 环境搭建升级 v2（生产级骨架：目录规范 + props 路径检测 + 自动打 PCK，学自 ModTemplate 纯原生化）
 - [x] baselib.md 重写为纯原生设计模式总纲
