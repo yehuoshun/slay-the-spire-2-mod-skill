@@ -15,9 +15,11 @@
 ## 一、角色卡池
 
 ```csharp
-using STS2;
-using STS2.Core.Cards;
 using Godot;
+using MegaCrit.Sts2.Core.Entities.Characters;
+using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Nodes.Combat;
+using MegaCrit.Sts2.Core.Nodes.Vfx;
 
 public class MyCardPool : CardPoolModel
 {

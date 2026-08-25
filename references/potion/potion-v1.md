@@ -15,11 +15,13 @@
 
 ```csharp
 using System.Threading.Tasks;
-using STS2;
-using STS2.Potions;
-using STS2.Core.Cards;
-using STS2.Combat;
 using Godot;
+using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Entities.Creatures;
+using MegaCrit.Sts2.Core.Entities.Potions;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Models.PotionPools;
 
 public class MyAoePotion : PotionModel
 {

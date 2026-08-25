@@ -15,10 +15,11 @@
 
 ```csharp
 using System.Threading.Tasks;
-using STS2;
-using STS2.Combat;
-using STS2.Core.Cards;
 using Godot;
+using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Entities.Powers;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Models;
 
 public class MyPower : PowerModel
 {

@@ -13,10 +13,11 @@
 ## 基础附魔模板
 
 ```csharp
-using STS2;
-using STS2.Cards;
-using STS2.Core.Cards;
 using Godot;
+using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Models;
 
 public class MyEnchantment : EnchantmentModel
 {

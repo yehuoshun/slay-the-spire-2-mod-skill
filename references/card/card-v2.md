@@ -78,11 +78,13 @@ public class MyCard : CardModel
 
 ```csharp
 using System.Threading.Tasks;
-using STS2;
-using STS2.Cards;
-using STS2.Combat;
-using STS2.Core.Cards;
 using Godot;
+using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Entities.Players;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Localization.DynamicVars;
+using MegaCrit.Sts2.Core.Models;
 
 [CardPool(CardPools.Colorless)]  // 添加到无色卡池
 public class ExampleStrike : CardModel
