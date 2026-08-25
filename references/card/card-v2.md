@@ -20,7 +20,7 @@ public class MyCard : CardModel
         1,              // CanonicalEnergyCost — 基础耗能
         CardType.Attack, // Type — 卡牌类型（决定肖像框样式）
         CardRarity.Common, // Rarity — 稀有度（决定边框样式+出现逻辑）
-        TargetType.TargetedEnemy, // TargetType — 目标类型
+        TargetType.AnyEnemy, // TargetType — 目标类型
         true            // ShouldShowInCardLibrary — 是否在图鉴显示（可选，默认true）
     ) { }
 }
@@ -48,6 +48,8 @@ public class MyCard : CardModel
 
 | 值 | 说明 |
 |-----|------|
+| `None` | 无（默认） |
+| `Basic` | 初始卡（铁甲战士等初始牌组，不随机生成） |
 | `Common` | 普通，随机池生成 |
 | `Uncommon` | 罕见，随机池生成 |
 | `Rare` | 稀有，随机池生成 |
@@ -62,15 +64,16 @@ public class MyCard : CardModel
 
 | 值 | 说明 |
 |-----|------|
-| `NoTarget` | 无目标 |
-| `TargetedEnemy` | 指定一个敌人 |
-| `TargetedAlly` | 指定一个友军（非自身，全军覆没时无法打出） |
+| `None` | 无目标 |
+| `Self` | 仅自身，无目标选择 |
+| `AnyEnemy` | 指定一个敌人 |
 | `AllEnemies` | 所有敌人 |
+| `RandomEnemy` | 随机敌人 |
+| `AnyPlayer` | 指定一个玩家（多人模式；单人无目标选择） |
+| `AnyAlly` | 指定一个友军（非自身，多人模式） |
 | `AllAllies` | 所有友军 |
-| `Self` | 自身 |
 | `TargetedNoCreature` | 非玩家/敌人（如污浊药水目标商人） |
 | `Osty` | 亡灵契约师宠物奥斯提 |
-| `RandomEnemy` | 随机敌人 |
 
 ---
 
@@ -86,38 +89,33 @@ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models;
 
-[CardPool(CardPools.Colorless)]  // 添加到无色卡池
+[CardPool(CardPools.Colorless)]  // 添加到无色卡池（注册方式详见 serialization）
 public class ExampleStrike : CardModel
 {
-    // 定义动态变量
-    public static readonly DynamicValue<int> Damage = new DynamicValue<int>(2, "D");
-
     public ExampleStrike() : base(
         0,
         CardType.Attack,
         CardRarity.Common,
-        TargetType.TargetedEnemy,
+        TargetType.AnyEnemy,
         true
     ) { }
 
-    public override Task OnPlay(PlayerChoiceContext context, CardPlayState playState)
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        // 判断目标是否存在
-        if (context.Target == null) return Task.CompletedTask;
-        // 获取目标生物
-        var target = context.Target.Creature;
+        // 空值检查（真实源码风格）
+        ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
         // 执行伤害
-        return DamageCmd.Attack(Damage.Get(this))
+        await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
             .FromCard(this)
-            .Targeting(target)
-            .WithHitFx("res://animations/slash/slash.glb")
-            .Execute(playState.CombatState);
+            .Targeting(cardPlay.Target)
+            .WithHitFx("vfx/vfx_attack_slash")
+            .Execute(choiceContext);
     }
 
-    public override void OnUpgrade()
+    protected override void OnUpgrade()
     {
         // 升级：伤害+2
-        base.Damage.UpgradeValueBy(2);
+        DynamicVars.Damage.UpgradeValueBy(2m);
     }
 }
 ```
@@ -135,11 +133,11 @@ DamageCmd.Attack(<伤害值>)
     .FromOsty(creature, this)          // 指定来源为奥斯提宠物
     .FromMonster(monster)              // 指定来源为怪物
     .Targeting(creature)               // 指定单一目标
-    .TargetingAllOpponents(state)      // 攻击所有对手
-    .TargetingRandomOpponents(state)   // 攻击随机目标，可选参数是否允许重复
+    .TargetingAllOpponents(combatState)      // 攻击所有对手（ICombatState）
+    .TargetingRandomOpponents(combatState)   // 攻击随机目标，可选参数是否允许重复
     .WithHitFx(vfxPath, sfxPath, tmpSfxPath)  // 指定特效/音效
     .WithHitCount(3)                   // 指定攻击次数
-    .Execute(state);                   // 执行（末尾必须调用），返回 Task<AttackCommand>
+    .Execute(choiceContext);           // 执行（末尾必须调用，传 PlayerChoiceContext），返回 Task<AttackCommand>
 ```
 
 | 方法 | 说明 |
@@ -148,21 +146,21 @@ DamageCmd.Attack(<伤害值>)
 | `FromOsty(Creature, CardModel)` | 伤害来源为奥斯提宠物 |
 | `FromMonster(MonsterModel)` | 伤害来源为怪物 |
 | `Targeting(Creature)` | 指定单一目标 |
-| `TargetingAllOpponents(CombatState)` | 攻击全部对手 |
-| `TargetingRandomOpponents(CombatState, bool)` | 攻击随机目标（第二个参数：是否允许重复） |
-| `WithHitFx(string, string, string)` | 特效/音效：vfx=Spine资源路径(res://animations/)，sfx=FMOD音效(.bank)，tmpSfx=调试音频(res://debug_audio/) |
+| `TargetingAllOpponents(ICombatState)` | 攻击全部对手 |
+| `TargetingRandomOpponents(ICombatState, bool)` | 攻击随机目标（第二个参数：是否允许重复，默认 true） |
+| `WithHitFx(string, string, string)` | 特效/音效：vfx=Spine资源路径，sfx=FMOD音效(.bank)，tmpSfx=调试音频 |
 | `WithHitCount(int)` | 攻击次数 |
-| `Execute(CombatState)` | 执行攻击，返回 Task，可用 await 等待结束后再执行后续 |
+| `Execute(PlayerChoiceContext?)` | 执行攻击，返回 Task，可用 await 等待结束后再执行后续 |
 
 ### 卡牌回调
 
 | 回调 | 触发时机 | 签名 |
 |------|---------|------|
-| `OnPlay` | 出牌时 | `Task OnPlay(PlayerChoiceContext, CardPlayState)` |
-| `OnUpgrade` | 升级时 | `void OnUpgrade()` |
-| `OnTurnEndInHand` | 回合结束时该牌仍在手牌 | `Task OnTurnEndInHand(PlayerChoiceContext)` |
-| `IsPlayable` | 判断是否可打出 | 重写属性 `Func<bool>` |
-| `ShouldGlowGoldInternal` | 判断是否发金光提示 | 回调 |
+| `OnPlay` | 出牌时 | `protected virtual Task OnPlay(PlayerChoiceContext, CardPlay)` |
+| `OnUpgrade` | 升级时 | `protected virtual void OnUpgrade()` |
+| `OnTurnEndInHand` | 回合结束时该牌仍在手牌 | `protected virtual Task OnTurnEndInHand(PlayerChoiceContext)` |
+| `IsPlayable` | 判断是否可打出 | `protected virtual bool IsPlayable`（属性） |
+| `ShouldGlowGoldInternal` | 判断是否发金光提示 | `protected virtual bool ShouldGlowGoldInternal`（属性） |
 
 ### 卡牌操作
 
@@ -221,15 +219,14 @@ public override CardKeyword[] CanonicalKeywords => new[] { CardKeyword.Retain };
 在 `OnPlay` 中为角色施加效果：
 
 ```csharp
-public override Task OnPlay(PlayerChoiceContext context, CardPlayState playState)
+protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 {
-    if (context.Target == null) return Task.CompletedTask;
-    var target = context.Target.Creature;
+    ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
 
-    return DamageCmd.Attack(Damage.Get(this))
+    await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
         .FromCard(this)
-        .Targeting(target)
-        .Execute(playState.CombatState);
+        .Targeting(cardPlay.Target)
+        .Execute(choiceContext);
 }
 ```
 
@@ -265,36 +262,39 @@ public static class CardFx
 {
     // 攻击指定目标
     public static Task DealDamage(this CardModel card, PlayerChoiceContext ctx,
-        CardPlayState play, int damage, int hits = 1, string? hitFx = null)
+        CardPlay play, int damage, int hits = 1, string? hitFx = null)
     {
-        if (ctx.Target == null) return Task.CompletedTask;
-        var cmd = DamageCmd.Attack(damage).FromCard(card).Targeting(ctx.Target.Creature)
+        ArgumentNullException.ThrowIfNull(play.Target, "play.Target");
+        var cmd = DamageCmd.Attack(damage).FromCard(card).Targeting(play.Target)
             .WithHitCount(hits);
         if (hitFx != null) cmd = cmd.WithHitFx(hitFx);
-        return cmd.Execute(play.CombatState);
+        return cmd.Execute(ctx);
     }
 
     // 攻击所有敌人
     public static Task DealDamageAll(this CardModel card, PlayerChoiceContext ctx,
-        CardPlayState play, int damage)
+        CardPlay play, int damage)
         => DamageCmd.Attack(damage).FromCard(card)
-            .TargetingAllOpponents(play.CombatState).Execute(play.CombatState);
+            .TargetingAllOpponents(card.CombatState).Execute(ctx);
 
-    // 抽牌
-    public static void Draw(this CardModel card, CardPlayState play, int count)
-        => CardPileCmd.Draw(play.CombatState, count);
+    // 抽牌（真实签名：Draw(PlayerChoiceContext, decimal count, Player, bool)）
+    public static Task Draw(this CardModel card, PlayerChoiceContext ctx, int count)
+        => CardPileCmd.Draw(ctx, count, card.Owner, false);
 
-    // 施加能力
-    public static Task ApplyPower<T>(this CardModel card, PlayerChoiceContext ctx,
-        CardPlayState play, int amount) where T : PowerModel
-        => PowerCmd.Apply<T>(ctx.Target!.Creature, amount);
+    // 对目标施加能力（真实签名：Apply<T>(ctx, Creature, decimal, applier, cardSource)）
+    public static async Task ApplyPower<T>(this CardModel card, PlayerChoiceContext ctx,
+        CardPlay play, int amount) where T : PowerModel
+    {
+        if (play.Target == null) return;
+        await PowerCmd.Apply<T>(ctx, play.Target, amount, play.Target, card);
+    }
 }
 
-// 用法：攻击 + 抽牌 两行
-public override Task OnPlay(PlayerChoiceContext ctx, CardPlayState play)
+// 用法：攻击 + 抽牌
+protected override async Task OnPlay(PlayerChoiceContext ctx, CardPlay play)
 {
-    if (ctx.Target == null) return Task.CompletedTask;
-    return Task.WhenAll(
+    ArgumentNullException.ThrowIfNull(play.Target, "play.Target");
+    await Task.WhenAll(
         this.DealDamage(ctx, play, 6),
         this.DealDamage(ctx, play, 3));
 }
@@ -382,7 +382,7 @@ ModHelper.AddModelToPool(typeof(ExampleStrike), CardPools.Colorless);
 | 本地化不生效 | 必须 Publish 而非 Build |
 | 卡牌无法打出 | 检查 `IsPlayable` 回调 + `TargetType` 是否匹配 |
 | 升级数值不变 | 用 `UpgradeValueBy()` 而非直接改字段 |
-| OnPlay 空引用 | 加 `if (context.Target == null) return;` 空值检查 |
+| OnPlay 空引用 | `ArgumentNullException.ThrowIfNull(cardPlay.Target, ...)` 空值检查 |
 | 特效不显示 | Spine 资源必须放在 `res://animations/` 下 |
 | 音效文件 | FMOD 使用 `.bank` 文件；调试用 `res://debug_audio/` 下的路径 |
 
