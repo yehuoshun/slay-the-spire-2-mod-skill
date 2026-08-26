@@ -25,15 +25,21 @@ Harmony Patch → 模型注册 → 设置/配置
 
 ## 注册方式
 
+**推荐（硬规则4-①）：attribute + ContentRegistry 自动注册**
+
+见 [design-patterns.md](../baselib/design-patterns.md)「模式 1」：用 `[CardPool(typeof(ColorlessCardPool))]` / `[RelicPool(typeof(SharedRelicPool))]` 标记模型类，在 `ModEntry.Initialize` 里调一次 `ContentRegistry.RegisterAll(Assembly.GetExecutingAssembly())` 批量扫描注册，无需逐个 `AddModelToPool`。
+
+以下是手动 / 补救方式（硬规则4-②）：
+
 ### 方式1：ModHelper.AddModelToPool
 
 ```csharp
-// 注册到指定池
-ModHelper.AddModelToPool<IroncladRelicPool>(typeof(MyRelic));
-ModHelper.AddModelToPool<ColorlessCardPool>(typeof(MyCard));
-ModHelper.AddModelToPool<SharedRelicPool>(typeof(MyRelic));
+// 泛型（编译期确定池与模型类型）
+ModHelper.AddModelToPool<IroncladRelicPool, MyRelic>();
+ModHelper.AddModelToPool<ColorlessCardPool, MyCard>();
+ModHelper.AddModelToPool<SharedRelicPool, MyRelic>();
 
-// 池类型在运行时确定时
+// 反射重载（池类型运行时确定）
 ModHelper.AddModelToPool(poolType, modelType);
 ```
 

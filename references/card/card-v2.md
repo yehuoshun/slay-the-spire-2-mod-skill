@@ -89,7 +89,7 @@ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models;
 
-[CardPool(CardPools.Colorless)]  // 添加到无色卡池（注册方式详见 serialization）
+[CardPool(typeof(ColorlessCardPool))]  // 添加到无色卡池（自动注册，见 design-patterns 模式1）
 public class ExampleStrike : CardModel
 {
     public ExampleStrike() : base(
@@ -322,26 +322,28 @@ protected override IEnumerable<DynamicVar> CanonicalVars =>
 ## 添加卡牌到卡池
 
 ```csharp
-// 通过属性添加到卡池
-[CardPool(CardPools.Colorless)]  // 添加到无色卡池
+// 方式①：attribute + ContentRegistry 自动注册（推荐，硬规则4-①，见 design-patterns 模式1）
+[CardPool(typeof(ColorlessCardPool))]  // 添加到无色卡池
 public class ExampleStrike : CardModel { }
 
-// 手动注册（在 ModEntry 中）
-ModHelper.AddModelToPool(typeof(ExampleStrike), CardPools.Colorless);
+// 方式②：手动注册（在 ModEntry 中，硬规则4-②）
+ModHelper.AddModelToPool(typeof(ColorlessCardPool), typeof(ExampleStrike));
 ```
 
 常用卡池名：
 
 | 池 | 说明 |
 |-----|------|
-| `CardPools.Colorless` | 无色 |
-| `CardPools.Ironclad` | 铁甲战士 |
-| `CardPools.Silent` | 静默猎手 |
-| `CardPools.Defect` | 故障机器人 |
-| `CardPools.Watcher` | 观者 |
-| `CardPools.Necrobinder` | 亡灵契约师 |
-| `CardPools.Regent` | 摄政者 |
-| `CardPools.Amnesiac` | 迷失者 |
+| `ColorlessCardPool` | 无色 |
+| `IroncladCardPool` | 铁甲战士 |
+| `SilentCardPool` | 静默猎手 |
+| `DefectCardPool` | 故障机器人 |
+| `NecrobinderCardPool` | 亡灵契约师 |
+| `RegentCardPool` | 摄政者 |
+| `EventCardPool` | 事件牌（不随机生成） |
+| `TokenCardPool` | 衍生物（小刀/灵魂等） |
+
+> 完整池列表见源码 `Core/Models/CardPools/`（另有 Curse/Status/Quest/Deprecated 等边界池）。
 
 ---
 
@@ -377,7 +379,7 @@ ModHelper.AddModelToPool(typeof(ExampleStrike), CardPools.Colorless);
 
 | 问题 | 解决 |
 |------|------|
-| 卡牌不显示 | 检查 `[CardPool]` 属性或手动调 `AddModelToPool` |
+| 卡牌不显示 | 检查 `[CardPool(typeof(池类))]` attribute 或手动 `AddModelToPool` |
 | 肖像图不显示 | PNG 路径/命名与卡池和卡牌 ID 一致 |
 | 本地化不生效 | 必须 Publish 而非 Build |
 | 卡牌无法打出 | 检查 `IsPlayable` 回调 + `TargetType` 是否匹配 |

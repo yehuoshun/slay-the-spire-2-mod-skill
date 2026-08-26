@@ -132,22 +132,22 @@ public override bool CanBeGeneratedInCombat => false;
 ## 添加药水到药水池
 
 ```csharp
-// 手动注册
-ModHelper.AddModelToPool(typeof(MyAoePotion), PotionPools.Shared);
+// 方式②：手动注册（硬规则4-②；方式① attribute 自动注册见 design-patterns 模式1）
+ModHelper.AddModelToPool(typeof(SharedPotionPool), typeof(MyAoePotion));
 ```
 
 ### 药水池类型
 
 | 池 | 说明 |
 |-----|------|
-| `PotionPools.Shared` | 共享药水池，所有角色都可获取 |
-| `PotionPools.Ironclad` | 铁甲战士专属 |
-| `PotionPools.Silent` | 静默猎手专属 |
-| `PotionPools.Defect` | 故障机器人专属 |
-| `PotionPools.Watcher` | 观者专属 |
-| `PotionPools.Necrobinder` | 亡灵契约师专属 |
-| `PotionPools.Regent` | 摄政者专属 |
-| `PotionPools.Amnesiac` | 迷失者专属 |
+| `SharedPotionPool` | 共享药水池，所有角色都可获取 |
+| `IroncladPotionPool` | 铁甲战士专属 |
+| `SilentPotionPool` | 静默猎手专属 |
+| `DefectPotionPool` | 故障机器人专属 |
+| `NecrobinderPotionPool` | 亡灵契约师专属 |
+| `RegentPotionPool` | 摄政者专属 |
+
+> 完整池列表见源码 `Core/Models/PotionPools/`（另有 Event/Token/Deprecated 等边界池）。
 
 ---
 

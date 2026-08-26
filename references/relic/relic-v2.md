@@ -248,7 +248,7 @@ public static class MyCustomModInitializer
             _harmony = new Harmony(HarmonyId);
             _harmony.PatchAll(Assembly.GetExecutingAssembly());
 
-            ModHelper.AddModelToPool<IroncladRelicPool>(typeof(MyCustomRelic));
+            ModHelper.AddModelToPool<IroncladRelicPool, MyCustomRelic>();
         }
         catch (Exception e)
         {
