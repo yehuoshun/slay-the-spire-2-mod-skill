@@ -50,22 +50,21 @@ ModHelper.AddModelToPool(poolType, modelType);
 ModelDb.Inject(typeof(MyPower));
 ```
 
-`ModelDb.Inject` 只注册模型 ID，不关联池。池关联需要额外的 Patch 或 `AddModelToPool`。
+`ModelDb.Inject` 只注册模型 ID，不关联池。池关联用 `AddModelToPool`；角色类自身的 `CardPool`/`RelicPool`/`PotionPool` 属性会自动带出三池，无需额外处理。
 
 ### 方式3：HarmonyPatch 注入
 
-需要 Patch 特定 Getter 的模型（角色/事件/遭遇/Modifier）：
+需要 Patch 注入的模型（角色/事件/遭遇/Modifier）：
 
-| 目标 | Patch 方法 |
-|------|-----------|
-| 角色 | `ModelDb.AllCharacters` getter |
-| 卡池 | `ModelDb.AllCardPools` getter |
-| 遗物池 | `ModelDb.AllRelicPools` getter |
-| 药水池 | `ModelDb.AllPotionPools` getter |
-| 事件 | `ActModel.AllEvents` getter |
-| 遭遇 | `GenerateAllEncounters` |
-| 先古之民 | `ActModel.AllAncients` getter |
-| Modifier | `NCustomRunModifiersList.GetModifiersTickedOn` |
+| 目标 | Patch 方法 | 注意 |
+|------|-----------|------|
+| 角色 | `ModelDb.AllCharacters` getter | Postfix 用 `ref IEnumerable<CharacterModel>` + `Append` |
+| 事件 | `Overgrowth.AllEvents` getter | 具体 act 子类（不要 Patch 抽象基类 `ActModel.AllEvents`）；`ref IEnumerable<EventModel>` |
+| 先古之民 | `Hive.AllAncients` getter | act 子类；`ref IEnumerable<AncientEventModel>` |
+| 遭遇 | `Overgrowth.GenerateAllEncounters()` | **实例方法非 getter**，不写 `MethodType.Getter`；`ref IEnumerable<EncounterModel>` |
+| Modifier | `NCustomRunModifiersList.GetModifiersTickedOn` | `ref List<ModifierModel>` |
+
+> ⚠️ 卡池/遗物池/药水池**无需** Patch `ModelDb.All*Pools` getter——它们是由角色类 `CardPool`/`RelicPool`/`PotionPool` 属性派生的只读组合。
 
 ---
 
