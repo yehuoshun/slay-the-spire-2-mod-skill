@@ -1,6 +1,7 @@
 # 实战写法模式
 
-> 常用代码片段汇总，快速复制修改。
+> 常用代码片段汇总（全部对照真实 `sts2-res/src/` 源码重写）。快速复制修改。
+> 完整模板见各模块 v3：card-v3 / relic-v3 / power-v3 / event-v3 / monster-v3 等。
 
 ---
 
@@ -9,103 +10,92 @@
 ### 单目标攻击
 
 ```csharp
-public override Task OnPlay(PlayerChoiceContext context, CardPlayState playState)
+protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 {
-    if (context.Target == null) return Task.CompletedTask;
-    return DamageCmd.Attack(Damage.Get(this))
-        .FromCard(this).Targeting(context.Target.Creature)
-        .Execute(playState.CombatState);
+    ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
+    await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
+        .FromCard(this)
+        .Targeting(cardPlay.Target)
+        .Execute(choiceContext);
 }
 ```
 
 ### 多段攻击（3 次）
 
 ```csharp
-return DamageCmd.Attack(Damage.Get(this))
-    .FromCard(this).Targeting(context.Target.Creature)
+await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
+    .FromCard(this).Targeting(cardPlay.Target)
     .WithHitCount(3)
-    .Execute(playState.CombatState);
+    .Execute(choiceContext);
 ```
 
 ### AOE 攻击（所有敌人）
 
 ```csharp
-return DamageCmd.Attack(Damage.Get(this))
+await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
     .FromCard(this)
-    .TargetingAllOpponents(playState.CombatState)
-    .Execute(playState.CombatState);
+    .TargetingAllOpponents(CombatState)
+    .Execute(choiceContext);
 ```
 
 ### 攻击 + 施加能力
 
 ```csharp
-var target = context.Target?.Creature;
-if (target == null) return Task.CompletedTask;
+ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
+await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
+    .FromCard(this).Targeting(cardPlay.Target)
+    .Execute(choiceContext);
 
-// 先攻击
-await DamageCmd.Attack(Damage.Get(this))
-    .FromCard(this).Targeting(target)
-    .Execute(playState.CombatState);
-
-// 再施加能力
-await PowerCmd.Apply<VulnerablePower>(target, 1);
+await PowerCmd.Apply<VulnerablePower>(choiceContext, cardPlay.Target, 1, Owner.Creature, this);
 ```
 
 ### 格挡
 
 ```csharp
-public override Task OnPlay(PlayerChoiceContext context, CardPlayState playState)
-{
-    // 对所有敌人施加格挡
-    BlockCmd.GainBlock(context.Player, Block.Get(this));
-    return Task.CompletedTask;
-}
+// 真实签名：CreatureCmd.GainBlock(Creature, decimal, ValueProp, CardPlay?, bool)
+await CreatureCmd.GainBlock(Owner.Creature, DynamicVars.Block.BaseValue, ValueProp.Move, cardPlay);
 ```
 
 ### 抽牌
 
 ```csharp
-CardPileCmd.Draw(playState.CombatState, 2);
+// 真实签名：CardPileCmd.Draw(PlayerChoiceContext, decimal, Player, bool)
+await CardPileCmd.Draw(choiceContext, 2, Owner);
 ```
 
 ### 升级
 
 ```csharp
-public override void OnUpgrade()
+protected override void OnUpgrade()
 {
-    base.Damage.UpgradeValueBy(3);
+    DynamicVars.Damage.UpgradeValueBy(3m);
 }
 ```
 
 ### 选择手牌消耗
 
 ```csharp
-var selected = await CardSelectCmd.FromHand(context, context.Player,
+var selected = await CardSelectCmd.FromHand(choiceContext, Owner,
     new CardSelectorPrefs("选择一张牌消耗", selectCount: 1),
     card => card != this, this);
-foreach (var card in selected) CardCmd.Exhaust(card);
+foreach (var card in selected) await CardCmd.Exhaust(choiceContext, card);
 ```
 
 ### 选择手牌升级
 
 ```csharp
-var card = await CardSelectCmd.FromHandForUpgrade(context, context.Player,
-    card => card.CanUpgrade(), this);
-if (card != null) card.UpgradeInternal();
+// 真实签名：FromHandForUpgrade(context, player, source)（无 filter 参数）
+var card = await CardSelectCmd.FromHandForUpgrade(choiceContext, Owner, this);
+if (card != null) CardCmd.Upgrade(card);
 ```
 
-### 使用条件
+### 使用条件（属性，不是方法）
 
 ```csharp
-public override bool IsPlayable(PlayerChoiceContext context)
-{
-    return context.Player.Gold >= 100;
-}
+// IsPlayable / ShouldGlowGoldInternal 都是 protected virtual 属性
+protected override bool IsPlayable => Owner.Gold >= 100;
 
-public override bool ShouldGlowGoldInternal(PlayerChoiceContext context)
-{
-    return context.Player.Gold >= 100;
-}
+protected override bool ShouldGlowGoldInternal => Owner.Gold >= 100;
 ```
 
 ---
@@ -115,20 +105,20 @@ public override bool ShouldGlowGoldInternal(PlayerChoiceContext context)
 ### 回合开始给能量
 
 ```csharp
-public override async Task AfterSideTurnStart(Side side, ICombatState combatState)
+protected override async Task AfterSideTurnStart(CombatSide side, IReadOnlyList<Creature> participants, ICombatState combatState)
 {
-    if (side != Owner.Creature.Side) return;
+    if (!participants.Contains(Owner.Creature)) return;
     Flash();
-    await PlayerCmd.GainEnergy(combatState, 1);
+    await PlayerCmd.GainEnergy(DynamicVars.Energy.IntValue, Owner);  // (decimal, Player)
 }
 ```
 
 ### 卡牌打出时触发
 
 ```csharp
-public override async Task AfterCardPlayed(PlayerChoiceContext context, CardPlayState cardPlay)
+public override async Task AfterCardPlayed(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 {
-    if (cardPlay.CardPlayed.Type == CardType.Attack)
+    if (cardPlay.Card.Type == CardType.Attack)
     {
         Flash();
         // 攻击牌触发效果
@@ -136,25 +126,24 @@ public override async Task AfterCardPlayed(PlayerChoiceContext context, CardPlay
 }
 ```
 
-### 战斗结束时触发
+### 战斗胜利时触发
 
 ```csharp
-public override async Task AfterCombatEnd(PlayerChoiceContext context)
+public override async Task AfterCombatVictory(CombatRoom room)
 {
-    // 战斗结束效果
+    Flash();
+    await CreatureCmd.Heal(Owner.Creature, 6);
 }
 ```
 
-### 玩家受伤时触发
+### 持有者受伤时触发
 
 ```csharp
-public override async Task OnPlayerDamaged(PlayerChoiceContext context, int damageTaken)
+public override async Task AfterDamageReceived(PlayerChoiceContext choiceContext, Creature target, DamageResult result, ValueProp props, Creature? dealer, CardModel? cardSource)
 {
-    if (damageTaken > 0)
-    {
-        Flash();
-        // 受伤效果
-    }
+    if (target != Owner.Creature) return;
+    Flash();
+    // 受伤效果
 }
 ```
 
@@ -162,42 +151,52 @@ public override async Task OnPlayerDamaged(PlayerChoiceContext context, int dama
 
 ## 能力
 
-### 回合结束递减层数
+### 伤害修正（力量式）
 
 ```csharp
-public override Task OnTurnEnd(PlayerChoiceContext context)
+public override decimal ModifyDamageAdditive(Creature? target, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource)
 {
-    Amount--;
-    return Task.CompletedTask;
+    if (Owner != dealer) return 0m;
+    return props.IsPoweredAttack() ? Amount : 0m;
+}
+```
+
+### 回合结束递减层数（临时能力）
+
+```csharp
+public override async Task AfterSideTurnEnd(PlayerChoiceContext choiceContext, CombatSide side, IEnumerable<Creature> participants)
+{
+    if (participants.Contains(Owner))
+    {
+        await PowerCmd.Decrement(this);
+    }
 }
 ```
 
 ### 卡牌打出时获得格挡
 
 ```csharp
-public override Task OnCardPlayed(PlayerChoiceContext context, CardPlayState playState)
+public override async Task AfterCardPlayed(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 {
-    BlockCmd.GainBlock(context.Player, Amount);
-    return Task.CompletedTask;
+    await CreatureCmd.GainBlock(Owner, Amount, ValueProp.Move, cardPlay);
 }
 ```
 
-### 临时能力（回合结束移除）
+### 临时能力（完整类）
 
 ```csharp
 public class MyTempPower : PowerModel
 {
-    public MyTempPower()
-    {
-        Type = PowerType.Buff;
-        StackType = PowerStackType.Stacks;
-        AllowNegative = false;
-    }
+    public override PowerType Type => PowerType.Buff;
+    public override PowerStackType StackType => PowerStackType.Counter;
+    public override bool AllowNegative => false;   // 归零自动移除
 
-    public override Task OnTurnEnd(PlayerChoiceContext context)
+    public override async Task AfterSideTurnEnd(PlayerChoiceContext choiceContext, CombatSide side, IEnumerable<Creature> participants)
     {
-        Amount--;
-        return Task.CompletedTask;
+        if (participants.Contains(Owner))
+        {
+            await PowerCmd.Decrement(this);
+        }
     }
 }
 ```
@@ -209,37 +208,57 @@ public class MyTempPower : PowerModel
 ### 单页事件
 
 ```csharp
-public override Task<List<EventOption>> GenerateInitialOptions()
+protected override IReadOnlyList<EventOption> GenerateInitialOptions()
 {
-    return Task.FromResult(new List<EventOption>
+    return new List<EventOption>
     {
-        new EventOption(InitialOptionKey("OptionA"), OnOptionA),
-        new EventOption(InitialOptionKey("OptionB"), OnOptionB),
-    });
+        new EventOption(this, OnOptionA, "MY_EVENT.pages.INITIAL.options.A"),
+        new EventOption(this, OnOptionB, "MY_EVENT.pages.INITIAL.options.B"),
+    };
+}
+
+private async Task OnOptionA()
+{
+    SetEventFinished(L10NLookup("MY_EVENT.pages.A.description"));
 }
 ```
 
 ### 多页事件
 
 ```csharp
-public override Task<List<EventOption>> GenerateInitialOptions()
+protected override IReadOnlyList<EventOption> GenerateInitialOptions()
 {
-    return Task.FromResult(new List<EventOption>
+    return new List<EventOption>
     {
-        new EventOption(InitialOptionKey("Enter"), OnEnter),
-    });
+        new EventOption(this, OnEnter, "MY_EVENT.pages.INITIAL.options.ENTER"),
+    };
 }
 
-private async Task OnEnter(PlayerChoiceContext context)
+private async Task OnEnter()
 {
-    SetEventState("PAGE2");
+    SetEventState(
+        L10NLookup("MY_EVENT.pages.PAGE2.description"),
+        new List<EventOption>
+        {
+            new EventOption(this, OnLeave, "MY_EVENT.pages.PAGE2.options.LEAVE"),
+        });
+}
+```
+
+### 事件给卡 / 金币
+
+```csharp
+private async Task OnGetCard()
+{
+    var card = Owner!.RunState.CreateCard<MyCustomCard>(Owner);
+    CardCmd.PreviewCardPileAdd(await CardPileCmd.Add(card, PileType.Deck), 2f);
+    SetEventFinished(L10NLookup("MY_EVENT.pages.GET_CARD.description"));
 }
 
-public override Task<List<EventOption>> GetStateOptions(string state)
+private async Task OnGetGold()
 {
-    if (state == "PAGE2")
-        return Task.FromResult(new List<EventOption> { /* 第二页选项 */ });
-    return base.GetStateOptions(state);
+    await PlayerCmd.GainGold(50, Owner!);
+    SetEventFinished(L10NLookup("MY_EVENT.pages.GET_GOLD.description"));
 }
 ```
 
@@ -250,28 +269,35 @@ public override Task<List<EventOption>> GetStateOptions(string state)
 ### 手动注册模型
 
 ```csharp
-ModHelper.AddModelToPool<ColorlessCardPool>(typeof(MyCard));
-ModHelper.AddModelToPool<SharedRelicPool>(typeof(MyRelic));
+// 双泛型（无参）或反射重载
+ModHelper.AddModelToPool<ColorlessCardPool, MyCard>();
+ModHelper.AddModelToPool<SharedRelicPool, MyRelic>();
 ModelDb.Inject(typeof(MyPower));
 ```
 
 ### HarmonyPatch 注入角色
 
 ```csharp
-[HarmonyPatch(typeof(ModelDb), "AllCharacters", MethodType.Getter)]
-public static void Postfix(ref List<CharacterModel> __result)
+[HarmonyPatch(typeof(ModelDb), nameof(ModelDb.AllCharacters), MethodType.Getter)]
+public static class AllCharactersPatch
 {
-    __result.Add(new MyCharacter());
+    public static void Postfix(ref IEnumerable<CharacterModel> __result)
+    {
+        __result = __result.Append(new MyCharacter());
+    }
 }
 ```
 
 ### HarmonyPatch 注入事件
 
 ```csharp
-[HarmonyPatch(typeof(Overgrowth), "AllEvents", MethodType.Getter)]
-public static void Postfix(ref List<EventModel> __result)
+[HarmonyPatch(typeof(Overgrowth), nameof(Overgrowth.AllEvents), MethodType.Getter)]
+public static class AllEventsPatch
 {
-    __result.Add(new MyEvent());
+    public static void Postfix(ref IEnumerable<EventModel> __result)
+    {
+        __result = __result.Append(new MyEvent());
+    }
 }
 ```
 
@@ -286,11 +312,14 @@ SavedPropertiesTypeCache.InjectTypeIntoCache(typeof(MyRelic));
 ## 修改角色初始遗物
 
 ```csharp
-[HarmonyPatch(typeof(Ironclad), "StartingRelics", MethodType.Getter)]
-public static void Postfix(Ironclad __instance, ref IReadOnlyList<RelicModel> __result)
+[HarmonyPatch(typeof(Ironclad), nameof(Ironclad.StartingRelics), MethodType.Getter)]
+public static class IroncladStartingRelicsPatch
 {
-    var list = new List<RelicModel>(__result) { ModelDb.Relic<MyRelic>() };
-    __result = list;
+    private static void Postfix(Ironclad __instance, ref IReadOnlyList<RelicModel> __result)
+    {
+        var list = new List<RelicModel>(__result) { ModelDb.Relic<MyCustomRelic>() };
+        __result = list;
+    }
 }
 ```
 
@@ -301,12 +330,12 @@ public static void Postfix(Ironclad __instance, ref IReadOnlyList<RelicModel> __
 ### 卡牌：攻击 + 抽牌
 
 ```csharp
-public override async Task OnPlay(PlayerChoiceContext context, CardPlayState playState)
+protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 {
-    if (context.Target == null) return;
-    await DamageCmd.Attack(Damage.Get(this)).FromCard(this)
-        .Targeting(context.Target.Creature).Execute(playState.CombatState);
-    CardPileCmd.Draw(playState.CombatState, 1);
+    ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
+    await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+        .Targeting(cardPlay.Target).Execute(choiceContext);
+    await CardPileCmd.Draw(choiceContext, 1, Owner);
 }
 ```
 
@@ -315,29 +344,27 @@ public override async Task OnPlay(PlayerChoiceContext context, CardPlayState pla
 ```csharp
 private bool _alreadyUsedThisTurn;
 
-public override async Task AfterSideTurnStart(Side side, ICombatState combatState)
+public override async Task AfterSideTurnStart(CombatSide side, IReadOnlyList<Creature> participants, ICombatState combatState)
 {
-    if (side != Owner.Creature.Side) return;
-    _alreadyUsedThisTurn = false;
+    if (participants.Contains(Owner.Creature))
+        _alreadyUsedThisTurn = false;
 }
 
-public override async Task OnPlayerDamaged(PlayerChoiceContext context, int damageTaken)
+public override async Task AfterDamageReceived(PlayerChoiceContext choiceContext, Creature target, DamageResult result, ValueProp props, Creature? dealer, CardModel? cardSource)
 {
-    if (!_alreadyUsedThisTurn && damageTaken > 0)
-    {
-        Flash();
-        // 减半伤害
-        _alreadyUsedThisTurn = true;
-    }
+    if (target != Owner.Creature || _alreadyUsedThisTurn) return;
+    _alreadyUsedThisTurn = true;
+    Flash();
+    // 减半伤害逻辑
 }
 ```
 
-### 能力：At the start of turn, gain block
+### 能力：回合开始获得格挡
 
 ```csharp
-public override Task OnTurnStart(PlayerChoiceContext context)
+public override async Task AfterSideTurnStart(CombatSide side, IReadOnlyList<Creature> participants, ICombatState combatState)
 {
-    BlockCmd.GainBlock(context.Player, Amount);
-    return Task.CompletedTask;
+    if (participants.Contains(Owner))
+        await CreatureCmd.GainBlock(Owner, Amount, ValueProp.Move, null);
 }
 ```
