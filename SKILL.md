@@ -1,6 +1,7 @@
 # 杀戮尖塔 2 纯原生 Mod 开发 — AI 工作流
 
 > 🦞 零第三方依赖。只靠 `0Harmony.dll` + `sts2.dll` 和你的脑子。
+> 唯一例外：设置界面允许用 BaseLib（见 settings.md）——纯原生手写设置 UI 成本极高且非玩法核心。
 
 ---
 
@@ -9,7 +10,7 @@
 ### 一、写前必读
 1. 写代码前必须读 references 对应模式文件（`xx.md` 为版本入口，按需读取对应版本），完整读完，不准凭训练数据记忆写
 2. 写代码前必须查 API 签名：`grep -rn "方法名" sts2-res/src/` 确认参数类型和顺序
-3. 不准复制外部 mod 源码，只准用 references 模板 + 原生 `sts2.dll` API
+3. 不准复制外部 mod 源码，只准用 references 模板 + 原生 `sts2.dll` API（设置界面除外，可用 BaseLib `SimpleModConfig`，见 settings.md）
 
 ### 二、代码规范
 4. 所有模型类必须注册（二选一，不混用）：① 自定义 `[XxxPool]`/`[XxxModel]` Attribute + 注册辅助扫描自动注册；② 手动 `ModHelper.AddModelToPool` / `ModelDb.Inject`
