@@ -84,31 +84,21 @@ graph TD
 
 ---
 
-## ⚠️ 常见坑速览
+## ⚠️ 常见坑速览（纯原生）
 
 | 问题 | 解决 |
 |------|------|
 | 图标不显示 | PNG 未打包进 PCK；检查路径与代码一致 |
 | 本地化不生效 | 必须 **Publish**（非 Build），本地化是资源文件 |
 | Harmony 报 .NET 版本 | `GodotPlugins.runtimeconfig.json` → `"version": "9.0.0"` |
-| 场景脚本找不到 | `ScriptManagerBridge.LookupScriptsInAssembly` |
 | Mod 不加载 | `assets/MyMod.json` 的 `id` 和文件名一致 |
-| 自定义属性不保存 | 没调 `SavedPropertiesTypeCache.InjectTypeIntoCache()` |
-| `AddModelToPool` 泛型报错 | 用 `ModHelper.AddModelToPool(poolType, modelType)` 反射重载 |
+| 自定义属性不保存 | `[SavedProperty]` + `SavedPropertiesTypeCache.InjectTypeIntoCache()` |
+| `AddModelToPool` 泛型报错 | 用反射重载 `ModHelper.AddModelToPool(poolType, modelType)` |
 | 遗物 `Rarity=Starter` 但池里不出现 | Starter 不走随机池，需 Patch 或用事件给 |
 | Harmony PatchAll 异常 | 单类 try-catch 包裹，防止一个类炸了全挂 |
-| 设置 UI 自己写容易出 bug | 参考 ShunMod 的零 Harmony + Godot 纯信号方案 |
-| 自定义属性序列化丢失 | `[SavedProperty]` + `SavedPropertiesTypeCache.InjectTypeIntoCache()` |
-| ModelDb 已初始化后注册模型 | 用 `ModelDb.Inject(type)` 而非 `AddModelToPool` |
-| 角色卡池缓存不刷新 | 反射重置 `CardPoolModel._allCards` / `ModelDb._allCards` 等缓存字段 |
+| ModelDb 已初始化后注册模型 | 用 `ModelDb.Inject(type)` 补救 |
+| 角色卡池缓存不刷新 | 反射重置 `CardPoolModel._allCards` / `ModelDb._allCards` |
 | 先古之民对话不显示 | Patch `AncientDialogueSet.GetValidDialogues` + `DefineDialogues` |
-| 先古遗物不在图鉴显示 | 实现 `AncientRelicCompendiumPatch` 自定义注册表 |
-| 多人模式状态不同步 | 用**确定性随机**（`DeterministicRandomUtils`）替代 `System.Random` |
 | ModelId 序列化缓存重复 | Patch `ModelId.ToTypeNameMap` 注入时去重 |
-| 多人模式专属卡牌 | 添加 `IsMultiplayerOnly` 标记防止单人模式卡死 |
-| 卡牌奖励序列化丢失自定义卡池 | `CardRewardSerializationCompatibility` 兼容层（BaseLib 3.3.4+） |
-| 临时能力核分支兼容 | 继承 `CustomTemporaryPowerModel` 并实现 `IBetaCompatTempPower`（BaseLib 3.3.3+） |
-| 外部 Mod 卡牌目标兼容 | 用 `ExternalCardTargetingCompat` 桥接层反射调用 |
-| 角色皮肤系统 | 实现 `IYuWanCharacterSkinProvider` 接口 + `CharacterSkinSelectionManager` 持久化选择 |
-| 配置系统只依赖 RitsuLib | YuWanCard v0.5.10 已移除 BaseLib 配置支持，仅保留 RitsuLib |
-| 自定义资源每回合不重置 | `BasicCustomResource` 的 `setEachTurn` 或重写 `StartOfTurnReset`（BaseLib 3.4.5+） |
+
+> BaseLib / 第三方生产级 Mod 的常见坑见 [design-patterns.md](references/baselib/design-patterns.md)「常见坑（灵感参考）」——纯原生定位下仅作参考，需自行转译实现。
