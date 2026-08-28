@@ -11,7 +11,7 @@
 
 ### references/
 
-> 📌 每个模块的 `xx.md` 直接包含完整内容。
+> 📌 每个模块的 `xx.md` 为导航页（概述 + 常见问题 + **章节导航表**），正文按章节拆分在 `xx-*.md` 子文件中。读模块时先开导航页，再按需读子文件。
 
 | 分类 | 文件 | 内容 |
 |------|------|------|
@@ -36,6 +36,7 @@
 | `settings/` | [settings.md](references/settings/settings.md) | 设置界面（BaseLib SimpleModConfig、Attribute、本地化） |
 | `patterns/` | [code-patterns.md](references/patterns/code-patterns.md) | 实战写法模式（卡牌/遗物/能力/事件代码片段） |
 | `patterns/` | [api-reference.md](references/patterns/api-reference.md) | API 附录（命名空间、命令类、回调签名、注册点） |
+| `patterns/` | [pitfalls.md](references/patterns/pitfalls.md) | 常见坑速览（图标/本地化/注册/序列化/Harmony） |
 | `baselib/` | [design-patterns.md](references/baselib/design-patterns.md) | 纯原生设计模式总纲（从 BaseLib 提炼，零第三方依赖） |
 
 ---
