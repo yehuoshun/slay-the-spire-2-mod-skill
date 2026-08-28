@@ -235,19 +235,14 @@ protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay
 ## 使用条件
 
 ```csharp
-// 重写 IsPlayable 属性
-public override bool IsPlayable(PlayerChoiceContext context)
-{
-    // 持有者金币 >= 100 才可打出
-    return context.Player.Gold >= 100;
-}
+// 重写 IsPlayable 属性（protected virtual 属性，不是方法）
+protected override bool IsPlayable => Owner.Gold >= 100;
 
 // 合适时机发金光提示
-public override bool ShouldGlowGoldInternal(PlayerChoiceContext context)
-{
-    return context.Player.Gold >= 100;
-}
+protected override bool ShouldGlowGoldInternal => Owner.Gold >= 100;
 ```
+
+> 拿玩家用 `Owner`（CardModel.Owner → Player），`context.Player` 不存在。
 
 ---
 
