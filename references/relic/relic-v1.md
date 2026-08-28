@@ -1,5 +1,7 @@
 # 自定义遗物
 
+> ⚠️ **存档版（v1），勿直接使用**——含错误签名，当前版见对应模块入口（`xx.md` 版本历史，最新为 v3）。
+
 > 参考：[烟汐忆梦_YM 的 B站教程](https://www.bilibili.com/opus/1179604439936270359)
 > API 签名验证：[Alchyr/BaseLib-StS2](https://github.com/Alchyr/BaseLib-StS2) `Abstracts/CustomRelicModel.cs`
 

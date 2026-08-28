@@ -1,4 +1,5 @@
 # 自定义球体（Orb）
+> ⚠️ **存档版（v1），勿直接使用**——含错误签名，当前版见对应模块入口（`xx.md` 版本历史，最新为 v3）。
 
 > 参考：[Alchyr/BaseLib-StS2](https://github.com/Alchyr/BaseLib-StS2) `Abstracts/CustomOrbModel.cs`
 
