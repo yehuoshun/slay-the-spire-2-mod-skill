@@ -4,11 +4,12 @@
 
 ## 📌 当前最新版
 
-**[pet-v2.md](pet-v2.md)** — 纯原生进阶：Attribute 自动注册
+**[pet-v3.md](pet-v3.md)** — API 全量校正（真实 MonsterModel 签名）
 
 ## 📚 版本历史
 
 | 版本 | 说明 | 状态 |
 |------|------|------|
-| [pet-v2.md](pet-v2.md) | 纯原生进阶：Attribute 自动注册 | ✅ 当前 |
+| [pet-v3.md](pet-v3.md) | API 全量校正（protected GenerateMoveStateMachine、MoveState Intent 实例、补 MinInitialHp/MaxInitialHp） | ✅ 当前 |
+| [pet-v2.md](pet-v2.md) | 纯原生进阶：Attribute 自动注册（含错误签名，留档） | 存档 |
 | [pet-v1.md](pet-v1.md) | 原版：基准写法 | 存档 |
