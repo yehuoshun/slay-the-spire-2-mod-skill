@@ -1,7 +1,5 @@
 # 纯原生设计模式总纲（从 BaseLib 提炼）
 
-> v2：模式 2「链式辅助方法」签名校正（`CardPlayState` → `CardPlay`，对齐 card-v3）。v1 为存档（`design-patterns-v1.md`，含错误签名留档对比）。
-
 > 本 skill 主推**纯原生**开发：只靠 `0Harmony.dll` + `sts2.dll`，零第三方依赖。
 > BaseLib 是优秀的设计参考，本文件把它所有便利机制**转译为纯原生实现**，作为各模块子项的通用地基。
 
@@ -103,31 +101,31 @@ public static class CardFx
 {
     // 攻击：来源是当前卡牌，打指定目标
     public static Task DealDamage(this CardModel card, PlayerChoiceContext ctx,
-        CardPlay play, int damage, int hits = 1, string? hitFx = null)
+        CardPlayState play, int damage, int hits = 1, string? hitFx = null)
     {
-        ArgumentNullException.ThrowIfNull(play.Target, "play.Target");
-        var cmd = DamageCmd.Attack(damage).FromCard(card).Targeting(play.Target)
+        if (ctx.Target == null) return Task.CompletedTask;
+        var cmd = DamageCmd.Attack(damage).FromCard(card).Targeting(ctx.Target.Creature)
             .WithHitCount(hits);
         if (hitFx != null) cmd = cmd.WithHitFx(hitFx);
-        return cmd.Execute(ctx);
+        return cmd.Execute(play.CombatState);
     }
 
     // 攻击所有敌人
     public static Task DealDamageAll(this CardModel card, PlayerChoiceContext ctx,
-        CardPlay play, int damage)
+        CardPlayState play, int damage)
         => DamageCmd.Attack(damage).FromCard(card)
-            .TargetingAllOpponents(card.CombatState).Execute(ctx);
+            .TargetingAllOpponents(play.CombatState).Execute(play.CombatState);
 
-    // 抽牌（真实签名：Draw(PlayerChoiceContext, decimal, Player, bool)）
-    public static Task Draw(this CardModel card, PlayerChoiceContext ctx, int count)
-        => CardPileCmd.Draw(ctx, count, card.Owner, false);
+    // 抽牌
+    public static void Draw(this CardModel card, CardPlayState play, int count)
+        => CardPileCmd.Draw(play.CombatState, count);
 }
 
 // 用法：一行完成攻击+抽牌
-protected override async Task OnPlay(PlayerChoiceContext ctx, CardPlay play)
+public override Task OnPlay(PlayerChoiceContext ctx, CardPlayState play)
 {
-    ArgumentNullException.ThrowIfNull(play.Target, "play.Target");
-    await Task.WhenAll(
+    if (ctx.Target == null) return Task.CompletedTask;
+    return Task.WhenAll(
         this.DealDamage(ctx, play, 6),
         this.DealDamage(ctx, play, 3));
 }

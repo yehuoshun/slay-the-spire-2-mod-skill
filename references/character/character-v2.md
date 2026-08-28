@@ -1,4 +1,5 @@
 # 自定义角色
+> ⚠️ **存档版（v2），勿直接使用**——含错误签名，当前版见同目录 `*-v3.md`。
 
 > 参考：[杀戮尖塔2模组开发教程08 - 自定义角色 - 哔哩哔哩](https://www.bilibili.com/opus/1182961747166756931)（from 烟汐忆梦_YM）
 > API 签名验证：[Alchyr/BaseLib-StS2](https://github.com/Alchyr/BaseLib-StS2) `Abstracts/CustomCharacterModel.cs`

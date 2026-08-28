@@ -1,4 +1,5 @@
 # 自定义事件
+> ⚠️ **存档版（v2），勿直接使用**——含错误签名，当前版见同目录 `*-v3.md`。
 
 > 参考：[杀戮尖塔2模组开发教程06 - 自定义事件 - 哔哩哔哩](https://www.bilibili.com/opus/1180714323922649110)（from 烟汐忆梦_YM）
 > API 签名验证：[Alchyr/BaseLib-StS2](https://github.com/Alchyr/BaseLib-StS2) `Abstracts/CustomEventModel.cs`
