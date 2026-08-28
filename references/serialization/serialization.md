@@ -11,4 +11,4 @@
 | 版本 | 说明 | 状态 |
 |------|------|------|
 | [serialization-v2.md](serialization-v2.md) | 纯原生自动注册框架（ContentRegistry） | ✅ 当前 |
-| [serialization-v1.md](serialization-v1.md) | 原版：基准写法 | 存档 |
+| [serialization-v1.md](https://github.com/yehuoshun/slay-the-spire-2-mod-skill-archive/blob/main/references/serialization/serialization-v1.md) | 原版：基准写法 | 存档 |

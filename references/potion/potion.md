@@ -11,5 +11,5 @@
 | 版本 | 说明 | 状态 |
 |------|------|------|
 | [potion-v3.md](potion-v3.md) | API 全量校正（真实签名：属性化 Rarity/Usage/TargetType、CreatureCmd.Damage、图标命名约定） | ✅ 当前 |
-| [potion-v2.md](potion-v2.md) | 纯原生进阶：Attribute 自动注册 + 大药水图（含错误签名，留档） | 存档 |
-| [potion-v1.md](potion-v1.md) | 原版：基准写法 | 存档 |
+| [potion-v2.md](https://github.com/yehuoshun/slay-the-spire-2-mod-skill-archive/blob/main/references/potion/potion-v2.md) | 纯原生进阶：Attribute 自动注册 + 大药水图（含错误签名，留档） | 存档 |
+| [potion-v1.md](https://github.com/yehuoshun/slay-the-spire-2-mod-skill-archive/blob/main/references/potion/potion-v1.md) | 原版：基准写法 | 存档 |

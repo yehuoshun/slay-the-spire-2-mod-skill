@@ -11,5 +11,5 @@
 | 版本 | 说明 | 状态 |
 |------|------|------|
 | [event-v3.md](event-v3.md) | API 全量校正（GenerateInitialOptions 非 async、EventOption(this,方法组,key)、SetEventState 双参、Owner 上下文、ref IEnumerable Patch） | ✅ 当前 |
-| [event-v2.md](event-v2.md) | 纯原生进阶：反射注册辅助（含错误签名，留档） | 存档 |
-| [event-v1.md](event-v1.md) | 原版：基准写法 | 存档 |
+| [event-v2.md](https://github.com/yehuoshun/slay-the-spire-2-mod-skill-archive/blob/main/references/event/event-v2.md) | 纯原生进阶：反射注册辅助（含错误签名，留档） | 存档 |
+| [event-v1.md](https://github.com/yehuoshun/slay-the-spire-2-mod-skill-archive/blob/main/references/event/event-v1.md) | 原版：基准写法 | 存档 |

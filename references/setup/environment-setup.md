@@ -13,4 +13,4 @@
 | 版本 | 说明 | 状态 |
 |------|------|------|
 | [environment-setup-v2.md](environment-setup-v2.md) | 生产级骨架 + 教程细节 | ✅ 当前 |
-| [environment-setup-v1.md](environment-setup-v1.md) | 原版：手动创建教程 | 存档 |
+| [environment-setup-v1.md](https://github.com/yehuoshun/slay-the-spire-2-mod-skill-archive/blob/main/references/setup/environment-setup-v1.md) | 原版：手动创建教程 | 存档 |
