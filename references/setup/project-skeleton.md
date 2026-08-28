@@ -1,6 +1,6 @@
 # 项目骨架（Project Skeleton）
 
-> 生产级工程规范，v2 从 environment-setup 拆出。学自 ModTemplate 工程化思想，纯原生，零第三方依赖。
+> 生产级工程规范，从 environment-setup 拆出。学自 ModTemplate 工程化思想，纯原生，零第三方依赖。
 > 基础教程见 [environment-setup.md](environment-setup.md)。
 
 > 学自 ModTemplate 的工程化思想：资源/代码分离、目录规范、自动检测。骨架本身不依赖任何第三方，直接纯原生可用。
