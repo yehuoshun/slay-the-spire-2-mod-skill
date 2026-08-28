@@ -1,7 +1,7 @@
 # 实战写法模式
 
 > 常用代码片段汇总（全部对照真实 `sts2-res/src/` 源码重写）。快速复制修改。
-> 完整模板见各模块 v3：card-v3 / relic-v3 / power-v3 / event-v3 / monster-v3 等。
+> 完整模板见各模块：card / relic / power / event / monster 等。
 
 ---
 

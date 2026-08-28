@@ -11,7 +11,7 @@
 
 ### references/
 
-> 📌 每个模块的 `xx.md` 是**版本入口**（含 v1/v2 历史），当前使用 **v2**（纯原生进阶版）。
+> 📌 每个模块的 `xx.md` 直接包含完整内容。
 
 | 分类 | 文件 | 内容 |
 |------|------|------|
@@ -81,6 +81,6 @@
 - [x] 实战写法模式
 - [x] API 附录
 - [x] BaseLib 集成指南（更新至 3.4.5：CustomResource 系统、CustomCalculatedVar.Create、CustomLargeImagePath）
-- [x] 14 个子项已升级 **v2**（纯原生进阶，导航模式：`xx.md` 入口 + `xx-v1.md` 存档）
-- [x] 环境搭建升级 v2（生产级骨架：目录规范 + props 路径检测 + 自动打 PCK，学自 ModTemplate 纯原生化）
+- [x] 14 个子项已升级（纯原生进阶，`xx.md` 直接包含完整内容）
+- [x] 环境搭建升级（生产级骨架：目录规范 + props 路径检测 + 自动打 PCK，学自 ModTemplate 纯原生化）
 - [x] baselib.md 重写为 design-patterns.md（纯原生设计模式总纲）

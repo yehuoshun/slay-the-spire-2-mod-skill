@@ -42,19 +42,19 @@
 
 | 模型 | 构造要点 | 文件 |
 |------|---------|------|
-| `CardModel` | `protected (int canonicalEnergyCost, CardType type, CardRarity rarity, TargetType targetType, bool shouldShowInCardLibrary = true)` | card-v3 |
-| `RelicModel` | `()` 无参；抽象属性 `RelicRarity Rarity` | relic-v3 |
-| `PowerModel` | `()` 无参；抽象属性 `PowerType Type`/`PowerStackType StackType` | power-v3 |
-| `PotionModel` | `()` 无参；抽象属性 `PotionRarity Rarity`/`PotionUsage Usage`/`TargetType TargetType` | potion-v3 |
-| `EventModel` | `()` 无参；`protected abstract IReadOnlyList<EventOption> GenerateInitialOptions()` | event-v3 |
-| `AncientEventModel` | `()` 无参；`protected abstract AncientDialogueSet DefineDialogues()` | ancient-v3 |
-| `EncounterModel` | `()` 无参；抽象属性 `RoomType RoomType` | monster-v3 |
-| `MonsterModel` | `()` 无参；抽象属性 `MinInitialHp`/`MaxInitialHp` | monster-v3 |
-| `ModifierModel` | `()` 无参；Title/Description 自动本地化 | modifier-v3 |
-| `CharacterModel` | `()` 无参；抽象属性 `NameColor`/`Gender`/`StartingHp`/`StartingGold` 等 | character-v3 |
-| `ActModel` | `()` 无参；抽象属性 `Index`/`IsDefault` 等 | act-v3 |
-| `OrbModel` | `()` 无参；抽象属性 `PassiveVal`/`EvokeVal`/`DarkenedColor` | orb-v3 |
-| `EnchantmentModel` | `()` 无参；效果 override `Enchant*Additive/Multiplicative` | enchantment-v3 |
+| `CardModel` | `protected (int canonicalEnergyCost, CardType type, CardRarity rarity, TargetType targetType, bool shouldShowInCardLibrary = true)` | card |
+| `RelicModel` | `()` 无参；抽象属性 `RelicRarity Rarity` | relic |
+| `PowerModel` | `()` 无参；抽象属性 `PowerType Type`/`PowerStackType StackType` | power |
+| `PotionModel` | `()` 无参；抽象属性 `PotionRarity Rarity`/`PotionUsage Usage`/`TargetType TargetType` | potion |
+| `EventModel` | `()` 无参；`protected abstract IReadOnlyList<EventOption> GenerateInitialOptions()` | event |
+| `AncientEventModel` | `()` 无参；`protected abstract AncientDialogueSet DefineDialogues()` | ancient |
+| `EncounterModel` | `()` 无参；抽象属性 `RoomType RoomType` | monster |
+| `MonsterModel` | `()` 无参；抽象属性 `MinInitialHp`/`MaxInitialHp` | monster |
+| `ModifierModel` | `()` 无参；Title/Description 自动本地化 | modifier |
+| `CharacterModel` | `()` 无参；抽象属性 `NameColor`/`Gender`/`StartingHp`/`StartingGold` 等 | character |
+| `ActModel` | `()` 无参；抽象属性 `Index`/`IsDefault` 等 | act |
+| `OrbModel` | `()` 无参；抽象属性 `PassiveVal`/`EvokeVal`/`DarkenedColor` | orb |
+| `EnchantmentModel` | `()` 无参；效果 override `Enchant*Additive/Multiplicative` | enchantment |
 
 ---
 
@@ -108,16 +108,16 @@
 
 | 目标 | 方法 | 文件 |
 |------|------|------|
-| 卡牌到池 | `ModHelper.AddModelToPool<TPoolType, TModelType>()` 或 `(Type, Type)`；或 `[CardPool(typeof(池类))]` | serialization-v3 |
-| 遗物到池 | `ModHelper.AddModelToPool<IroncladRelicPool, MyRelic>()`；或 `[RelicPool]` | serialization-v3 |
-| 药水到池 | `ModHelper.AddModelToPool<SharedPotionPool, MyPotion>()`；或 `[PotionPool]` | serialization-v3 |
-| 能力/球体/章节到 ModelDb | `ModelDb.Inject(typeof(X))` | serialization-v3 |
-| 角色 | Patch `ModelDb.AllCharacters` getter（ref IEnumerable） | character-v3 |
-| 事件 | Patch act 子类 `Overgrowth.AllEvents` getter（ref IEnumerable） | event-v3 |
-| 先古之民 | Patch act 子类 `Hive.AllAncients` getter（ref IEnumerable） | ancient-v3 |
-| 遭遇 | Patch act 子类 `Overgrowth.GenerateAllEncounters()`（实例方法） | monster-v3 |
-| Modifier | Patch `NCustomRunModifiersList.GetModifiersTickedOn` | modifier-v3 |
-| 序列化 | `SavedPropertiesTypeCache.InjectTypeIntoCache(typeof(X))` | serialization-v3 |
+| 卡牌到池 | `ModHelper.AddModelToPool<TPoolType, TModelType>()` 或 `(Type, Type)`；或 `[CardPool(typeof(池类))]` | serialization |
+| 遗物到池 | `ModHelper.AddModelToPool<IroncladRelicPool, MyRelic>()`；或 `[RelicPool]` | serialization |
+| 药水到池 | `ModHelper.AddModelToPool<SharedPotionPool, MyPotion>()`；或 `[PotionPool]` | serialization |
+| 能力/球体/章节到 ModelDb | `ModelDb.Inject(typeof(X))` | serialization |
+| 角色 | Patch `ModelDb.AllCharacters` getter（ref IEnumerable） | character |
+| 事件 | Patch act 子类 `Overgrowth.AllEvents` getter（ref IEnumerable） | event |
+| 先古之民 | Patch act 子类 `Hive.AllAncients` getter（ref IEnumerable） | ancient |
+| 遭遇 | Patch act 子类 `Overgrowth.GenerateAllEncounters()`（实例方法） | monster |
+| Modifier | Patch `NCustomRunModifiersList.GetModifiersTickedOn` | modifier |
+| 序列化 | `SavedPropertiesTypeCache.InjectTypeIntoCache(typeof(X))` | serialization |
 
 > ⚠️ `ActModel.AllEvents`/`ActModel.AllAncients` 是抽象基类 getter，**Patch 基类不拦截子类实现**——要 Patch 具体 act 子类（`Overgrowth`/`Hive`/`Glory`/`Underdocks`）。池的注册由角色类 `CardPool`/`RelicPool`/`PotionPool` 属性关联，**无需** Patch `ModelDb.All*Pools` getter。
 
