@@ -61,27 +61,3 @@
 
 - [烟汐忆梦_YM](https://space.bilibili.com/481430814) — 9 篇教程（环境搭建、遗物、卡牌、药水、附魔、事件&先古之民、能力、角色、敌怪&遭遇）
 
----
-
-## 当前状态
-
-- [x] SKILL.md（重写完成）
-- [x] Rider 环境配置（保留）
-- [x] 环境搭建 & 创建项目（from 烟汐忆梦_YM 教程）
-- [x] 卡牌模式（from 烟汐忆梦_YM 教程03）
-- [x] 遗物模式（from 烟汐忆梦_YM 教程）
-- [x] 药水模式（from 烟汐忆梦_YM 教程04）
-- [x] 能力模式（from 烟汐忆梦_YM 教程07）
-- [x] 附魔模式（from 烟汐忆梦_YM 教程05）
-- [x] 事件模式（from 烟汐忆梦_YM 教程06）
-- [x] Harmony 补丁模式
-- [x] 角色模式（from 烟汐忆梦_YM 教程08）
-- [x] 怪物模式（from 烟汐忆梦_YM 教程09）
-- [x] 序列化与注册
-- [x] 设置界面
-- [x] 实战写法模式
-- [x] API 附录
-- [x] BaseLib 集成指南（更新至 3.4.5：CustomResource 系统、CustomCalculatedVar.Create、CustomLargeImagePath）
-- [x] 14 个子项已升级（纯原生进阶，`xx.md` 直接包含完整内容）
-- [x] 环境搭建升级（生产级骨架：目录规范 + props 路径检测 + 自动打 PCK，学自 ModTemplate 纯原生化）
-- [x] baselib.md 重写为 design-patterns.md（纯原生设计模式总纲）
