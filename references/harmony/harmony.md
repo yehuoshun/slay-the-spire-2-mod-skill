@@ -11,7 +11,9 @@
 | 基础 Patch 类型与参数 | [harmony-basics.md](harmony-basics.md) |
 | PatchCategory 与安全模式 | [harmony-patches.md](harmony-patches.md) |
 | 组织方式与常用目标 | [harmony-guide.md](harmony-guide.md) |
-| Transpiler 实战：自定义能力音效 | [harmony-custom-power-sfx.md](harmony-custom-power-sfx.md) |
+| Transpiler 实战：自定义能力音效（导航） | [harmony-custom-power-sfx.md](harmony-custom-power-sfx.md) |
+| ├ 接口 + Transpiler | [harmony-custom-power-sfx-core.md](harmony-custom-power-sfx-core.md) |
+| └ 使用 + 常见问题 | [harmony-custom-power-sfx-usage.md](harmony-custom-power-sfx-usage.md) |
 
 ## 概述
 
