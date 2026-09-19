@@ -10,7 +10,8 @@
 |------|------|
 | 模板、图标命名与核心属性 | [power-core.md](power-core.md) |
 | 真实回调 | [power-callbacks.md](power-callbacks.md) |
-| 临时能力、音效、治疗修正、本地化、自动注册 | [power-advanced.md](power-advanced.md) |
+| 临时能力、调试与自动注册 | [power-advanced.md](power-advanced.md) |
+| 自定义音效、治疗量修正与本地化 | [power-effects.md](power-effects.md) |
 | 预见（Scry）修改 | [power-scry.md](power-scry.md) |
 
 ## 概述
