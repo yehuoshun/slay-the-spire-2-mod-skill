@@ -89,3 +89,10 @@ graph TD
 ## ⚠️ 常见坑速览
 
 > 全文见 [pitfalls.md](references/patterns/pitfalls.md)（含 BaseLib 灵感参考链接）。
+
+---
+
+## 📦 备份存档
+
+旧版本 references 存档：[yehuoshun/slay-the-spire-2-mod-skill-archive](https://github.com/yehuoshun/slay-the-spire-2-mod-skill-archive)
+包含 v1/v2 版本记录，供回溯对比。

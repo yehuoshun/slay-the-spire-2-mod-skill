@@ -4,6 +4,21 @@
 
 > 本 skill 主推**纯原生**开发：只靠 `0Harmony.dll` + `sts2.dll`，零第三方依赖。
 > BaseLib 是优秀的设计参考，本文件把它所有便利机制**转译为纯原生实现**，作为各模块子项的通用地基。
+> **基于 BaseLib v3.4.7（2026-09-11）** 提炼。
+
+## BaseLib 更新记录
+
+| 版本 | 日期 | 新增内容（影响纯原生设计参考） |
+|------|------|------------------------------|
+| v3.4.7 | 2026-09-11 | `IPlayCustomPowerSfx`（自定义能力音效接口）、`HealthBarForecast` 新方向（OutwardFromCurrentHp / InwardFromMaxHp）、`ConfigSection CollapsedByDefault`（设置折叠）、ModInterop 扩展通用类/方法补丁、自定义资源默认视觉处理 |
+
+> 以上变化均为 BaseLib API 自身增量，**不影响本文件的纯原生转译内容**。如需参考新模式，按「提炼 → 纯原生转译」流程补充到对应子项。
+
+## 旧版存档
+
+- 本文件旧版：[design-patterns-v1.md](https://github.com/yehuoshun/slay-the-spire-2-mod-skill-archive/blob/main/references/baselib/design-patterns-v1.md)
+- 完整旧版本仓库：[yehuoshun/slay-the-spire-2-mod-skill-archive](https://github.com/yehuoshun/slay-the-spire-2-mod-skill-archive)
+
 
 
 ## 章节导航
