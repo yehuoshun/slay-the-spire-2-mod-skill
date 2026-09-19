@@ -40,7 +40,6 @@
 | `harmony/` | [harmony-custom-power-sfx.md](references/harmony/harmony-custom-power-sfx.md) | Transpiler 实战：自定义能力音效（零第三方依赖） |
 | `serialization/` | [serialization.md](references/serialization/serialization.md) | 序列化与注册（ModelDb、SavedProperty、InjectTypeIntoCache） |
 | `settings/` | [settings.md](references/settings/settings.md) | 设置界面（BaseLib SimpleModConfig、Attribute、本地化） |
-| `patterns/` | [pitfalls.md](references/patterns/pitfalls.md) | 常见坑速览（图标/本地化/注册/序列化/Harmony） |
 | `baselib/` | [design-patterns.md](references/baselib/design-patterns.md) | 纯原生设计模式总纲（从 BaseLib 提炼，零第三方依赖） |
 
 ---
