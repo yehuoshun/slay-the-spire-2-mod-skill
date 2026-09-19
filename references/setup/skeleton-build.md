@@ -78,3 +78,33 @@ public partial class MainFile : Node
 
 > 明细以 [character.md](../character/character.md) 为准，此处给出通用目录约定。
 
+---
+
+## 调试：部署到游戏
+
+构建产物放游戏 `mods/` 目录（与 Megadot 可执行文件同级，或 Steam 库路径下）：
+
+```
+# 产物清单
+build/
+├── MyMod.dll         ← 编译的程序集
+├── MyMod.pck         ← 资源包（有资源时）
+└── MyMod.json        ← 模组清单
+```
+
+如果有 `CopyToModsFolderOnBuild` Target，构建后自动拷贝到 `$(ModsPath)$(AssemblyName)/`，无需手动复制。
+
+启动游戏后检查：
+- 右下角提示模组载入
+- `Logger.Info` 输出的内容可在 game.log 中查看
+
+### 常见调试问题
+
+| 问题 | 解决 |
+|------|------|
+| `.NET SDK` 版本不匹配 | 编译报 `CS1705`，检查 `csproj` 目标框架是否为 `net9.0` |
+| 模组不加载 | 检查清单 JSON 的 `id` 与文件名一致 |
+| DLL 引用报错 | 检查 `Sts2PathDiscovery.props` 路径检测是否命中，或 `-p:Sts2DataDir=` 传参 |
+| 本地化不生效 | 必须 **Publish**（非 Build），本地化是资源文件 |
+| 联机同步问题 | `affects_gameplay` 设置错误（纯 UI 模组应设为 `false`） |
+| 自动打 PCK 失败 | `$(GodotPath)` 未配置或路径不对，改用手动导出 |

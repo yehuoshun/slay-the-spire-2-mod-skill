@@ -42,4 +42,4 @@
 > 生产级工程规范（目录结构、路径检测、csproj、入口、角色资源）已拆分到独立文件：
 > **[project-skeleton.md](project-skeleton.md)**
 
-部署与调试见 [setup-deploy.md](setup-deploy.md)。
+部署与调试见 [skeleton-build.md](skeleton-build.md)。
