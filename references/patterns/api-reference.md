@@ -7,7 +7,6 @@
 
 | 内容 | 文件 |
 |------|------|
-| 命名空间与构造函数签名 | [api-namespaces.md](api-namespaces.md) |
 | 命令类（真实签名） | [api-commands.md](api-commands.md) |
 | 回调签名（真实） | [api-callbacks.md](api-callbacks.md) |
 | 注册点与文件索引 | [api-registration.md](api-registration.md) |
