@@ -10,6 +10,7 @@
 |------|------|
 | 模板、属性与池 | [relic-core.md](relic-core.md) |
 | 钩子与动态变量 | [relic-callbacks.md](relic-callbacks.md) |
+| 实战回调代码片段 | [relic-patterns.md](relic-patterns.md) |
 | 资源、注册与自动注册 | [relic-register.md](relic-register.md) |
 
 ## 概述
