@@ -8,7 +8,7 @@
 | 内容 | 文件 |
 |------|------|
 | 模板、回调与案例 | [enchantment-core.md](enchantment-core.md) |
-| 应用、速查与自动注册 | [enchantment-advance.md](enchantment-advance.md) |
+| 应用、速查与自动注册 | [enchantment-advanced.md](enchantment-advanced.md) |
 
 ## 概述
 
