@@ -63,6 +63,9 @@ graph TD
 | `setup/` | [environment-setup.md](references/setup/environment-setup.md) | 环境搭建、创建项目、PCK 打包 |
 | `setup/` | [project-skeleton.md](references/setup/project-skeleton.md) | 生产级项目骨架（目录/路径检测/自动打 PCK） |
 | `setup/` | [rider.md](references/setup/rider.md) | Rider 开发环境配置（代码检查、Harmony 抑制规则） |
+| `setup/` | [mod-manifest.md](references/setup/mod-manifest.md) | 模组清单 JSON（字段说明、纯原生方案） |
+| `setup/` | [export-presets.md](references/setup/export-presets.md) | 导出预设 export_presets.cfg（PCK 打包必需） |
+| `setup/` | [project-godot.md](references/setup/project-godot.md) | Godot 项目配置 project.godot（字段说明） |
 | `relic/` | [relic.md](references/relic/relic.md) | 自定义遗物（模板、稀有度、池、图标、本地化） |
 | `card/` | [card.md](references/card/card.md) | 自定义卡牌（构造函数、API 速查、卡池、肖像、本地化） |
 | `potion/` | [potion.md](references/potion/potion.md) | 自定义药水（属性、回调、图标、池、本地化） |
