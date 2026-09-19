@@ -76,6 +76,20 @@ card => card is ExampleStrike  // 只选择某类卡牌
 card => card.CanDiscard()      // 只选可丢弃的
 ```
 
+#### 选择后操作（完整片段）
+
+```csharp
+// 选择手牌消耗
+var selected = await CardSelectCmd.FromHand(choiceContext, Owner,
+    new CardSelectorPrefs("选择一张牌消耗", selectCount: 1),
+    card => card != this, this);
+foreach (var card in selected) await CardCmd.Exhaust(choiceContext, card);
+
+// 选择手牌升级（真实签名：FromHandForUpgrade(context, player, source)，无 filter 参数）
+var card = await CardSelectCmd.FromHandForUpgrade(choiceContext, Owner, this);
+if (card != null) await CardCmd.Upgrade(card);
+```
+
 ### 卡牌标签（CardTag）
 
 ```csharp
@@ -96,6 +110,8 @@ public override CardKeyword[] CanonicalKeywords => new[] { CardKeyword.Retain };
 
 在 `OnPlay` 中为角色施加效果：
 
+### 攻击
+
 ```csharp
 protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 {
@@ -105,6 +121,52 @@ protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay
         .FromCard(this)
         .Targeting(cardPlay.Target)
         .Execute(choiceContext);
+}
+```
+
+### 攻击 + 施加能力
+
+```csharp
+ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
+await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
+    .FromCard(this).Targeting(cardPlay.Target)
+    .Execute(choiceContext);
+
+await PowerCmd.Apply<VulnerablePower>(choiceContext, cardPlay.Target, 1, Owner.Creature, this);
+```
+
+### 格挡
+
+```csharp
+// 真实签名：CreatureCmd.GainBlock(Creature, decimal, ValueProp, CardPlay?, bool)
+await CreatureCmd.GainBlock(Owner.Creature, DynamicVars.Block.BaseValue, ValueProp.Move, cardPlay);
+```
+
+### 抽牌
+
+```csharp
+// 真实签名：CardPileCmd.Draw(PlayerChoiceContext, decimal, Player, bool)
+await CardPileCmd.Draw(choiceContext, 2, Owner);
+```
+
+### 升级
+
+```csharp
+protected override void OnUpgrade()
+{
+    DynamicVars.Damage.UpgradeValueBy(3m);
+}
+```
+
+### 攻击 + 抽牌（常用组合）
+
+```csharp
+protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
+{
+    ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
+    await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+        .Targeting(cardPlay.Target).Execute(choiceContext);
+    await CardPileCmd.Draw(choiceContext, 1, Owner);
 }
 ```
 

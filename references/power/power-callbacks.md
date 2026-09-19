@@ -31,6 +31,30 @@
 | `AfterRemoved` | `Task AfterRemoved(Creature oldOwner)` | 移除后 |
 | `ShouldPowerBeRemovedAfterOwnerDeath` | `bool` | 持有者死亡时是否移除 |
 
+## 实战回调代码片段
+
+### 回合结束递减层数（临时能力）
+
+```csharp
+public override async Task AfterSideTurnEnd(PlayerChoiceContext choiceContext, CombatSide side, IEnumerable<Creature> participants)
+{
+    if (participants.Contains(Owner))
+    {
+        await PowerCmd.Decrement(this);
+    }
+}
+```
+
+### 回合开始获得格挡
+
+```csharp
+public override async Task AfterSideTurnStart(CombatSide side, IReadOnlyList<Creature> participants, ICombatState combatState)
+{
+    if (participants.Contains(Owner))
+        await CreatureCmd.GainBlock(Owner, Amount, ValueProp.Move, null);
+}
+```
+
 ---
 
 ## 自定义音效
