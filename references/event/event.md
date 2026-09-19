@@ -11,6 +11,10 @@
 | 模板、资源与选项构造 | [event-core.md](event-core.md) |
 | 本地化、背景图与添加 | [event-register.md](event-register.md) |
 | 多页选项与注册辅助 | [event-advanced.md](event-advanced.md) |
+| **先古之民** | |
+| ├ 模板与可覆盖成员 | [ancient-core.md](ancient-core.md) |
+| ├ 对话、纹理与注册 | [ancient-register.md](ancient-register.md) |
+| └ 纯原生注册辅助 | [ancient-advanced.md](ancient-advanced.md) |
 
 ## 概述
 

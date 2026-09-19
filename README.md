@@ -22,8 +22,7 @@
 | `card/` | [card.md](references/card/card.md) | 自定义卡牌（构造函数、API 速查、卡池、肖像、本地化） |
 | `potion/` | [potion.md](references/potion/potion.md) | 自定义药水（属性、回调、图标、池、本地化） |
 | `enchantment/` | [enchantment.md](references/enchantment/enchantment.md) | 自定义附魔（回调、附魔、本地化、图标） |
-| `event/` | [event.md](references/event/event.md) | 自定义事件（选项、多页、Patch、本地化） |
-| `event/` | [ancient.md](references/event/ancient.md) | 先古之民事件（对话、纹理、注册） |
+| `event/` | [event.md](references/event/event.md) | 自定义事件（选项、多页、先古之民、Patch、本地化） |
 | `power/` | [power.md](references/power/power.md) | 自定义能力（Buff/Debuff、属性、回调、本地化） |
 | `character/` | [character.md](references/character/character.md) | 自定义角色（卡池/遗物池/药水池、场景资源、注册） |
 | `monster/` | [monster.md](references/monster/monster.md) | 自定义敌怪 & 遭遇（状态机、AI 行为树、注册） |
