@@ -71,4 +71,5 @@ public static class ModEntry
 
 ## 参见
 
-- [resource-core.md](resource-core.md) — 资源基类与生命周期
+- [resource-core.md](resource-core.md) — 资源基类
+- [resource-lifecycle.md](resource-lifecycle.md) — 注册与生命周期

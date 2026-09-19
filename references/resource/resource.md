@@ -15,7 +15,8 @@
 
 | 内容 | 文件 |
 |------|------|
-| 资源基类 + 注册 + 生命周期 | [resource-core.md](resource-core.md) |
+| 资源基类 | [resource-core.md](resource-core.md) |
+| 注册、生命周期与示例 | [resource-lifecycle.md](resource-lifecycle.md) |
 | 资源费用 | [resource-cost.md](resource-cost.md) |
 | UI 显示 | [resource-ui.md](resource-ui.md) |
 
