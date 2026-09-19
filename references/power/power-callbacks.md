@@ -86,6 +86,10 @@ public class HopeRelicBuff : PowerModel, IHealModifier
 
 > 注意：Prefix 参数签名需匹配 `CreatureCmd.Heal` 的原生签名。如果签名变了（如多了 `AbstractModel source` 参数），同步修改即可。
 
+预见修改见 [power-scry.md](power-scry.md)。
+
+## 本地化
+
 路径：`res://<模组ID>/localization/<语言代码>/powers.json`
 
 ```json
