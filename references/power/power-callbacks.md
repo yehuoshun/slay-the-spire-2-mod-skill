@@ -33,6 +33,14 @@
 
 ---
 
+## 自定义音效
+
+能力施加时支持播放自定义音效（替代默认 Buff/Debuff 音效）。实现方案见 [harmony-custom-power-sfx.md](../harmony/harmony-custom-power-sfx.md)：
+
+1. 定义接口 `ICustomPowerSfx` + Harmony Transpiler（零第三方依赖）
+2. 能力类实现 `ICustomPowerSfx`，在 `PlayCustomSfx` 中调 `SfxCmd.Play`
+3. `PatchAll()` 自动注册
+
 ## 本地化
 
 路径：`res://<模组ID>/localization/<语言代码>/powers.json`
