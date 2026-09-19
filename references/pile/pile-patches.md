@@ -111,6 +111,7 @@ Patch 5 及完整注册见 [pile-patches-more.md](pile-patches-more.md)。
 
 ## 参见
 
-- [pile-core.md](pile-core.md) — PileType 注入 + 基类 + 注册
+- [pile-inject.md](pile-inject.md) — PileType 枚举注入
+- [pile-base.md](pile-base.md) — 继承 CardPile + 注册
 - [pile-patches-more.md](pile-patches-more.md) — Patch 5 + ModEntry 注册
 - [harmony-basics.md](../harmony/harmony-basics.md) — Prefix / Transpiler 语法

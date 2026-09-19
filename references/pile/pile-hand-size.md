@@ -149,4 +149,4 @@ public static class ModEntry
 
 ## 参见
 
-- [pile-core.md](pile-core.md) — 牌堆基础概念
+- [pile-base.md](pile-base.md) — 牌堆基础概念

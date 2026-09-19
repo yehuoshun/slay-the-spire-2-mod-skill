@@ -66,5 +66,6 @@ if (voidPile != null && voidPile.Cards.Count > 0)
 
 ## 参见
 
-- [pile-core.md](pile-core.md) — PileType 注入 + 基类 + 注册
+- [pile-inject.md](pile-inject.md) — PileType 枚举注入
+- [pile-base.md](pile-base.md) — 继承 CardPile + 注册
 - [pile-patches.md](pile-patches.md) — Patch 1-4 详解
