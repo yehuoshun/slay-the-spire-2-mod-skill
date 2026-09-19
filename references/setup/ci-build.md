@@ -4,6 +4,15 @@
 
 ---
 
+## 章节导航
+
+| 内容 | 文件 |
+|------|------|
+| PCK 打包（PckPacker / Godot 导出） | [ci-build-pck.md](ci-build-pck.md) |
+| 打包分发与多模块方案 | [ci-build-package.md](ci-build-package.md) |
+
+---
+
 ## 概述
 
 本地构建依赖游戏安装目录（通过 `Sts2PathDiscovery.props` 定位），CI 构建不行——CI 机器上没有 STS2。解决方式：
@@ -85,122 +94,7 @@ jobs:
 
 ---
 
-## 三、PCK 打包
-
-两种方式。推荐**优先用 PckPacker**（简资源时），复杂资源用 Godot 导出。
-
-### 方式 A：PckPacker（NuGet 包，单体模组适用）
-
-在 csproj 中加入：
-
-```xml
-<ItemGroup>
-  <PackageReference Include="BSchneppe.StS2.PckPacker" Version="0.1.1" PrivateAssets="All"/>
-</ItemGroup>
-<PropertyGroup>
-  <PckPackerSourceDir>assets/</PckPackerSourceDir>
-  <PckPackerResPrefix>$(AssemblyName)</PckPackerResPrefix>
-  <PckPackerOutputPath>$(OutputPath)$(AssemblyName).pck</PckPackerOutputPath>
-</PropertyGroup>
-<ItemGroup>
-  <GodotResourceFiles Include="assets\**"/>
-</ItemGroup>
-```
-
-构建时自动生成 `.pck`，无需下载 Godot。
-
-### 方式 B：Godot 导出（复杂场景/多模块）
-
-```yaml
-      - name: Cache Godot
-        id: cache-godot
-        uses: actions/cache@v4
-        with:
-          path: godot-bin
-          key: godot-${{ env.GODOT_VERSION }}
-
-      - name: Download Godot
-        if: steps.cache-godot.outputs.cache-hit != 'true'
-        run: |
-          GODOT_URL="https://github.com/godotengine/godot/releases/download/\
-            ${{ env.GODOT_VERSION }}/\
-            Godot_v${{ env.GODOT_VERSION }}_mono_linux_x86_64.zip"
-          curl -sL "$GODOT_URL" -o godot.zip
-          unzip -q godot.zip -d godot-bin
-
-      - name: Export .pck
-        run: |
-          GODOT=$(find godot-bin -name "Godot*" -type f -executable | head -1)
-          chmod +x "$GODOT"
-          "$GODOT" --headless --export-pack "BasicExport" MyMod.pck
-```
-
-> 需要 `export_presets.cfg` 和 `project.godot` 在项目根目录，见 [export-presets.md](export-presets.md) 和 [project-godot.md](project-godot.md)。
-
----
-
-## 四、打包分发的产物
-
-| 产物 | 内容 | 说明 |
-|------|------|------|
-| `MyMod.dll` | 编译好的 C# DLL | 放入游戏 `Mods/MyMod/` |
-| `MyMod.json` | 模组清单 | 同上 |
-| `MyMod.pck` | 资源包（可选） | 有图片/场景等资源时需提供 |
-
-推荐打成 ZIP 发布：
-
-```yaml
-      - name: Package
-        run: |
-          mkdir -p publish/MyMod
-          cp MyMod.dll publish/MyMod/
-          cp MyMod.json publish/MyMod/
-          [ -f MyMod.pck ] && cp MyMod.pck publish/MyMod/
-          cd publish && zip -r MyMod.zip MyMod/
-```
-
----
-
-## 五、多模块方案（参考 sts2-shunmod）
-
-如果模组分多个独立模块（如 Core + 角色 + 修改包），需要**先构建 Core**，其余模块通过 `ProjectReference` 引用 Core 的 DLL：
-
-```yaml
-jobs:
-  build-core:
-    steps:
-      - name: Build Core
-        run: dotnet build Core/Core.csproj -c Release -p:Sts2DataDir=...
-
-      - name: Upload Core artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-core
-          path: Core/bin/Release/Core.dll
-
-  build-modules:
-    needs: build-core
-    strategy:
-      matrix:
-        module: [ModA, ModB]
-    steps:
-      - name: Download Core artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build-core
-
-      - name: Place Core.dll
-        run: |
-          mkdir -p ModA/.godot/mono/temp/bin/Release
-          cp Core.dll ModA/.godot/mono/temp/bin/Release/
-
-      - name: Build
-        run: dotnet build ModA/ModA.csproj -c Release -p:Sts2DataDir=...
-```
-
----
-
-## 六、csproj 兼容 CI 的关键点
+## 三、csproj 兼容 CI 的关键点
 
 csproj 中的 `<Reference>` Condition 确保本地和 CI 两不误：
 

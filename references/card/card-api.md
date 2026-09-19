@@ -1,5 +1,13 @@
 # 自定义卡牌：核心 API 与使用条件
 
+## 章节导航
+
+| 内容 | 文件 |
+|------|------|
+| 卡牌效果完整示例 | [card-api-effects.md](card-api-effects.md) |
+
+---
+
 ## 核心 API
 
 ### DamageCmd — 伤害操作
@@ -106,72 +114,6 @@ public override CardKeyword[] CanonicalKeywords => new[] { CardKeyword.Retain };
 
 ---
 
-## 卡牌效果
-
-在 `OnPlay` 中为角色施加效果：
-
-### 攻击
-
-```csharp
-protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
-{
-    ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
-
-    await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
-        .FromCard(this)
-        .Targeting(cardPlay.Target)
-        .Execute(choiceContext);
-}
-```
-
-### 攻击 + 施加能力
-
-```csharp
-ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
-await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
-    .FromCard(this).Targeting(cardPlay.Target)
-    .Execute(choiceContext);
-
-await PowerCmd.Apply<VulnerablePower>(choiceContext, cardPlay.Target, 1, Owner.Creature, this);
-```
-
-### 格挡
-
-```csharp
-// 真实签名：CreatureCmd.GainBlock(Creature, decimal, ValueProp, CardPlay?, bool)
-await CreatureCmd.GainBlock(Owner.Creature, DynamicVars.Block.BaseValue, ValueProp.Move, cardPlay);
-```
-
-### 抽牌
-
-```csharp
-// 真实签名：CardPileCmd.Draw(PlayerChoiceContext, decimal, Player, bool)
-await CardPileCmd.Draw(choiceContext, 2, Owner);
-```
-
-### 升级
-
-```csharp
-protected override void OnUpgrade()
-{
-    DynamicVars.Damage.UpgradeValueBy(3m);
-}
-```
-
-### 攻击 + 抽牌（常用组合）
-
-```csharp
-protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
-{
-    ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
-    await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
-        .Targeting(cardPlay.Target).Execute(choiceContext);
-    await CardPileCmd.Draw(choiceContext, 1, Owner);
-}
-```
-
----
-
 ## 使用条件
 
 ```csharp
@@ -183,4 +125,3 @@ protected override bool ShouldGlowGoldInternal => Owner.Gold >= 100;
 ```
 
 > 拿玩家用 `Owner`（CardModel.Owner → Player），`context.Player` 不存在。
-
