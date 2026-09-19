@@ -66,6 +66,7 @@ graph TD
 | `setup/` | [mod-manifest.md](references/setup/mod-manifest.md) | 模组清单 JSON（字段说明、纯原生方案） |
 | `setup/` | [export-presets.md](references/setup/export-presets.md) | 导出预设 export_presets.cfg（PCK 打包必需） |
 | `setup/` | [project-godot.md](references/setup/project-godot.md) | Godot 项目配置 project.godot（字段说明） |
+| `setup/` | [ci-build.md](references/setup/ci-build.md) | CI 构建与打包（GitHub Actions 流水线） |
 | `relic/` | [relic.md](references/relic/relic.md) | 自定义遗物（模板、稀有度、池、图标、本地化） |
 | `card/` | [card.md](references/card/card.md) | 自定义卡牌（构造函数、API 速查、卡池、肖像、本地化） |
 | `potion/` | [potion.md](references/potion/potion.md) | 自定义药水（属性、回调、图标、池、本地化） |
