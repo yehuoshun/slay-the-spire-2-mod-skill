@@ -6,7 +6,10 @@
 
 | 内容 | 文件 |
 |------|------|
-| 自定义能量图标 | [energy-custom-icon.md](energy-custom-icon.md) |
+| 自定义能量图标（导航页） | [energy-custom-icon.md](energy-custom-icon.md) |
+| ├ 接口、辅助类与使用 | [energy-custom-icon-core.md](energy-custom-icon-core.md) |
+| ├ 大/文本图标 Patch | [energy-custom-icon-patches.md](energy-custom-icon-patches.md) |
+| └ 资源准备与常见问题 | [energy-custom-icon-resources.md](energy-custom-icon-resources.md) |
 
 ## 概述
 
