@@ -49,18 +49,14 @@ protected override async Task OnPlay(PlayerChoiceContext ctx, CardPlay play)
 }
 ```
 
-### 便捷 override（转译 BaseLib 自动推断）
+### 便捷 override
 
 ```csharp
 // BaseLib 会从 DynamicVars 自动推断 GainsBlock；纯原生手动 override 即可
 public override bool GainsBlock => true;   // 该卡给格挡
-
-// 计算变量辅助（一次生成 Base/Extra/主变量）
-protected override IEnumerable<DynamicVar> CanonicalVars =>
-    CustomCalculatedVar.Create("Damage", 5, (src, creature) => 0m, 2);
 ```
 
-> `CustomCalculatedVar.Create` 签名见 [design-patterns.md](../baselib/design-patterns.md)「模式 3」与参考 API 附录。
+自定义动态变量见 [card-variables.md](card-variables.md)。
 
 ### 注意
 

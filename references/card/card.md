@@ -10,6 +10,7 @@
 | 构造函数与基础卡牌 | [card-constructor.md](card-constructor.md) |
 | 核心 API 与使用条件 | [card-api.md](card-api.md) |
 | 进阶写法与资源 | [card-advanced.md](card-advanced.md) |
+| 自定义动态变量 | [card-variables.md](card-variables.md) |
 
 ## 概述
 
