@@ -1,4 +1,6 @@
-# 自定义药水：模板、图标与属性
+# 自定义药水：模板与属性
+
+> 图标命名约定见 [potion-register.md](potion-register.md)。
 
 ## 基础药水模板
 
@@ -33,19 +35,6 @@ public class MyAoePotion : PotionModel
     }
 }
 ```
-
----
-
-## 图标（命名约定，不可 override）
-
-药水图标路径由原生 `PotionModel` **私有自动生成**（不可 override），规则如下：
-
-```
-药水裁切纹理：     atlases/potion_atlas.sprites/<药水ID小写>.tres
-药水描边裁切纹理： atlases/potion_outline_atlas.sprites/<药水ID小写>.tres
-```
-
-只需把对应 `.tres`/`.png` 资源放到上述路径即可，无需写代码。
 
 ---
 

@@ -8,9 +8,9 @@
 
 | 内容 | 文件 |
 |------|------|
-| 模板、图标与属性 | [potion-core.md](potion-core.md) |
+| 模板与属性 | [potion-core.md](potion-core.md) |
 | 回调 | [potion-callbacks.md](potion-callbacks.md) |
-| 池、图标、本地化与自动注册 | [potion-register.md](potion-register.md) |
+| 图标、池、本地化与自动注册 | [potion-register.md](potion-register.md) |
 
 ## 概述
 
