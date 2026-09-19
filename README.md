@@ -31,6 +31,7 @@
 | `orb/` | [orb.md](references/orb/orb.md) | 自定义球体（被动/激发、图标、精灵、随机池） |
 | `act/` | [act.md](references/act/act.md) | 自定义章节（地图背景、音乐、宝箱、房间配置） |
 | `pet/` | [pet.md](references/pet/pet.md) | 自定义宠物（固定不行动 AI、血条、场景） |
+| `badge/` | [badge.md](references/badge/badge.md) | 自定义模组徽章（Badge 继承、图标、注册） |
 | `rest-site/` | [rest-site.md](references/rest-site/rest-site.md) | 自定义休息点选项（RestSiteOption 继承、图标、注入） |
 | `pile/` | [pile.md](references/pile/pile.md) | 自定义牌堆（PileType注入、定位、动画） |
 | `reward/` | [reward.md](references/reward/reward.md) | 自定义奖励（RewardType 注入、序列化、示例） |
