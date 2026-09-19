@@ -26,6 +26,7 @@ graph LR
 | PileType 注入 + 基类 + 注册 | [pile-core.md](pile-core.md) |
 | Harmony Patch 详解 | [pile-patches.md](pile-patches.md) |
 | Patch 5 + 注册 + 示例 | [pile-patches-more.md](pile-patches-more.md) |
+| 手牌上限修改 | [pile-hand-size.md](pile-hand-size.md) |
 
 ## 常见问题
 
