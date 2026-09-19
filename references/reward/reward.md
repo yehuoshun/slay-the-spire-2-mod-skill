@@ -31,8 +31,10 @@ graph LR
 
 | 内容 | 文件 |
 |------|------|
-| RewardType 注入 + 奖励基类 | [reward-core.md](reward-core.md) |
-| 序列化与存档 | [reward-serialization.md](reward-serialization.md) |
+| RewardType 注入 | [reward-core.md](reward-core.md) |
+| 奖励基类 | [reward-base.md](reward-base.md) |
+| 序列化流程与注册 | [reward-serialization.md](reward-serialization.md) |
+| SerializableReward 字段参考 | [reward-save.md](reward-save.md) |
 | 完整示例 | [reward-examples.md](reward-examples.md) |
 | 更多示例与注册 | [reward-examples-more.md](reward-examples-more.md) |
 
