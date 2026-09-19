@@ -24,6 +24,18 @@ public static bool Option1 { get; set; } = true;
 public static bool Option2 { get; set; } = false;
 ```
 
+#### CollapsedByDefault — 默认折叠
+
+```csharp
+// 该分组默认折叠，玩家需要手动展开
+[ConfigSection("AdvancedSettings", CollapsedByDefault = true)]
+public static bool SecretOption { get; set; } = false;
+```
+
+适用于不常用的高级选项首次进入设置时默认折叠，保持界面整洁。
+
+> BaseLib v3.4.7 新增。需游戏重启后在设置面板查看效果，首次打开配置界面时才会读取该属性。
+
 ### [ConfigSlider] — 滑块范围
 
 ```csharp

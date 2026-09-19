@@ -10,10 +10,9 @@
 
 | 版本 | 日期 | 新增内容（影响纯原生设计参考） |
 |------|------|------------------------------|
-| v3.4.7 | 2026-09-11 | `IPlayCustomPowerSfx`（✅ 已转译 → [harmony-custom-power-sfx.md](../harmony/harmony-custom-power-sfx.md)）、`HealthBarForecast` 新方向（OutwardFromCurrentHp / InwardFromMaxHp）、`ConfigSection CollapsedByDefault`（设置折叠）、ModInterop 扩展通用类/方法补丁、自定义资源默认视觉处理 |
+| v3.4.7 | 2026-09-11 | `IPlayCustomPowerSfx`（✅ → [harmony-custom-power-sfx.md](../harmony/harmony-custom-power-sfx.md)）、`HealthBarForecast` 新方向（OutwardFromCurrentHp / InwardFromMaxHp）、`ConfigSection CollapsedByDefault`（✅ → [settings-attributes.md](../settings/settings-attributes.md)）、ModInterop 扩展通用类/方法补丁、自定义资源默认视觉处理 |
 
-> 以上变化后半部分为 BaseLib API 自身增量，**不影响本文件的纯原生转译内容**。
-> `IPlayCustomPowerSfx` 已转译为纯原生等价写法，见 [harmony-custom-power-sfx.md](../harmony/harmony-custom-power-sfx.md)。
+> ✅ 标记的项已完成纯原生转译或文档补充。其余为 BaseLib API 自身增量，**不影响本文件的纯原生转译内容**。
 
 ## 旧版存档
 
