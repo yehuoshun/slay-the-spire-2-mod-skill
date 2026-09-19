@@ -85,8 +85,6 @@ graph TD
 | `harmony/` | [harmony-custom-power-sfx.md](references/harmony/harmony-custom-power-sfx.md) | Transpiler 实战：自定义能力音效（零第三方依赖） |
 | `serialization/` | [serialization.md](references/serialization/serialization.md) | 序列化与注册（ModelDb、SavedProperty、InjectTypeIntoCache） |
 | `settings/` | [settings.md](references/settings/settings.md) | 设置界面（BaseLib SimpleModConfig、Attribute、本地化） |
-| `patterns/` | [code-patterns.md](references/patterns/code-patterns.md) | 实战写法模式（卡牌/遗物/能力/事件片段） |
-| `patterns/` | [api-reference.md](references/patterns/api-reference.md) | API 附录（命令类、回调签名、注册点） |
 | `patterns/` | [pitfalls.md](references/patterns/pitfalls.md) | 常见坑速览（图标/本地化/注册/序列化/Harmony） |
 | `baselib/` | [design-patterns.md](references/baselib/design-patterns.md) | 纯原生设计模式总纲（从 BaseLib 提炼，零第三方依赖） |
 

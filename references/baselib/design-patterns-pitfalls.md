@@ -24,7 +24,7 @@
 | 设计模式 | 应用子项 |
 |---------|---------|
 | 自动注册（ContentRegistry + Attribute） | `serialization`（框架）、`relic`、`potion`、`power`、`enchantment`、`orb`、`act`、`pet` |
-| 链式辅助方法 | `card`（CardFx）、`patterns/code-patterns` |
+| 链式辅助方法 | `card`（CardFx） |
 | 便捷 override | `card`（GainsBlock）、`relic`（路径回退）、`power`（图标回退） |
 | 内联本地化 | 不转译，保持原生 JSON |
 | 自定义资源系统 | `baselib`（参考 BaseLib 3.4.5，纯原生需自建，暂留备选） |

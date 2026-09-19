@@ -46,7 +46,7 @@ public override CardCreationOptions ModifyCardRewardCreationOptions(Player playe
 public override float ModifyOddsIncreaseForUnrolledRoomType(RoomType roomType, float oddsIncrease) => oddsIncrease;
 ```
 
-> 更多 `Modify*`/`After*` 钩子见 [code-patterns.md](../patterns/code-patterns.md) 或直接 `grep Modify Core/Models/AbstractModel.cs`。
+> 更多 `Modify*`/`After*` 钩子见 [api-callbacks.md](../patterns/api-callbacks.md) 或直接 `grep Modify Core/Models/AbstractModel.cs`。
 
 ---
 
