@@ -60,31 +60,7 @@ public class MyCharacter : CharacterModel
 
 ## 五、角色资源路径
 
-| 资源 | 路径 |
-|------|------|
-| 默认待机动画场景 | `res://scenes/creature_visuals/<ID小写>.tscn` |
-| 头像缩略图图标场景 | `res://scenes/ui/character_icons/<ID小写>_icon.tscn` |
-| 能量计数器场景 | `res://scenes/combat/energy_counters/<ID小写>_energy_counter.tscn` |
-| 商店待机动画场景 | `res://scenes/merchant/characters/<ID小写>_merchant.tscn` |
-| 火堆休息动画场景 | `res://scenes/rest_site/characters/<ID小写>_rest_site.tscn` |
-| 卡牌拖尾特效场景 | `res://scenes/vfx/card_trail_<ID小写>.tscn` |
-| 头像缩略图纹理 | `res://images/ui/top_panel/character_icon_<ID小写>.png` |
-| 头像缩略图描边 | `res://images/ui/top_panel/character_icon_<ID小写>_outline.png` |
-| 角色选择界面背景 | `res://scenes/screens/char_select/char_select_bg_<ID小写>.tscn` |
-| 选择界面底部图 | `res://images/packed/character_select/char_select_<ID小写>.png` |
-| 未解锁底部图 | `res://images/packed/character_select/char_select_<ID小写>_locked.png` |
-| 地图标记箭头 | `res://images/packed/map/icons/map_marker_<ID小写>.png` |
-| 联机手臂-手指 | `res://images/ui/hands/multiplayer_hand_<ID小写>_point.png` |
-| 联机手臂-石头 | `res://images/ui/hands/multiplayer_hand_<ID小写>_rock.png` |
-| 联机手臂-布 | `res://images/ui/hands/multiplayer_hand_<ID小写>_paper.png` |
-| 联机手臂-剪刀 | `res://images/ui/hands/multiplayer_hand_<ID小写>_scissors.png` |
-| 过场动画着色器材质 | `res://materials/transitions/<ID小写>_transition_mat.tres` |
+> 全部资源路径表已拆到 [character-paths.md](character-paths.md)（场景/纹理/音效 + charui 通用约定）。
 
-### FMOD 音效路径
-
-```
-event:/sfx/characters/<ID小写>/<ID小写>_attack
-event:/sfx/characters/<ID小写>/<ID小写>_cast
-event:/sfx/characters/<ID小写>/<ID小写>_die
-```
+> 官方模板完整骨架（PlaceholderCharacterModel + 初始卡组 + 图标）→ [character-template.md](character-template.md)
 

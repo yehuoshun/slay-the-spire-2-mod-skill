@@ -99,7 +99,7 @@ ModHelper.AddModelToPool(typeof(ColorlessCardPool), typeof(ExampleStrike));
 卡牌大图源：  res://images/packed/card_portraits/<卡池名称>/<卡牌ID小写>.png
 ```
 
-推荐分辨率：1000x760（或同比例）
+推荐分辨率：1000x760（规格→[card-portrait-sizes.md](card-portrait-sizes.md)）
 
 ---
 

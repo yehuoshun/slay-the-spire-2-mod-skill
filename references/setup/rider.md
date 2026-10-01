@@ -81,3 +81,7 @@ Error → Warning → Suggestion → Hint
 
 ---
 
+> Live Templates（Custom Card/Relic/Power 右键模板 + 枚举值）→ [rider-live-templates.md](rider-live-templates.md)
+
+---
+

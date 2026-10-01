@@ -62,6 +62,7 @@ graph TD
 |------|------|------|
 | `setup/` | [environment-setup.md](references/setup/environment-setup.md) | 环境搭建、创建项目、PCK 打包 |
 | `setup/` | [project-skeleton.md](references/setup/project-skeleton.md) | 生产级项目骨架（目录/路径检测/自动打 PCK） |
+| `setup/` | [template-pack.md](references/setup/template-pack.md) | dotnet new 模板打包（三套官方模板、template.json、symbols） |
 | `setup/` | [rider.md](references/setup/rider.md) | Rider 开发环境配置（代码检查、Harmony 抑制规则） |
 | `setup/` | [mod-manifest.md](references/setup/mod-manifest.md) | 模组清单 JSON（字段说明、纯原生方案） |
 | `setup/` | [export-presets.md](references/setup/export-presets.md) | 导出预设 export_presets.cfg（PCK 打包必需） |

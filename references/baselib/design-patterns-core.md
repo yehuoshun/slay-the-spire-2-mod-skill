@@ -79,6 +79,10 @@ public class MyRelic : RelicModel { ... }
 - 错过时机用原生 `ModelDb.Inject(type)` 补救（只注册 ID，不关联池）
 - 池类型可在 Attribute 参数里动态指定，支持任意自定义池
 
+### 基类注解继承（学自 ModTemplate-StS2，推荐写法）
+
+> [Pool] 标在抽象基类上，子类继承自动进池 → [design-patterns-pooling.md](design-patterns-pooling.md)
+
 ---
 
 ## 模式 2：链式辅助方法（转译 Builder）

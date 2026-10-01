@@ -35,6 +35,8 @@
 
 > 自动打 PCK target 需在 `Directory.Build.props` 配置 `$(GodotPath)`（Megadot 可执行文件路径）。不可用时仍走下方手动导出步骤。
 
+> 进阶 Target（自动拷贝到 mods 目录、Publish 自动导出 PCK、Publicizer/ModAnalyzers）→ [skeleton-build-targets.md](skeleton-build-targets.md)
+
 ### 生产级入口 MainFile.cs
 
 ```csharp
@@ -66,17 +68,7 @@ public partial class MainFile : Node
 
 ### 角色资源清单（charui）
 
-角色 mod 需要全套 UI 资源（纯原生对应 `CharacterModel` 的路径属性）：
-
-| 资源 | 默认路径约定 | 对应属性 |
-|------|-------------|---------|
-| 角色选择图标 | `images/charui/character_icon_<id>.png` | `CustomIconTexturePath` |
-| 角色名（锁定）图标 | `images/charui/char_select_char_name.png` | `CustomCharacterSelectLockedIconPath` |
-| 大地图标记 | `images/charui/map_marker_<id>.png` | `CustomMapMarkerPath` |
-| 大能量图标 | `images/charui/big_energy.png` | `CustomEnergyCounterPath` |
-| 文字能量图标 | `images/charui/text_energy.png` | — |
-
-> 明细以 [character.md](../character/character.md) 为准，此处给出通用目录约定。
+> 全套资源路径表已拆到 [character-paths.md](../character/character-paths.md)（场景/纹理/音效 + charui 通用约定），此处不再重复。
 
 ---
 
