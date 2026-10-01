@@ -28,6 +28,7 @@ graph LR
 | Harmony Patch 详解 | [pile-patches.md](pile-patches.md) |
 | Patch 5 + 注册 + 示例 | [pile-patches-more.md](pile-patches-more.md) |
 | 手牌上限修改 | [pile-hand-size.md](pile-hand-size.md) |
+| 手牌布局修正（超 10 张） | [pile-hand-layout.md](pile-hand-layout.md) |
 
 ## 常见问题
 

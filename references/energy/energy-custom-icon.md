@@ -17,7 +17,8 @@
 | 内容 | 文件 |
 |------|------|
 | 接口、辅助类与使用 | [energy-custom-icon-core.md](energy-custom-icon-core.md) |
-| 大图标 Patch & 文本图标 Transpiler | [energy-custom-icon-patches.md](energy-custom-icon-patches.md) |
+| 大图标 Patch（Prefix） | [energy-custom-icon-patches.md](energy-custom-icon-patches.md) |
+| 文本内联图标 Patch（Transpiler） | [energy-custom-icon-text-patch.md](energy-custom-icon-text-patch.md) |
 | 资源准备、常见问题与演进 | [energy-custom-icon-resources.md](energy-custom-icon-resources.md) |
 
 ## 参见

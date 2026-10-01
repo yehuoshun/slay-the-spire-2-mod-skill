@@ -9,6 +9,7 @@
 |------|------|
 | 构造函数与基础卡牌 | [card-constructor.md](card-constructor.md) |
 | 核心 API 与使用条件 | [card-api.md](card-api.md) |
+| 选择器（CardSelectorPrefs） | [card-api-select.md](card-api-select.md) |
 | 卡牌效果完整示例 | [card-api-effects.md](card-api-effects.md) |
 | 进阶写法与资源 | [card-advanced.md](card-advanced.md) |
 | 肖像图尺寸规格 | [card-portrait-sizes.md](card-portrait-sizes.md) |

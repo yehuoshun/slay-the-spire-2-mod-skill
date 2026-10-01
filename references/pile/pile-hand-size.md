@@ -112,26 +112,7 @@ public class ExtraDraw : PowerModel, IMaxHandSizeModifier
 }
 ```
 
-## 关于 HandPosHelper
-手牌超过 10 张时，原生布局会溢出。补一个 Prefix 修正位置/角度/缩放：
-
-```csharp
-[HarmonyPatch(typeof(HandPosHelper), nameof(HandPosHelper.GetPosition))]
-public static class HandPosFix
-{
-    [HarmonyPrefix]
-    static bool Prefix(int handSize, int cardIndex, ref Vector2 __result)
-    {
-        if (handSize <= 10) return true;
-        var halfSpread = Mathf.Lerp(610f, 690f,
-            Mathf.Clamp((handSize - 10) / 4f, 0f, 1f));
-        var u = (2f * cardIndex / (handSize - 1f)) - 1f;
-        __result = new Vector2(halfSpread * u,
-            Math.Min(18f, -64f + (88f - (handSize - 10) * 1.5f) * u * u));
-        return false;
-    }
-}
-```
+> 手牌超 10 张的布局修正（HandPosFix Prefix）→ [pile-hand-layout.md](pile-hand-layout.md)
 
 ## 注册
 

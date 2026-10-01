@@ -26,6 +26,7 @@
 | 内容 | 文件 |
 |------|------|
 | 自动注册与链式辅助 | [design-patterns-core.md](design-patterns-core.md) |
+| 链式辅助方法（转译 Builder） | [design-patterns-builder.md](design-patterns-builder.md) |
 | [Pool] 基类注解继承 | [design-patterns-pooling.md](design-patterns-pooling.md) |
 | 便捷 override 与内联本地化 | [design-patterns-extras.md](design-patterns-extras.md) |
 | 资源路径工具与卡池卡背 | [design-patterns-assets.md](design-patterns-assets.md) |
