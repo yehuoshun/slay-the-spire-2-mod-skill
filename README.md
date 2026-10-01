@@ -8,6 +8,7 @@
 
 - [SKILL.md](SKILL.md) — AI 工作流 + 15 条硬规则
 - [LEARN.md](LEARN.md) — 学习流程
+- [LEARNED.md](LEARNED.md) — 已学仓库登记（防重复学习）
 
 ### references/
 
