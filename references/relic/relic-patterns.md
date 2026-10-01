@@ -65,3 +65,4 @@ public override async Task AfterDamageReceived(PlayerChoiceContext choiceContext
     Flash();
     // 减半伤害逻辑
 }
+```
