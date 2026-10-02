@@ -30,7 +30,7 @@ public class TradeOption : RestSiteOption
     {
         // 扣血换金币
         await CreatureCmd.Damage(Owner.Creature, 6);
-        await GoldCmd.Gain(Owner.Player, 75);
+        await PlayerCmd.GainGold(75, Owner.Player);
         await room.RemoveOption(this);
     }
 }

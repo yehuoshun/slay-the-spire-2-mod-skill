@@ -24,7 +24,7 @@ public static class ResourceUiPatch
             HorizontalAlignment = HorizontalAlignment.Center
         };
         __instance.AddChild(label);
-        __instance.AddChild(new NRewardHighlight()); // 可选高亮效果
+        // 可选：高亮节点需自研（NRewardHighlight 非原生类，可省略）
     }
 }
 ```

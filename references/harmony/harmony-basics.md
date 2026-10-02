@@ -52,9 +52,10 @@ public static class MyTranspiler
 public static class MyPatch
 {
     // 运行时动态返回目标方法
+    // （RuntimeTypeResolver.FindType 为自研辅助，等价原生 AccessTools.TypeByName）
     private static MethodBase? TargetMethod()
     {
-        var type = RuntimeTypeResolver.FindType("MegaCrit.Sts2.Core.Models.CardModel");
+        var type = AccessTools.TypeByName("MegaCrit.Sts2.Core.Models.CardModel");
         return AccessTools.Method(type, nameof(CardModel.ToMutable));
     }
 

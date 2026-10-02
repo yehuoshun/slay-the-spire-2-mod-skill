@@ -15,7 +15,7 @@
 
 如果你想在描述里显示自定义的动态数值（如 `{Fire}`），原生 `CalculatedVar` 直接支持——不需要任何 mod 依赖。
 
-## 基础用法
+## 基础用法（真实 API）
 
 在 `CanonicalVars` 中返回三个变量：Base（基础值）+ Extra（倍率）+ 主变量（自动计算）。
 
@@ -24,15 +24,15 @@ protected override IEnumerable<DynamicVar> CanonicalVars
 {
     get
     {
-        yield return new DynamicVar("FireBase", 6);        // 基础值
-        yield return new DynamicVar("FireExtra", 1);       // 倍率乘数
-        yield return new CalculatedVar("Fire",             // 自动计算 = base + extra * mult
-            b => b.BaseValue,                              // 取 FireBase.BaseValue
-            e => e.BaseValue,                              // 取 FireExtra.BaseValue
-            (b, e) => b + e * CountFirePowers());          // 自定义计算
+        yield return new CalculationBaseVar(6m);      // 基础值（名字固定 "CalculationBase"）
+        yield return new CalculationExtraVar(1m);     // 倍率乘数（名字固定 "CalculationExtra"）
+        yield return new CalculatedVar("Fire")       // 显示名 {Fire}，自动计算 = base + extra * mult
+            .WithMultiplier((card, target) => GetFireMult());
     }
 }
 ```
+
+> ⚠️ 真实验证：`CalculatedVar` 原生只有 `CalculatedVar(string name)` 构造 + `WithMultiplier(Func<CardModel, Creature?, decimal>)`（旧版 4 参构造不存在）。计算固定为 `GetBaseVar().BaseValue + GetExtraVar().BaseValue * mult`，默认 Base/Extra 取 `DynamicVars.CalculationBase/CalculationExtra`（名字固定）。
 
 描述中直接用 `{Fire}` 引用：
 
@@ -46,42 +46,25 @@ protected override IEnumerable<DynamicVar> CanonicalVars
 
 ## 同一张卡多个自定义变量
 
+默认 Base/Extra 只有一个（名字固定），多个计算变量需子类覆写 `GetBaseVar()`/`GetExtraVar()` 指向各自变量：
+
 ```csharp
-protected override IEnumerable<DynamicVar> CanonicalVars
+public class FireVar : CalculatedVar
 {
-    get
-    {
-        yield return new DynamicVar("FireBase", 6);
-        yield return new DynamicVar("FireExtra", 1);
-        yield return new CalculatedVar("Fire",
-            b => b.BaseValue, e => e.BaseValue,
-            (b, e) => b + e * GetFireMult());
-
-        yield return new DynamicVar("IceBase", 4);
-        yield return new DynamicVar("IceExtra", 1);
-        yield return new CalculatedVar("Ice",
-            b => b.BaseValue, e => e.BaseValue,
-            (b, e) => b + e * GetIceMult());
-    }
+    public FireVar() : base("Fire") { }
+    protected override DynamicVar GetBaseVar() =>
+        ((CardModel)_owner).DynamicVars["FireBase"];
+    protected override DynamicVar GetExtraVar() =>
+        ((CardModel)_owner).DynamicVars["FireExtra"];
 }
+
+// CanonicalVars 中：
+// yield return new DynamicVar("FireBase", 6);
+// yield return new DynamicVar("FireExtra", 1);
+// yield return new FireVar().WithMultiplier((card, target) => GetFireMult());
 ```
 
-描述：`"造成 {Fire} 点火伤和 {Ice} 点冰伤。"`
-
-## CalculatedVar 构造签名
-
-```csharp
-public CalculatedVar(
-    string name,
-    Func<DynamicVar, decimal> getBaseValue,
-    Func<DynamicVar, decimal> getExtraValue,
-    Func<decimal, decimal, decimal> calculate
-)
-```
-
-- `getBaseValue` → 取对应 `{Name}Base` 变量
-- `getExtraValue` → 取对应 `{Name}Extra` 变量
-- `calculate(base, extra)` → 返回最终的显示值
+描述：`"造成 {Fire} 点火伤。"`（{Ice} 同理建 IceVar 子类）。
 
 ## 参见
 

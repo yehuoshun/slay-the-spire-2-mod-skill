@@ -27,7 +27,7 @@ Harmony 是 STS2 模组开发的必需品。几乎所有自定义效果都要通
 |------|------|
 | Patch 不生效 | 检查 `harmony.PatchAll()` 或 `PatchCategory()` 是否调用 |
 | 一个类炸了全挂 | 每个 Patch 类别独立 try-catch |
-| 找不到目标方法 | 使用 `RuntimeTypeResolver.FindType()` 反射查找 |
+| 找不到目标方法 | 使用 `AccessTools.TypeByName()`（或自研 RuntimeTypeResolver 封装）反射查找 |
 | 类型不匹配 | 用 `AccessTools` 而非直接写类型 |
 | Postfix 修改返回值无效 | 参数声明为 `ref int __result` |
 | 多人模式下崩溃 | 用 `MultiplayerSafety` 检查后再 Patch |

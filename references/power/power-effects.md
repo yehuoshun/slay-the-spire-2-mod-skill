@@ -82,4 +82,6 @@ public class HopeRelicBuff : PowerModel, IHealModifier
 
 ### smartDescription 隐式变量（无需定义即可用）
 
-`{Amount}`（当前层数）`{Duration}`（持续时间）`{OnPlayer}`（拥有者是否玩家）`{IsMultiplayer}` `{PlayerCount}` `{OwnerName}` `{ApplierName}`（可能为空）`{TargetName}`（可能为空）`{singleStarIcon}` `{energyPrefix}`
+`{Amount}`（当前层数）`{OnPlayer}`（拥有者是否玩家）`{IsMultiplayer}` `{PlayerCount}` `{OwnerName}` `{ApplierName}`（可能为空）`{TargetName}`（可能为空）`{singleStarIcon}` `{energyPrefix}`
+
+> 真实验证（PowerModel 描述注入源码）：**没有 `{Duration}`**——持续时间显示需自行在 `CanonicalVars` 定义变量。
