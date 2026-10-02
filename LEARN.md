@@ -52,8 +52,8 @@
 # 1. 克隆两个仓库（若本地没有）
 git clone git@github.com:yehuoshun/slay-the-spire-2-mod-skill.git
 cd slay-the-spire-2-mod-skill-archive
-# 2. 整目录同步 references（缺的复制、内容变化的覆盖）
-rsync -a --delete ../slay-the-spire-2-mod-skill/references/ references/
+# 2. 整目录同步 references（缺的复制、内容变化的覆盖；⚠️ 必须排除 v*/ 归档目录，否则 --delete 会误删 v1-v4 旧版，历史教训：9dbbda8 误删）
+rsync -a --delete --exclude='v*/' ../slay-the-spire-2-mod-skill/references/ references/
 # 3. SKILL.md 同步（参考资料表变化要跟上）
 cp ../slay-the-spire-2-mod-skill/SKILL.md .
 # 4. 不动 README.md —— archive 版是定制存档说明，不能覆盖
@@ -65,7 +65,8 @@ git push origin main
 
 ### 注意
 
-- archive 的 `references/<模块>/v1|v2|v3/` 是旧版本归档，**保留不动**（`rsync --delete` 会删多余文件，但 v1/v2/v3 与主仓库不重复，不受影响；主仓库无对应目录时删掉 archive 中已废弃的模块文件即可）
+- archive 的 `references/<模块>/v1|v2|v3|v4/` 是旧版本归档，**保留不动**（`rsync --delete` 会删多余文件，但 v1-v4 与主仓库不重复，不受影响；主仓库无对应目录时删掉 archive 中已废弃的模块文件即可）
+- **大改前先留档（硬规则）**：模块内容结构性大改（API 校正 / 方案转正 / 文件拆分）前，先把 archive 中该模块当前版复制为 `v<N+1>`（全库统一递增：当前 v4 → 下次 v5），再同步新内容；小改动靠 git 提交 diff 记录即可（“备份旧的”二选一：vX 留档 或 git diff）
 - 主仓库 push 后**必须**同步 archive，两个仓库才算完事（历次都是先主仓后备份）
 - README.md / CHANGELOG.md 只在 archive 维护，主仓库的版本不同，禁止互相覆盖
 - 沙箱无 rsync 时用 python 脚本对比复制（缺的复制、差异覆盖）

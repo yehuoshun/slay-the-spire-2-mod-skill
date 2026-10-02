@@ -30,6 +30,7 @@
 13. 修改完成后必须 commit + push 到对应分支
 14. 必须观察 Actions 运行结果
 15. Actions 运行异常时排查修复，重新 commit+push
+16. 文档改动必须过 [sts2-mod-examples](https://github.com/yehuoshun/sts2-mod-examples) 编译验证（见 LEARN.md「测试与验证流程」），CI 全绿才算完
 
 ---
 
