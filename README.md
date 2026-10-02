@@ -47,6 +47,7 @@
 | `serialization/` | [serialization.md](references/serialization/serialization.md) | 序列化与注册（ModelDb、SavedProperty、InjectTypeIntoCache） |
 | `settings/` | [settings.md](references/settings/settings.md) | 设置界面（BaseLib SimpleModConfig、Attribute、本地化） |
 | `baselib/` | [design-patterns.md](references/baselib/design-patterns.md) | 纯原生设计模式总纲（从 BaseLib 提炼，零第三方依赖） |
+| `realworld/` | [yuwan-card.md](references/realworld/yuwan-card.md) | 实战项目学习：YuWanCard（真实 API 校验 + 可复用纯原生模式） |
 
 ---
 
@@ -65,6 +66,7 @@
 
 - [Alchyr/BaseLib-StS2](https://github.com/Alchyr/BaseLib-StS2) — 官方模组标准库（Custom*Model 基类、[Pool]、Builder、工具）
 - [Alchyr/ModTemplate-StS2](https://github.com/Alchyr/ModTemplate-StS2) — 官方模组脚手架模板（工程化思想：骨架自动化、路径检测、目录规范）
+- [YuWan886/Sts2-YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard) — 实战大型 mod（真实 API 用法样本：多人、自定义稀有度、多版本 loader、生命条预测）
 
 ### 项目仓库
 

@@ -91,6 +91,7 @@ graph TD
 | `serialization/` | [serialization.md](references/serialization/serialization.md) | 序列化与注册（ModelDb、SavedProperty、InjectTypeIntoCache） |
 | `settings/` | [settings.md](references/settings/settings.md) | 设置界面（BaseLib SimpleModConfig、Attribute、本地化） |
 | `baselib/` | [design-patterns.md](references/baselib/design-patterns.md) | 纯原生设计模式总纲（从 BaseLib 提炼，零第三方依赖） |
+| `realworld/` | [yuwan-card.md](references/realworld/yuwan-card.md) | 实战项目学习：YuWanCard（真实 API 校验 + 可复用纯原生模式） |
 
 ---
 
