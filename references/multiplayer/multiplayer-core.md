@@ -1,6 +1,6 @@
 # 多人模式：约束、身份检查与网络消息
 
-> 实战项目验证（YuWanCard）。命名空间：`MegaCrit.Sts2.Core.GameActions.Multiplayer`。
+> 实战项目验证（YuWanCard）。命名空间：消息/约束在 `MegaCrit.Sts2.Core.GameActions.Multiplayer` 与 `Multiplayer.*`；**`LocalContext` 在 `MegaCrit.Sts2.Core.Context`**（旧版写错）。
 
 ## 1. 内容多人约束
 
@@ -17,6 +17,8 @@ public override CardMultiplayerConstraint MultiplayerConstraint
 多人下同一段代码在所有客户端执行，只对本地玩家生效的操作要包判断：
 
 ```csharp
+using MegaCrit.Sts2.Core.Context;   // LocalContext 在此命名空间
+
 if (LocalContext.IsMe(player))
 {
     await CreatureCmd.GainMaxHp(player.Creature, 10m);
