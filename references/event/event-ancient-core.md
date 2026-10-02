@@ -32,6 +32,10 @@ public class MyAncient : AncientEventModel
             new EventOption(this, OnBless, "MY_ANCIENT.options.BLESS"),
         };
 
+    // ⚠️ 必须实现（AncientEventModel 未 override 此抽象成员，wrapper 会调用它）
+    protected override IReadOnlyList<EventOption> GenerateInitialOptions() =>
+        AllPossibleOptions.ToList();
+
     private async Task OnBless()
     {
         SetEventFinished(L10NLookup("MY_ANCIENT.options.BLESS.description"));
@@ -49,6 +53,7 @@ public class MyAncient : AncientEventModel
 |------|------|------|
 | `DefineDialogues()` | `protected abstract AncientDialogueSet` | 定义对话组 |
 | `AllPossibleOptions` | `public abstract IEnumerable<EventOption>` | 所有可能出现的选项 |
+| `GenerateInitialOptions()` | `protected abstract IReadOnlyList<EventOption>` | **必须实现**（返回本次出现的选项，通常 `AllPossibleOptions.ToList()`） |
 | `AnyCharacterDialogueBlacklist` | `public virtual IEnumerable<CharacterModel>` | 不显示特定角色对话 |
 | `DialogueColor` | `public virtual Color` | 对话颜色 |
 | `AmbientBgm` | `public virtual string` | 环境 BGM |

@@ -25,17 +25,13 @@ NCreatureVisuals (根节点)
 
 ## 本地化
 
-路径：`res://<模组ID>/localization/<语言代码>/monsters.json`
+路径：`res://<模组ID>/localization/<语言代码>/monsters.json`（**扁平键**，实测格式）
 
 ```json
 {
-  "MY_MONSTER": {
-    "name": "自定义怪物",
-    "moves": {
-      "ATTACK": { "title": "准备攻击" },
-      "BUFF": { "title": "正在蓄力" }
-    }
-  }
+  "MY_MONSTER.name": "自定义怪物",
+  "MY_MONSTER.moves.ATTACK.title": "准备攻击",
+  "MY_MONSTER.moves.BUFF.title": "正在蓄力"
 }
 ```
 
@@ -46,13 +42,11 @@ NCreatureVisuals (根节点)
 ```csharp
 public class MyEncounter : EncounterModel
 {
-    // 站位 ID（GenerateMonsters 里引用）
-    public override IReadOnlyList<string> Slots => new List<string> { "front" };
     public override bool HasScene => false;
     public override RoomType RoomType => RoomType.Monster;
     public override IEnumerable<MonsterModel> AllPossibleMonsters => new List<MonsterModel> { ModelDb.Monster<MyMonster>() };
 
-    // protected，返回 (怪物, 站位ID) 列表
+    // protected，返回 (怪物, 站位ID) 列表——站位 ID 在元组里，无独立 Slots 属性
     protected override IReadOnlyList<(MonsterModel, string?)> GenerateMonsters()
     {
         return new List<(MonsterModel, string?)>
@@ -63,6 +57,8 @@ public class MyEncounter : EncounterModel
 }
 ```
 
+> ⚠️ **原生 EncounterModel 没有 `Slots` 属性**（旧版编造，已删）——站位 ID 就是 `GenerateMonsters()` 元组的第二元素。`MonsterModel.ToMutable()` 真实存在（生成战斗实例）。
+
 ### RoomType（真实枚举）
 
 `Monster` / `Elite` / `Boss` / `Treasure` / `Shop` / `Event` / `RestSite` / `Map`（外加 `Unassigned`）
@@ -71,8 +67,7 @@ public class MyEncounter : EncounterModel
 
 ### 自定义站位
 
-- `Slots` 属性声明站位 ID 列表
-- `GenerateMonsters()` 返回 `(MonsterModel, string?)`，第二元素为站位 ID
+- 站位 ID 写在 `GenerateMonsters()` 元组第二元素（无独立 `Slots` 属性）
 - 自定义场景时 `HasScene = true`，场景资源按命名约定 `res://scenes/encounters/<遭遇ID小写>.tscn`，节点名 = 站位 ID
 
 ---

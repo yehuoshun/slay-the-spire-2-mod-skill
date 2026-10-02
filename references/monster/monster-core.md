@@ -59,7 +59,7 @@ public class MyMonster : MonsterModel
 |------|------|------|
 | `RoomType` | `public abstract RoomType` | 房间类型 |
 | `AllPossibleMonsters` | `public abstract IEnumerable<MonsterModel>` | 可出现的怪物 |
-| `Slots` | `public virtual IReadOnlyList<string>` | 站位 ID 列表（默认空） |
+| `GenerateMonsters()` | `protected abstract IReadOnlyList<(MonsterModel, string?)>` | 生成战斗怪物（元组第二元素=站位 ID） |
 | `HasScene` | `public virtual bool` | 是否有自定义场景 |
 | `IsWeak` | `public virtual bool` | 是否为弱点遭遇 |
 | `ShouldGiveRewards` | `public virtual bool` | 是否给奖励 |
