@@ -1,5 +1,9 @@
 # 自定义奖励：SerializableReward 字段参考与注册时机
 
+> ⚠️ 2026-10-02 全面测试修正：`CustomRewardRegistry` 是**自研辅助类**（不是原生 API）；
+> 原生 `Reward.FromSerializable` 是硬编码 switch，自定义 RewardType 直接抛 `NotImplementedException`，
+> 必须靠 Harmony Patch 拦截加分支（下方方案正确）。
+
 > 序列化注册流程与模板见 [reward-serialization.md](reward-serialization.md)。
 
 ## 序列化流程

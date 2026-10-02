@@ -31,7 +31,8 @@ public class CardTransformReward : Reward
     public override LocString Description =>
         new LocString("gameplay_ui", "MYSKILL-CARD_TRANSFORM_TITLE");
 
-    public override string IconPath =>
+    // 真实签名：protected virtual string?（不是 public override string）
+    protected override string? IconPath =>
         "res://myskill/images/rewards/card_transform.png";
 
     public override void Populate() { }
@@ -67,3 +68,7 @@ public class CardTransformReward : Reward
 
 - [reward-core.md](reward-core.md) — RewardType 注入与基类
 - [reward-serialization.md](reward-serialization.md) — 序列化详解
+
+> ⚠️ 2026-10-02 全面测试修正：`IconPath` 真实签名是 `protected virtual string?`（public 编译失败）；
+> `Reward.FromSerializable` 是硬编码 switch，自定义 RewardType 会抛 `NotImplementedException`——
+> 存档/读档需自己 Patch `Reward.FromSerializable` 加分支（不存在 CustomRewardRegistry）。

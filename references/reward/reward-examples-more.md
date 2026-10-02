@@ -20,7 +20,8 @@ public class CardUpgradeReward : Reward
     public override LocString Description =>
         new LocString("gameplay_ui", "MYSKILL-CARD_UPGRADE_TITLE");
 
-    public override string IconPath =>
+    // 真实签名：protected virtual string?
+    protected override string? IconPath =>
         "res://myskill/images/rewards/card_upgrade.png";
 
     public override void Populate() { }
@@ -61,19 +62,20 @@ public class RandomCardUpgradeReward : Reward
     public override LocString Description =>
         new LocString("gameplay_ui", "MYSKILL-RANDOM_UPGRADE_TITLE");
 
-    public override string IconPath =>
+    // 真实签名：protected virtual string?
+    protected override string? IconPath =>
         "res://myskill/images/rewards/random_upgrade.png";
 
     public override void Populate()
     {
+        // 真实升级 API：IsUpgradable + UpgradeInternal()（CanUpgrade() 不存在）
         var upgradable = Player.Deck.Cards
-            .Where(c => c.CanUpgrade() && !c.IsUpgraded)
+            .Where(c => c.IsUpgradable && !c.IsUpgraded)
             .ToList();
         if (upgradable.Count > 0)
         {
-            var card = upgradable[
-                Random.Range(0, upgradable.Count)];
-            card.Upgrade();
+            var card = upgradable[0];
+            card.UpgradeInternal();
         }
     }
 }
@@ -99,7 +101,7 @@ public override Task AfterCombatEnd(...)
 
 ```csharp
 [HarmonyPatch(typeof(CombatRoom),
-    nameof(CombatRoom.AddNonEliteRewards))]
+    nameof(CombatRoom.OfferRoomEndRewards))]
 public static class AddCustomRewardPatch
 {
     private static void Postfix(CombatRoom __instance)
@@ -113,6 +115,8 @@ public static class AddCustomRewardPatch
 }
 ```
 
+> ⚠️ `AddNonEliteRewards` 是**编造方法**（原生 CombatRoom 不存在）；真实 API 是 `AddExtraReward(Player, Reward)` + `OfferRoomEndRewards()`（后者才是战斗结束发奖入口，Patch 它或 `_extraRewards` 的填充时机）。
+
 ## 完整注册流程（ModEntry）
 
 ```csharp
@@ -122,22 +126,14 @@ public static class ModEntry
     public static void Initialize()
     {
         var harmony = new Harmony("myskill");
-
-        // PatchAll 触发所有 [HarmonyPatch]
-        // 包括 RewardTypeInjector + RewardDeserializationPatch
-        harmony.PatchAll();
-
-        // 注册自定义奖励反序列化器
-        CustomRewardRegistry.Register(
-            CardTransformReward.CardTransform,
-            CardTransformReward.CreateFromSave);
-        CustomRewardRegistry.Register(
-            CardUpgradeReward.CardUpgrade,
-            CardUpgradeReward.CreateFromSave);
-        CustomRewardRegistry.RegisterAll();
+        harmony.PatchAll();   // 触发所有 [HarmonyPatch]（含 EnumInjector）
     }
 }
 ```
+
+> ⚠️ 原生 `Reward.FromSerializable` 是硬编码 switch（自定义 RewardType 直接抛 NotImplementedException），
+> **不存在 CustomRewardRegistry**。自定义奖励的存档/读档需自己 `[HarmonyPatch] Reward.FromSerializable` 加分支，
+> 并在 `ToSerializable()` 里写入自定义字段（SerializableReward 的 GoldAmount/CardIds 等复用字段）。
 
 ## 参见
 

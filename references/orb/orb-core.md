@@ -48,10 +48,13 @@ public class MyOrb : OrbModel
         if (opponents.Count == 0) return [];
 
         var targets = target == null
-            ? new List<Creature> { Owner.RunState.Rng.CombatTargets.NextItem(opponents) }
+            ? new List<Creature> { Owner.RunState.Rng.CombatTargets.NextItem(opponents)! }
             : new List<Creature> { target };
 
-        return await CreatureCmd.Damage(choiceContext, targets, value, ValueProp.Unpowered, Owner.Creature);
+        // ⚠️ CreatureCmd.Damage 返回 IEnumerable<DamageResult>，不能直接当 Creature 返回；
+        // 原生 DarkOrb 同款写法：先 await Damage，再手动返回被击中目标列表
+        await CreatureCmd.Damage(choiceContext, targets, value, ValueProp.Unpowered, Owner.Creature);
+        return targets;
     }
 }
 ```
