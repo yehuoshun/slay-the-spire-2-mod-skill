@@ -78,9 +78,10 @@ if (!IsMobilePlatform())
 
 ## ModInterop — Transpiler 模组互操作
 
-> 实战项目验证（YuWanCard）。编译期**零依赖**调用其他 mod 的 API：定义存根类 → 初始化时 Transpiler 把存根方法体替换为对目标 mod 的直接 IL 调用；目标未加载则空实现 fallback（不崩、无副作用）。比反射调用性能好，比硬引用不炸。
+> 实战项目验证（YuWanCard 自研框架）。编译期**零依赖**调用其他 mod 的 API：目标 mod 未加载时空实现 fallback（不崩、无副作用），已加载则替换为直接 IL 调用。比反射调用性能好，比硬引用不炸。⚠️ **`[ModInterop]`/`[InteropTarget]`/`ModInteropProcessor` 均为 YuWan 自研，原生没有**——需自研实现（思路：扫描存根类 → 目标类型已加载则 `[HarmonyPatch]` + `TargetMethod()` 动态指定 + Transpiler 替换方法体，见 [harmony-basics.md](harmony-basics.md)）。
 
 ```csharp
+// 自研存根类设计（attribute 需自己定义）
 [ModInterop("目标modId")]                                   // 标记存根类归属哪个 mod
 public static class MyStub
 {

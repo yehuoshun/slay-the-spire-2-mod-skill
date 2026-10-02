@@ -79,3 +79,7 @@ public override bool IsAllowedInShops => false; // 不进商店
 ```
 
 代价（6 个 Patch：`NRelicCollection.LoadRelics` postfix 建分类、`NRelicCollectionCategory.LoadRelicNodes` prefix 过滤、`NInspectRelicScreen.UpdateRelicDisplay` postfix 标签+边框染色、`NRelic.Reload`/`NRelicCollectionEntry._Ready` postfix 描边、`RelicModel.get_IsTradable` postfix 禁交易）。收益：独立图鉴分类 + 品牌色边框。
+
+### 金币修改防递归
+
+覆写 `ModifyGoldGained` 又想在 `AfterModifyingGoldGained` 里扣金币时，会触发递归（扣金币→再走 ModifyGoldGained）。加 `bool _modifyingGold` 守卫：`ModifyGoldGained` 里 `if (_modifyingGold) return amount;`，副作用执行时置位，finally 复位。

@@ -73,7 +73,7 @@ protected override void OnUpgrade()
 }
 ```
 
-配套：费用升级 `WithCostUpgradeBy(-1)` 声明，升级时 `EnergyCost.UpgradeBy(-1)`。
+配套：费用升级在 `OnUpgrade()` 里 `EnergyCost.UpgradeBy(-1)`（原生 `CardEnergyCost.UpgradeBy(int)`）。
 
 自定义动态变量见 [card-variables.md](card-variables.md)。
 
