@@ -21,7 +21,26 @@
 6. **更新 README.md** — 状态列表勾选 + 鸣谢追加
 7. **更新** — 新学内容直接写入 `references/<模块>/<模块>.md` 或对应子文件，审查通过后更新导航页为最新版
 8. **commit + push**
-9. **同步备份仓库** — 主仓库 commit 后，把 `references/` 增量同步到 [slay-the-spire-2-mod-skill-archive](https://github.com/yehuoshun/slay-the-spire-2-mod-skill-archive)（见下）
+9. **测试验证** — 文档改动必须过 [sts2-mod-examples](https://github.com/yehuoshun/sts2-mod-examples) 的编译验证（见下「测试与验证流程」）
+10. **同步备份仓库** — 主仓库 commit 后，把 `references/` 增量同步到 [slay-the-spire-2-mod-skill-archive](https://github.com/yehuoshun/slay-the-spire-2-mod-skill-archive)（见下）
+
+---
+
+## 测试与验证流程
+
+> **闭环**：skill 文档（唯一创作源）→ sts2-mod-examples 可编译示例 → CI 真编译 → 报错回流修文档。
+> 文档里的任何 API/签名，示例仓库编译不过 = 文档有问题（2026-10-02 起强制执行，当天靠此抓到 10+ 处编造 API）。
+
+1. **改文档** — 新增/修改 references 模块内容
+2. **同步示例** — 在 `sts2-mod-examples/Sts2ModExamplesCode/<模块>/` 补/改对应示例：
+   - 新 API 必须有示例类覆盖（类型/方法逐条对照 `sts2-res/src/`）
+   - 修改的 API 更新示例调用
+3. **本地静态自检** — `python3 scripts/check-api.py`（API 白名单，防幻觉）通过
+4. **push → CI** — push 后 GitHub Actions 自动跑：dotnet build（真编译）+ ModAnalyzers + 白名单 + 本地化 JSON 校验
+5. **CI 全绿才算完** — 编译报错 → 按错误修正示例（或修正文档）→ 重推，直到绿色
+6. **示例里踩的坑必须回流** — 真编译暴露的文档 bug/签名差异，当天修进 references + SKILL.md/README 同步
+
+> 覆盖矩阵（23 模块 ↔ 示例文件）见 sts2-mod-examples README「覆盖内容」表。新增模块示例时同步更新该表。
 
 ---
 
