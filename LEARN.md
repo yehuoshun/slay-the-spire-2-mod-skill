@@ -46,7 +46,7 @@
 
 ## 备份仓库同步流程
 
-> 备份仓库 = 主仓库 `references/` 的只读镜像 + 旧版归档（v1/v2/v3 目录）。主仓库是唯一创作源，archive 只做同步。
+> 备份仓库 = 主仓库 `references/` 的只读镜像 + 旧版归档（v1/v2/v3/v4 目录）。主仓库是唯一创作源，archive 只做同步。
 
 ```bash
 # 1. 克隆两个仓库（若本地没有）
@@ -54,8 +54,8 @@ git clone git@github.com:yehuoshun/slay-the-spire-2-mod-skill.git
 cd slay-the-spire-2-mod-skill-archive
 # 2. 整目录同步 references（缺的复制、内容变化的覆盖；⚠️ 必须排除 v*/ 归档目录，否则 --delete 会误删 v1-v4 旧版，历史教训：9dbbda8 误删）
 rsync -a --delete --exclude='v*/' ../slay-the-spire-2-mod-skill/references/ references/
-# 3. SKILL.md 同步（参考资料表变化要跟上）
-cp ../slay-the-spire-2-mod-skill/SKILL.md .
+# 3. 流程文档同步（SKILL.md + LEARN.md + LEARNED.md，参考资料表/流程变化要跟上；LEARN.md 含同步流程本身，必须同步否则 archive 里是旧流程）
+cp ../slay-the-spire-2-mod-skill/SKILL.md ../slay-the-spire-2-mod-skill/LEARN.md ../slay-the-spire-2-mod-skill/LEARNED.md .
 # 4. 不动 README.md —— archive 版是定制存档说明，不能覆盖
 # 5. commit + push
 git add -A
