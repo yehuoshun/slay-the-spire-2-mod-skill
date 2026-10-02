@@ -1,6 +1,11 @@
+---
+name: slay-the-spire-2-mod-skill
+description: 杀戮尖塔 2 纯原生 Mod 开发技能（零第三方依赖，只靠 0Harmony.dll + sts2.dll），覆盖卡牌/遗物/药水/能力/附魔/事件/先古之民/怪物/角色等 24 个模块，含硬规则、代码模板、API 速查、常见坑。开发 STS2 Mod、写游戏内容、查原生 API 签名、写 Harmony 补丁时使用。
+---
+
 # 杀戮尖塔 2 纯原生 Mod 开发 — AI 工作流
 
-> 🦞 零第三方依赖：只靠 `0Harmony.dll` + `sts2.dll`（含设置界面，纯原生方案见 settings.md）。
+> 🦞 零第三方依赖：只靠 `0Harmony.dll` + `sts2.dll`（含设置界面，纯原生方案见 [settings.md](references/settings/settings.md)）。
 
 ---
 
@@ -60,8 +65,6 @@ graph TD
 
 | 分类 | 文件 | 内容 |
 |------|------|------|
-| 分类 | 导航页 | 内容 |
-|------|--------|------|
 | `setup/` | [environment-setup.md](references/setup/environment-setup.md) | 环境/骨架/构建/CI/loader 全流程 |
 | `relic/` | [relic.md](references/relic/relic.md) | 遗物 |
 | `card/` | [card.md](references/card/card.md) | 卡牌 |
@@ -87,7 +90,7 @@ graph TD
 | `baselib/` | [design-patterns.md](references/baselib/design-patterns.md) | 纯原生设计模式总纲 |
 | `multiplayer/` | [multiplayer.md](references/multiplayer/multiplayer.md) | 多人模式 |
 
-> 完整文件级索引见 README.md 参考资料表。
+> 完整文件级索引见 [index.md](references/index.md)。
 
 ---
 
