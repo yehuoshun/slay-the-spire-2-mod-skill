@@ -45,17 +45,16 @@ public class VoidPile : CardPile
 }
 ```
 
-### 核心方法说明
+### 原生成员（真实存在）
 
-| 方法/属性 | 返回 | 说明 |
-|----------|------|------|
-| `CardShouldBeVisible` | `bool` | 卡牌是否在场上显示。true=可见（类似手牌），false=隐藏（类似弃牌堆） |
-| `NeedsCustomTransitionVisual` | `bool` | 是否需要自定义入场动画。false=用默认移动动画 |
-| `GetTargetPosition` | `Vector2` | 卡牌在堆中的渲染位置坐标 |
-| `GetNCard` | `NCard?` | 获取该牌的 Ncard 节点（可见堆需要实现） |
-| `CustomTween` | `bool` | 自定义动画。返回 true=已处理，false=走默认 |
-| `IconPath` | `string?` | 多牌堆选择界面显示的图标 |
-| `Name` | `LocString?` | 牌堆名称提示文本 |
+| 成员 | 说明 |
+|------|------|
+| `Type` | PileType（构造传入） |
+| `Cards` | 堆内卡牌列表 |
+| `IsEmpty` / `UpgradableCardCount` | 便捷属性 |
+| `ContentsChanged` / `CardAdded` / `CardRemoved` 事件 | 内容变更监听 |
+
+> ⚠️ **`CardShouldBeVisible`/`GetTargetPosition`/`GetNCard`/`CustomTween`/`NeedsCustomTransitionVisual`/`IconPath`/`Name` 是 BaseLib `CustomPile` 的成员，原生 `CardPile` 不存在**（旧版编造，已删）。纯原生自定义牌堆 = 自定义 PileType + `new CardPile(type)` + 内容管理走 `CardPileCmd`；可见堆/自定义动画需自己 Patch 牌堆 UI 节点。
 
 ## 注册
 

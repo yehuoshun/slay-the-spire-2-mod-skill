@@ -21,8 +21,10 @@ public interface ICustomEnergyIcon
 
 分隔符把 ModelId 编码进 `EnergyColorName`，Patch 端据此判断是否是自定义池。
 
+> ⚠️ **类名冲突**：游戏原生已有 `EnergyIconHelper`（`GetPrefix`/`GetPath`）。下方辅助类请**改名**（如 `ModEnergyIconCodec`），否则 CS0436 类型冲突。
+
 ```csharp
-public static class EnergyIconHelper
+public static class ModEnergyIconCodec
 {
     /// <summary>模型 ID 编码分隔符</summary>
     public const char Delimiter = '∴';
@@ -52,7 +54,7 @@ public class MyCardPool : CardPoolModel, ICustomEnergyIcon
     // EnergyColorName 必须是唯一值，不能和其他池撞
     // 用 EncodePoolId 确保唯一
     public override string EnergyColorName =>
-        EnergyIconHelper.EncodePoolId(Id);
+        ModEnergyIconCodec.EncodePoolId(Id);
 
     public string? BigIconPath =>
         "res://mymod/images/energy/my_energy_icon.png";

@@ -17,7 +17,7 @@ public static class CustomEnergyBigIconPatch
 {
     private static bool Prefix(string prefix, ref string __result)
     {
-        var pool = EnergyIconHelper.DecodePool<AbstractModel>(prefix);
+        var pool = ModEnergyIconCodec.DecodePool<AbstractModel>(prefix);
         if (pool is ICustomEnergyIcon { BigIconPath: string path })
         {
             __result = path;

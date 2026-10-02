@@ -4,7 +4,10 @@
 
 ```csharp
 using System.Collections.Generic;
+using MegaCrit.Sts2.Core.Map;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Random;
+using MegaCrit.Sts2.Core.Unlocks;
 
 public class MyAct : ActModel
 {
@@ -40,9 +43,20 @@ public class MyAct : ActModel
 
     // 先古之民列表（abstract 必填）
     public override IEnumerable<AncientEventModel> AllAncients => [];
+    public override IEnumerable<EventModel> AllEvents => [];
 
     // 遭遇（abstract 必填，见 monster 模块）
     public override IEnumerable<EncounterModel> GenerateAllEncounters() => [];
+
+    // 解锁（abstract 必填）
+    public override bool IsUnlocked(UnlockState unlockState) => true;
+    public override IEnumerable<AncientEventModel> GetUnlockedAncients(UnlockState state) =>
+        AllAncients;
+    protected override void ApplyActDiscoveryOrderModifications(UnlockState unlockState) { }
+
+    // 地图点类型（abstract 必填；无参构造不存在，需传值）
+    public override MapPointTypeCounts GetMapPointTypes(Rng mapRng) =>
+        new MapPointTypeCounts(0, 0);
 }
 ```
 

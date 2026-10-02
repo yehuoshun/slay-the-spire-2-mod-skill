@@ -11,26 +11,17 @@ using MegaCrit.Sts2.Core.Saves.Runs;
 
 public class FirstWinBadge : Badge
 {
-    // 构造函数（签名可能随版本不同）
     public FirstWinBadge(SerializableRun run, bool won, ulong playerId)
-        : base(run, won, playerId, "MYSKILL-FIRST_WIN", true, false) { }
+        : base(run, won, playerId, "MYSKILL-FIRST_WIN",
+            requiresWin: true, multiplayerOnly: false) { }
 
-    // 徽章 ID（唯一）
-    public override string Id => "MYSKILL-FIRST_WIN";
-
-    // 是否需要胜利才获得
-    public override bool RequiresWin => true;
-
-    // 是否仅多人模式
-    public override bool MultiplayerOnly => false;
-
-    // 稀有度（决定边框颜色）
+    // 稀有度（决定边框颜色）—— 唯一需要 override 的样式成员
     public override BadgeRarity Rarity => BadgeRarity.Gold;
 
     // 是否满足获得条件
     public override bool IsObtained()
     {
-        return _run.Completed; // 通关即可
+        return _won; // 通关即获得（Badge 自带字段，不要用 _run.Completed——不存在）
     }
 }
 ```
@@ -38,6 +29,10 @@ public class FirstWinBadge : Badge
 ## 必重写成员
 
 | 成员 | 类型 | 说明 |
+|------|------|------|
+| `Rarity` | `abstract BadgeRarity` | 稀有度（唯一 abstract 样式成员） |
+| `IsObtained()` | `abstract bool` | 获得条件 |
+| `Id`/`RequiresWin`/`MultiplayerOnly` | 普通属性 | **构造传入，非 virtual 不可 override** |
 |------|------|------|
 | `Id` | `string` | 全局唯一 ID，建议 `ModID-NAME` 格式 |
 | `RequiresWin` | `bool` | 是否必须通关才获得 |

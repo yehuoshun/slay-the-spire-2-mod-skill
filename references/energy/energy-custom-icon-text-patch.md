@@ -61,7 +61,7 @@ public static class CustomEnergyTextIconPatch
 
     private static string ResolveTextIcon(string prefix, string oldText)
     {
-        var pool = EnergyIconHelper.DecodePool<AbstractModel>(prefix);
+        var pool = ModEnergyIconCodec.DecodePool<AbstractModel>(prefix);
         if (pool is ICustomEnergyIcon { TextIconPath: string path })
             return $"[img]{path}[/img]"; // BBCode 图片标签
         return oldText;
