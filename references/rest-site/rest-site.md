@@ -28,4 +28,4 @@ RestSite 的每个操作是一个 `RestSiteOption` 子类。游戏原生有：
 | 选项不显示 | 检查 `room.AddRestSiteOption()` 是否调用 |
 | 图标不显示 | `IconPath` 返回空或路径错误 |
 | 选项点了没反应 | `OnOptionSelected` 回调未实现或抛出异常 |
-| 选项不触发你自定义的model | 检查 ModelId, 你要确保继承了 RestSiteOption
+| 选项不触发你自定义的model | 检查 ModelId, 你要确保继承了 RestSiteOption |

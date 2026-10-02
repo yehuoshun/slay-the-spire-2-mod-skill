@@ -51,7 +51,7 @@ ModHelper.AddModelToPool(typeof(SharedPotionPool), typeof(MyAoePotion));
 
 ## 进阶：纯原生自动注册
 
-> 从 BaseLib 提炼，零第三方依赖。仿照 design-patterns 模式1 的 `CardPoolAttribute`/`RelicPoolAttribute`，自定义 `PotionPoolAttribute` + ContentRegistry 反射扫描，免手动注册。框架完整代码见 [serialization.md](../serialization/serialization.md)「进阶：纯原生自动注册框架」。
+> 从 BaseLib 提炼，零第三方依赖。仿照 design-patterns 模式 1 的 `CardPoolAttribute`/`RelicPoolAttribute`，自定义 `PotionPoolAttribute` + ContentRegistry 反射扫描，免手动注册。框架完整代码见 [serialization.md](../serialization/serialization.md)「进阶：纯原生自动注册框架」。
 
 ```csharp
 [PotionPool(typeof(SharedPotionPool))]   // 标记进哪个药水池（attribute 需仿照 design-patterns 模式1 自定义）

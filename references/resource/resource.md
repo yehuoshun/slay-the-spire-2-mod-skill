@@ -27,4 +27,4 @@
 | 资源值不重置 | `StartOfTurnReset` 未被调用或实现不正确 |
 | 卡牌不显示资源费用 | 检查 `CustomResources<T>.SetCanonicalCost` 是否调了 |
 | UI 不显示 | 资源 UI 需要手动添加到战斗场景，或 Patch `ExtraCombatUi` |
-| 多人不同步 | 资源数据需同步；BaseLib 有 `SpireField`，纯原生可用 `PlayerCombatState` 扩展字段
+| 多人不同步 | 资源数据需同步；BaseLib 有 `SpireField`，纯原生可用 `PlayerCombatState` 扩展字段 |
