@@ -10,7 +10,7 @@
 |---------|---------|---------|----------------|---------|
 | [Alchyr/BaseLib-StS2](https://github.com/Alchyr/BaseLib-StS2) | 2026-08-28 | 2026-09-19 | v3.4.7（2026-09-11） | `references/baselib/`、`references/harmony/` 等全部模块的纯原生转译 |
 | [Alchyr/ModTemplate-StS2](https://github.com/Alchyr/ModTemplate-StS2) | 2026-09-19 | 2026-10-02 | 55ca2c6（2026-08-22，v2.5.1 后） | `references/setup/`（project-godot/mod-manifest/export-presets/template-pack/skeleton-build-targets 等） |
-| [YuWan886/Sts2-YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard) | 2026-10-02 | — | v0.5.12 / 324b396 | `references/realworld/`（真实 API 校验 + 多人/自定义稀有度/loader/Interop 模式） |
+| [YuWan886/Sts2-YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard) | 2026-10-02 | — | v0.5.12 / 324b396 | 融合进 card/power/relic/harmony/setup/serialization/baselib + 新建 `multiplayer/` 模块（真实 API 校验、多人、自定义稀有度、loader） |
 | [yehuoshun/STS2-ShunMod](https://github.com/yehuoshun/STS2-ShunMod) | 2026-09-19 | — | main 分支 | `references/setup/ci-build.md`（GitHub Actions 流水线） |
 | [godotengine/godot](https://github.com/godotengine/godot) | 2026-08-28 | — | 4.5.x 文档 | 环境搭建参考（Megadot 分支，非直接学习） |
 | 烟汐忆梦_YM 教程（B站） | 2026-08-28 | — | 9 篇 | 各模块入门（card/relic/potion/enchantment/event/power/character/monster） |

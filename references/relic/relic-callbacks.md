@@ -59,5 +59,25 @@ public static class IroncladStartingRelicsPatch
 
 ---
 
+## 数值 / 奖励修改钩子
+
+> 实战项目验证（YuWanCard 真实代码）。除事件钩子外，遗物还可覆写以下数值/奖励修改钩子。
+
+| 钩子 | 签名 | 说明 |
+|------|------|------|
+| `ModifyDamageMultiplicative` | `decimal ModifyDamageMultiplicative(decimal, Player)` | 伤害倍率（乘法） |
+| `ModifyBlockMultiplicative` | `decimal ModifyBlockMultiplicative(decimal, Player)` | 格挡倍率（乘法） |
+| `ModifyMaxEnergy` | `decimal ModifyMaxEnergy(Player, decimal)` | 修改最大能量（返回新值） |
+| `ModifyHandDraw` | `int ModifyHandDraw(Player, int)` | 修改抽牌数（返回新值） |
+| `ModifyRestSiteHealAmount` | `decimal ModifyRestSiteHealAmount(Player, decimal)` | 修改休息处回复量 |
+| `ModifyGoldGained` | `decimal ModifyGoldGained(Player, decimal)` | 修改金币获得量（返回修改后值） |
+| `ModifyPowerAmountGivenAdditive` | `decimal ModifyPowerAmountGivenAdditive(PowerModel, Creature, decimal, Creature?, CardModel?)` | 施加能力量加减 |
+| `ModifyPowerAmountGivenMultiplicative` | 同上 | 施加能力量乘除 |
+| `TryModifyRewards` | `bool TryModifyRewards(Rewards)` | 修改战斗奖励 |
+| `TryModifyCardRewardOptions` | `bool TryModifyCardRewardOptions(Player, List<CardCreationResult>, CardCreationOptions)` | 替换奖励卡牌 |
+| `AfterModifyingGoldGained` | `Task AfterModifyingGoldGained(Player, decimal)` | 金币修改后（触发副作用） |
+
+**金币修改防递归**：覆写 `ModifyGoldGained` 又想在 `AfterModifyingGoldGained` 里扣金币时，会触发递归（扣金币→再走 ModifyGoldGained）。加 `bool _modifyingGold` 守卫：`ModifyGoldGained` 里 `if (_modifyingGold) return amount;`，副作用执行时置位，finally 复位。
+
 实战代码片段见 [relic-patterns.md](relic-patterns.md）。
 

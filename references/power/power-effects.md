@@ -71,8 +71,15 @@ public class HopeRelicBuff : PowerModel, IHealModifier
 }
 ```
 
-| 字段 | 说明 |
-|------|------|
-| `name` | 能力名称 |
-| `description` | 普通简介文本 |
-| `smartDescription` | 带动态变量信息的介绍（支持 `{Amount}` 等变量） |
+| 字段 | 说明 | 动态变量 |
+|------|------|---------|
+| `name` | 能力名称 | — |
+| `description` | 图鉴/卡牌预览中的简介（规范模型） | ❌ 不支持（只能写静态文本） |
+| `smartDescription` | 战斗中生物身上的悬浮提示（实例化后） | ✅ 支持 `{Amount}` 及全部 CanonicalVars |
+| `remoteDescription` | 多人模式其他玩家视角的提示 | ✅ 支持动态变量 |
+
+**关键规则（实战验证）**：卡牌 `description` 会自动注入 `DynamicVars`（可用 `{Damage}`）；能力 `description` **不会**注入，只能用静态文本；动态值一律写 `smartDescription`。能力 `CanonicalVars` 里的变量只在 `smartDescription`/`remoteDescription` 可用。
+
+### smartDescription 隐式变量（无需定义即可用）
+
+`{Amount}`（当前层数）`{Duration}`（持续时间）`{OnPlayer}`（拥有者是否玩家）`{IsMultiplayer}` `{PlayerCount}` `{OwnerName}` `{ApplierName}`（可能为空）`{TargetName}`（可能为空）`{singleStarIcon}` `{energyPrefix}`

@@ -14,6 +14,7 @@
 | 跨平台路径自动检测 | [skeleton-paths.md](skeleton-paths.md) |
 | 构建、入口与角色资源 | [skeleton-build.md](skeleton-build.md) |
 | 进阶构建 Target（自动拷贝/导出/Publicizer） | [skeleton-build-targets.md](skeleton-build-targets.md) |
+| 多版本兼容（loader + 变体） | [loader-variants.md](loader-variants.md) |
 | dotnet new 模板打包 | [template-pack.md](template-pack.md) |
 
 ## 演进路线

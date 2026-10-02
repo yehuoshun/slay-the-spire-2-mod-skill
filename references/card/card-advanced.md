@@ -56,6 +56,25 @@ protected override async Task OnPlay(PlayerChoiceContext ctx, CardPlay play)
 public override bool GainsBlock => true;   // 该卡给格挡
 ```
 
+### 声明式关键字升级（实战项目验证）
+
+> YuWanCard 自研框架做法，思想可抄：升级行为在构造函数里声明，升级时统一处理，`OnUpgrade()` 只写额外逻辑。纯原生下在 `OnUpgrade()` 里按标记执行即可。
+
+```csharp
+// 声明式：立即添加 / 升级时添加 / 升级时移除
+AddKeyword(CardKeyword.Ethereal);                 // 始终存在
+// 升级时: AddKeyword(CardKeyword.Innate)
+// 升级时: RemoveKeyword(CardKeyword.Ethereal)
+
+// 升级统一入口（自研思路：遍历标记列表执行）
+protected override void OnUpgrade()
+{
+    // 关键字/费用变更在这里按声明执行，数值变更用 UpgradeValueBy
+}
+```
+
+配套：费用升级 `WithCostUpgradeBy(-1)` 声明，升级时 `EnergyCost.UpgradeBy(-1)`。
+
 自定义动态变量见 [card-variables.md](card-variables.md)。
 
 ### 注意

@@ -56,3 +56,34 @@ var field2 = typeof(ModelDb).GetField("_allCards",
 field2?.SetValue(null, null);
 ```
 
+---
+
+## 跨战斗持久化（卡牌多次打出）
+
+> 实战项目验证（YuWanCard）。「永久升级/累计次数」类卡牌的标准模式：`[SavedProperty]` 存数据 + `BaseReplayCount` 允许一回合多次打出 + `DeckVersion` 同步回牌组规范实例。
+
+```csharp
+public class MyCard : CardModel
+{
+    [SavedProperty]
+    public int MyPrefix_ReplayCount { get; set; }   // 属性名加模组前缀，避免冲突警告
+
+    static MyCard() { SavedPropertiesTypeCache.InjectTypeIntoCache(typeof(MyCard)); }
+
+    protected override void AfterDeserialized()
+    {
+        base.AfterDeserialized();
+        BaseReplayCount = MyPrefix_ReplayCount;   // 读档恢复
+    }
+
+    // OnPlay 里：效果后同步回牌组
+    if (DeckVersion is MyCard deckCard)
+    {
+        deckCard.MyPrefix_ReplayCount += 1;
+        deckCard.BaseReplayCount = deckCard.MyPrefix_ReplayCount;
+    }
+}
+```
+
+**要点**：`DeckVersion` 是牌组中的规范实例，改它才能跨战斗持久化（战斗内实例是副本）；`BaseReplayCount` 表示可额外打出次数。
+

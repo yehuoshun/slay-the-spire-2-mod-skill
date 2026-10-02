@@ -38,6 +38,19 @@ DamageCmd.Attack(<伤害值>)
 | `WithHitCount(int)` | 攻击次数 |
 | `Execute(PlayerChoiceContext?)` | 执行攻击，返回 Task，可用 await 等待结束后再执行后续 |
 
+### PowerCmd — 施加能力
+
+```csharp
+// 真实签名（silent 有默认值，可省略）
+await PowerCmd.Apply<T>(choiceContext, target, amount, applier, cardSource);
+// = Apply<T>(PlayerChoiceContext, Creature target, decimal amount, Creature? applier, CardModel? cardSource, bool silent = false)
+
+// 非泛型版（运行时才知道能力类型）：
+await PowerCmd.Apply(choiceContext, powerInstance, target, amount, applier, cardSource);
+```
+
+> ⚠️ 第一参必是 `PlayerChoiceContext`。无上下文（如遗物/修改器钩子里）用 `new ThrowingPlayerChoiceContext()`（实战项目 YuWanCard 真实用法）。
+
 ### 卡牌回调
 
 | 回调 | 触发时机 | 签名 |

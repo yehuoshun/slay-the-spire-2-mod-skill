@@ -42,6 +42,28 @@ power <目标> <能力ID> <层数>
 
 `目标` 为整数，单人游戏时 `0` 表示玩家角色。
 
+## 生命条预测（HealthBarForecast）
+
+> BaseLib v3.4.7 新方向（`OutwardFromCurrentHp` / `InwardFromMaxHp`）；实战项目 YuWanCard 已用。能力/遗物可实现预测段，在生命条上叠加显示（如中毒伤害、毁灭条）。
+
+```csharp
+// 能力实现 IHealthBarForecastSource，覆写 GetHealthBarForecastSegments
+public override IEnumerable<HealthBarForecastSegment> GetHealthBarForecastSegments(
+    HealthBarForecastContext context)
+{
+    if (context.Creature == Owner && Amount > 0)
+    {
+        yield return new HealthBarForecastSegment(
+            Amount,                                // 预测值
+            new Color(0.5f, 0.2f, 0.8f),          // 颜色
+            HealthBarForecastDirection.FromRight,  // 方向
+            Order: 0);                             // 排序
+    }
+}
+```
+
+毁灭条样式：`ShaderUtils.CreateDoomBarShaderMaterial(ShaderUtils.CreateVanillaDoomBarGradientTexture())` 作为第 5 参 `Material` 传入。
+
 ## 进阶：纯原生自动注册
 
 > 从 BaseLib 提炼，零第三方依赖。能力不进池，用 `[PowerModel]` attribute 标记 + ContentRegistry 统一 `ModelDb.Inject`。框架完整代码见 [serialization.md](../serialization/serialization.md)「进阶：纯原生自动注册框架」。

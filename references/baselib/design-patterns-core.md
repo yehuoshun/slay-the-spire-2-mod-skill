@@ -79,6 +79,14 @@ public class MyRelic : RelicModel { ... }
 - 错过时机用原生 `ModelDb.Inject(type)` 补救（只注册 ID，不关联池）
 - 池类型可在 Attribute 参数里动态指定，支持任意自定义池
 
+### 工程细节（实战项目验证）
+
+大型 mod 会把注册拆成「扫描 → 延迟 → 冻结」三阶段，防 Android 崩溃 + 防晚期注册：
+
+1. **安全扫描**：`GetTypes()` 包 try-catch（`ReflectionTypeLoadException`，Android/Mono 常见），坏类型跳过
+2. **延迟注册**：`[Pool]` 立即 `AddModelToPool`；事件/先古/球/怪/附魔/单例/角色等先收集到静态集合，`ModelDb.Init` 阶段（Harmony Patch 内）再建规范实例注册（`CustomEventRegistry` 等）
+3. **冻结**：`Freeze()` 后所有晚期 `AddModel` 变 no-op + 警告——防止 `ModelDb.Init` 之后的意外注册污染
+
 ### 基类注解继承（学自 ModTemplate-StS2，推荐写法）
 
 > [Pool] 标在抽象基类上，子类继承自动进池 → [design-patterns-pooling.md](design-patterns-pooling.md)
