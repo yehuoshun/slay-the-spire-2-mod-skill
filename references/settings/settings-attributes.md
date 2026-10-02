@@ -1,163 +1,124 @@
-# 设置界面：Attribute、示例与本地化
+# 设置界面：UI 生成与主菜单注入
 
-## 支持的属性类型
+> 纯原生方案。灵感来源：BaseLib `NModConfigSubmenu`。
 
-| 类型 | 生成的 UI | 说明 |
-|------|----------|------|
-| `bool` | 开关（Toggle） | 勾选框 |
-| `int` / `float` / `double` | 滑块（Slider） | 加 `[ConfigSlider]` 指定范围 |
-| `string` | 输入框（LineEdit） | 加 `[ConfigTextInput]` 限制输入 |
-| `Color` | 颜色选择器 | 点选颜色 |
-| 枚举 | 下拉菜单（Dropdown） | 自动生成选项 |
+## 1. 自研子菜单（继承游戏原生 NSubmenu）
 
----
-
-## 属性 Attribute
-
-### [ConfigSection] — 分组
+反射遍历配置属性，按 [ConfigSection] 分组动态生成控件（bool→CheckButton，double→HSlider+数值）：
 
 ```csharp
-[ConfigSection("GeneralSettings")]
-public static bool Option1 { get; set; } = true;
-
-[ConfigSection("AdvancedSettings")]
-public static bool Option2 { get; set; } = false;
-```
-
-#### CollapsedByDefault — 默认折叠
-
-```csharp
-// 该分组默认折叠，玩家需要手动展开
-[ConfigSection("AdvancedSettings", CollapsedByDefault = true)]
-public static bool SecretOption { get; set; } = false;
-```
-
-适用于不常用的高级选项首次进入设置时默认折叠，保持界面整洁。
-
-> BaseLib v3.4.7 新增。需游戏重启后在设置面板查看效果，首次打开配置界面时才会读取该属性。
-
-### [ConfigSlider] — 滑块范围
-
-```csharp
-[ConfigSlider(1, 64)]           // 最小值 1，最大值 64，步长 1
-public static int SfxPlayerLimit { get; set; } = 16;
-
-[ConfigSlider(0.0, 1.0, 0.1)]  // 步长 0.1
-public static double Volume { get; set; } = 0.8;
-```
-
-### [ConfigButton] — 按钮
-
-```csharp
-[ConfigButton("SaveNow")]
-public static void OnSaveButton(ModConfig config)
-{
-    config.Save();
-}
-```
-
-### [ConfigHideInUI] — 隐藏
-
-```csharp
-[ConfigHideInUI]
-public static int InternalCounter { get; set; } = 0;
-```
-
-### [ConfigVisibleIf] — 条件显示
-
-```csharp
-public static bool EnableExtraOptions { get; set; } = false;
-
-// 只有 EnableExtraOptions 为 true 时才显示
-[ConfigVisibleIf(nameof(EnableExtraOptions))]
-public static bool ExtraOption { get; set; } = true;
-
-// 枚举条件
-public enum Mode { Basic, Advanced }
-public static Mode CurrentMode { get; set; } = Mode.Basic;
-
-[ConfigVisibleIf(nameof(CurrentMode), Mode.Advanced)]
-public static float AdvancedValue { get; set; } = 0f;
-```
-
-### [ConfigIgnore] — 完全忽略
-
-```csharp
-[ConfigIgnore]
-public static int NotConfig { get; set; } = 0; // 不保存，不显示
-```
-
-### [ConfigIgnoreRestoreDefaults] — 忽略恢复默认
-
-```csharp
-[ConfigIgnoreRestoreDefaults]
-public static int PersistentState { get; set; } = 0;
-```
-
-### [ConfigTextInput] — 输入限制
-
-```csharp
-[ConfigTextInput(MaxLength = 1024)]
-public static string LongText { get; set; } = "";
-
-[ConfigTextInput(TextInputPreset.Alphanumeric)]
-public static string Code { get; set; } = "";
-```
-
-### [ConfigColorPicker] — 颜色选择器
-
-```csharp
-[ConfigColorPicker(EditAlpha = true)]
-public static Color AccentColor { get; set; } = new(1f, 0.5f, 0.2f);
-```
-
----
-
-## 完整示例
-
-```csharp
-using BaseLib.Config;
 using Godot;
+using System.Reflection;
+using MegaCrit.Sts2.Core.Nodes.Screens.MainMenu;
 
-[ConfigHoverTipsByDefault]
-public class MyModConfig : SimpleModConfig
+public partial class NModConfigSubmenu : NSubmenu
 {
-    [ConfigSection("Gameplay")]
-    public static bool EnableExtraRelics { get; set; } = true;
+    private VBoxContainer _content = null!;
+    protected override Control? InitialFocusedControl => _content;
 
-    [ConfigSlider(1, 10)]
-    public static int ExtraRelicCount { get; set; } = 3;
+    public override void _Ready()
+    {
+        base._Ready();
+        BuildUI();
+    }
 
-    [ConfigSection("UI")]
-    public static bool ShowDamagePreview { get; set; } = true;
+    private void BuildUI()
+    {
+        _content = new VBoxContainer { CustomMinimumSize = new Vector2(600, 400) };
+        var scroll = new ScrollContainer();
+        scroll.AddChild(_content);
+        AddChild(scroll);
 
-    [ConfigColorPicker]
-    public static Color HighlightColor { get; set; } = new(1f, 0.8f, 0.2f);
+        string? currentSection = null;
+        foreach (var prop in typeof(MyModConfig).GetProperties())
+        {
+            var sectionAttr = prop.GetCustomAttribute<ConfigSectionAttribute>();
+            if (sectionAttr != null && sectionAttr.Name != currentSection)
+            {
+                currentSection = sectionAttr.Name;
+                _content.AddChild(new Label { Text = $"[b]{currentSection}[/b]" });
+            }
 
-    [ConfigHideInUI]
-    public static int InternalVersion { get; set; } = 1;
+            if (prop.PropertyType == typeof(bool))
+            {
+                var check = new CheckButton
+                {
+                    Text = prop.Name,
+                    ButtonPressed = (bool)prop.GetValue(null)!,
+                };
+                check.Toggled += on => prop.SetValue(null, on);
+                _content.AddChild(check);
+            }
+            else if (prop.PropertyType == typeof(double))
+            {
+                var attr = prop.GetCustomAttribute<ConfigSliderAttribute>() ?? new();
+                var slider = new HSlider
+                {
+                    MinValue = attr.Min, MaxValue = attr.Max, Step = attr.Step,
+                    Value = (double)prop.GetValue(null)!,
+                };
+                slider.ValueChanged += v => prop.SetValue(null, v);
+                _content.AddChild(slider);
+            }
+        }
+
+        var save = new Button { Text = "Save & Close" };
+        save.Pressed += () => { ModConfigStorage.Save(); Visible = false; };
+        _content.AddChild(save);
+    }
 }
-
-// 注册
-ModConfigRegistry.Register("MyMod", new MyModConfig());
 ```
 
----
+## 2. 注册进主菜单（两个 Harmony Patch）
 
-## 本地化
+```csharp
+using Godot;
+using HarmonyLib;
+using MegaCrit.Sts2.Core.Nodes.GodotExtensions;      // NClickableControl
+using MegaCrit.Sts2.Core.Nodes.Screens.MainMenu;
 
-路径：`res://<模组ID>/localization/<语言代码>/settings_ui.json`
+[HarmonyPatch(typeof(NMainMenuSubmenuStack), nameof(NMainMenuSubmenuStack.GetSubmenuType), typeof(Type))]
+public static class InjectModConfigSubmenuPatch
+{
+    public static bool Prefix(NMainMenuSubmenuStack __instance, Type type, ref NSubmenu __result)
+    {
+        if (type != typeof(NModConfigSubmenu)) return true;
+        var menu = new NModConfigSubmenu { Visible = false };
+
+        __instance.AddChild(menu);
+        __result = menu;
+        return false;   // 跳过原生查找
+    }
+}
+
+[HarmonyPatch(typeof(NMainMenu), nameof(NMainMenu._Ready))]
+public static class InjectMainMenuButtonPatch
+{
+    public static void Postfix(NMainMenu __instance)
+    {
+        var settingsButton = __instance.GetNodeOrNull<NMainMenuTextButton>(
+            "MainMenuTextButtons/SettingsButton");
+        if (settingsButton == null) return;
+
+        var modButton = (NMainMenuTextButton)settingsButton.Duplicate();
+        modButton.Name = "ModConfigButton";
+        modButton.Connect(NClickableControl.SignalName.Released, Callable.From(
+            new Action<NButton>(_ => __instance.SubmenuStack.PushSubmenuType<NModConfigSubmenu>())));
+        settingsButton.AddSibling(modButton);
+        modButton.SetLocalization("MYMOD-MOD_CONFIGURATION");
+    }
+}
+```
+
+## 3. 本地化
+
+按钮文字：`SetLocalization(key)` 查 **main_menu_ui** 表（`LocString("main_menu_ui", key)`），mod 本地化文件加：
 
 ```json
-{
-  "MYMOD-MY_TOGGLE.title": "我的开关",
-  "MYMOD-MY_SLIDER.title": "滑块值",
-  "MYMOD-GENERAL_SETTINGS.title": "通用设置",
-  "MYMOD-ADVANCED_SETTINGS.title": "高级设置",
-  "MYMOD-ENABLE_EXTRA_OPTIONS.title": "启用额外选项",
-  "MYMOD-EXTRA_OPTION.title": "额外选项"
-}
+{ "MYMOD-MOD_CONFIGURATION": "模组设置" }
 ```
 
-键格式：`<MODID大写>-<属性名大写>.title`
+## 要点
 
+- `NSubmenu` 必须实现 `InitialFocusedControl`；按钮路径 `MainMenuTextButtons/SettingsButton`
+- 复制按钮继承 Settings 样式，只改 Name + 信号 + 本地化键；`GetNodeOrNull` 判重防重复注入

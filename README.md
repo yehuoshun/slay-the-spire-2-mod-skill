@@ -45,7 +45,7 @@
 | `harmony/` | [harmony.md](references/harmony/harmony.md) | Harmony 补丁模式（PatchCategory、安全、组织规范） |
 | `harmony/` | [harmony-custom-power-sfx.md](references/harmony/harmony-custom-power-sfx.md) | Transpiler 实战：自定义能力音效（零第三方依赖） |
 | `serialization/` | [serialization.md](references/serialization/serialization.md) | 序列化与注册（ModelDb、SavedProperty、InjectTypeIntoCache） |
-| `settings/` | [settings.md](references/settings/settings.md) | 设置界面（BaseLib SimpleModConfig、Attribute、本地化） |
+| `settings/` | [settings.md](references/settings/settings.md) | 设置界面（纯原生：Attribute + ConfigFile + NSubmenu UI + 主菜单注入） |
 | `baselib/` | [design-patterns.md](references/baselib/design-patterns.md) | 纯原生设计模式总纲（从 BaseLib 提炼，零第三方依赖） |
 | `multiplayer/` | [multiplayer.md](references/multiplayer/multiplayer.md) | 多人模式（约束、身份检查、网络消息） |
 

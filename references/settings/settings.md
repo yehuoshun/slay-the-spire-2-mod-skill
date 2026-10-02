@@ -1,39 +1,36 @@
-# 设置界面（ModConfig）
+# 设置界面（ModConfig）— 纯原生方案
 
-> ⚠️ **本模块是整库唯一允许的第三方依赖（BaseLib）。**
-> 设置界面（玩家可调的 mod 选项 UI）纯原生需手写整个 Godot UI（控件/双向绑定/持久化），成本极高且不属于玩法核心（卡牌/遗物/能力才是）。多次纯原生自建测试均出现大量 bug，故此处明确允许使用 BaseLib 的 `SimpleModConfig`。
-> **不想装 BaseLib 的 mod，设置界面直接不做也不影响运行。**
-
-> 参考：BaseLib 源码 `Config/` 目录
-
+> **2026-10-02 升级：本模块已从「BaseLib 例外」转正为纯原生方案**（零第三方依赖，真编译验证）。
+> 方案来源：精读 BaseLib `Config/` 源码（`SimpleModConfig`/`ModConfigRegistry`/`NModConfigSubmenu`）后提炼——核心思想是「静态属性 + Attribute 描述 + 反射动态生成 UI + 文件持久化」，全部用 Godot 原生控件与游戏原生 Patch 点实现。
 
 ## 章节导航
 
 | 内容 | 文件 |
 |------|------|
-| 基础使用 | [settings-core.md](settings-core.md) |
-| Attribute、示例与本地化 | [settings-attributes.md](settings-attributes.md) |
+| 配置声明与持久化 | [settings-core.md](settings-core.md) |
+| Attribute、UI 生成与主菜单注入 | [settings-attributes.md](settings-attributes.md) |
 
-## 概述
+## 方案组成
 
-BaseLib 提供了一套完整的设置界面系统。通过 `SimpleModConfig` + 属性 Attribute，自动生成配置 UI，无需手动写 Godot 控件。
+1. **声明**：静态类 + 自研 `[ConfigSection]`/`[ConfigSlider]`/`[ConfigIgnore]` Attribute 描述配置项
+2. **持久化**：Godot 原生 `ConfigFile` → `user://mod_configs/<ModId>/config.cfg`（首次运行用默认值）
+3. **UI**：继承游戏原生 `NSubmenu` 的自研子菜单，反射遍历属性动态生成 `CheckButton`（bool）/`HSlider`（double）+ 分组标题
+4. **注入**：`NMainMenuSubmenuStack.GetSubmenuType` Prefix 注册子菜单 + `NMainMenu._Ready` Postfix 复制 Settings 按钮加入主菜单
 
----
+> 可编译完整示例：`sts2-mod-examples/Sts2ModExamplesCode/Settings/`（ModConfig/NModConfigSubmenu/ModConfigPatches）。
 
 ## 常见问题
 
 | 问题 | 解决 |
 |------|------|
-| 设置不显示在菜单 | 检查 `ModConfigRegistry.Register` 是否调用 |
-| 属性不显示 UI | 检查类型是否支持（bool/slider/string/color/enum） |
-| 本地化不生效 | 检查 `settings_ui.json` 键格式 |
-| 条件显示不生效 | 检查 `[ConfigVisibleIf]` 目标属性名 |
-| 保存不生效 | 配置文件在 `user://mod_configs/<mod>.cfg` |
-
----
+| 设置不显示在菜单 | 检查 `GetSubmenuType` Patch 是否生效 + 按钮本地化键存在 |
+| 属性不显示 UI | 检查类型是否支持（bool→CheckButton，double→HSlider） |
+| 本地化不生效 | 按钮键放 `main_menu_ui` 表（`SetLocalization` 查该表） |
+| 保存不生效 | `ConfigFile.Save` 路径 `user://mod_configs/<ModId>/config.cfg`；加载在 ModEntry 初始化 |
+| 重复设置按钮 | `NMainMenu._Ready` Postfix 每次进主菜单都跑——用 `GetNodeOrNull` 判重 |
 
 ## 演进路线
 
-- 当前方案：BaseLib `SimpleModConfig` + Attribute 自动 UI
-- 纯原生方案：暂无成熟方案（需自建 Godot UI）
-- 第三方方案：ModConfig API（需额外依赖）
+- 旧方案：BaseLib `SimpleModConfig`（唯一第三方例外，已废弃）
+- **当前（2026-10-02）：纯原生方案**（自研 Attribute + ConfigFile + NSubmenu UI，真编译验证）
+- 后续：enum 下拉、颜色选择、条件显示（`[ConfigVisibleIf]`）可按需扩展

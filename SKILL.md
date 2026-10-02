@@ -1,7 +1,6 @@
 # 杀戮尖塔 2 纯原生 Mod 开发 — AI 工作流
 
-> 🦞 零第三方依赖：只靠 `0Harmony.dll` + `sts2.dll`。
-> 唯一例外：设置界面用 BaseLib（见 settings.md）。
+> 🦞 零第三方依赖：只靠 `0Harmony.dll` + `sts2.dll`（含设置界面，纯原生方案见 settings.md）。
 
 ---
 
@@ -10,7 +9,7 @@
 ### 一、写前必读
 1. 写代码前必须读 references 对应模式文件（`xx.md` 为导航页，含**章节导航表**；按需读对应子文件 `xx-*.md`），完整读完，不准凭训练数据记忆写
 2. 写代码前必须查 API 签名：`grep -rn "方法名" sts2-res/src/` 确认参数类型和顺序
-3. 不准复制外部 mod 源码，只准用 references 模板 + 原生 `sts2.dll` API（设置界面除外，可用 BaseLib `SimpleModConfig`）
+3. 不准复制外部 mod 源码，只准用 references 模板 + 原生 `sts2.dll` API
 
 ### 二、代码规范
 4. 所有模型类必须注册（二选一，不混用）：① 自定义 `[XxxPool]`/`[XxxModel]` Attribute + 扫描自动注册；② 手动 `ModHelper.AddModelToPool` / `ModelDb.Inject`
@@ -89,7 +88,7 @@ graph TD
 | `harmony/` | [harmony.md](references/harmony/harmony.md) | Harmony 补丁模式（PatchCategory、安全、组织规范） |
 | `harmony/` | [harmony-custom-power-sfx.md](references/harmony/harmony-custom-power-sfx.md) | Transpiler 实战：自定义能力音效（零第三方依赖） |
 | `serialization/` | [serialization.md](references/serialization/serialization.md) | 序列化与注册（ModelDb、SavedProperty、InjectTypeIntoCache） |
-| `settings/` | [settings.md](references/settings/settings.md) | 设置界面（BaseLib SimpleModConfig、Attribute、本地化） |
+| `settings/` | [settings.md](references/settings/settings.md) | 设置界面（纯原生：Attribute + ConfigFile + NSubmenu UI + 主菜单注入） |
 | `baselib/` | [design-patterns.md](references/baselib/design-patterns.md) | 纯原生设计模式总纲（从 BaseLib 提炼，零第三方依赖） |
 | `multiplayer/` | [multiplayer.md](references/multiplayer/multiplayer.md) | 多人模式（约束、身份检查、网络消息） |
 
