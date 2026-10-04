@@ -7,6 +7,7 @@
 | 内容 | 文件 |
 |------|------|
 | 约束、身份检查与网络消息 | [multiplayer-core.md](multiplayer-core.md) |
+| 网络行动、阶段门控与交互状态防护 | [multiplayer-netactions.md](multiplayer-netactions.md) |
 
 ## 概述
 
@@ -23,6 +24,8 @@
 | 问题 | 解决 |
 |------|------|
 | 多人下效果执行多次 | 副作用没包 `LocalContext.IsMe` |
+| 非玩家操作阶段误触发交互 | 用 `ActionQueueSynchronizer.CombatState == PlayPhase` 门控 |
+| 交互对已移除模型重复执行 | 执行后复查 `HasBeenRemovedFromState` / `Owner` 集合 |
 | 跨端数据不同步 | 用 `INetMessage` + `NetTransferMode.Reliable` 定向发送 |
 | 卡牌只在单人/多人出现 | 覆写 `MultiplayerConstraint` |
 | 对方看能力描述乱 | 补 `remoteDescription` 字段 |
@@ -30,4 +33,5 @@
 ## 演进路线
 
 - 2026-10-02 新增本模块（学自 YuWanCard 多人实现）
+- 2026-10-04 增量：网络行动/阶段门控/交互状态防护 → [multiplayer-netactions.md](multiplayer-netactions.md)
 - 后续：角色多人起始遗物、多人专属内容注册可继续补充

@@ -41,7 +41,9 @@
 | `energy/` | [energy.md](energy/energy.md) | 自定义能量（图标、类型、视觉效果） |
 | `harmony/` | [harmony.md](harmony/harmony.md) | Harmony 补丁模式（PatchCategory、安全、组织规范） |
 | `harmony/` | [harmony-custom-power-sfx.md](harmony/harmony-custom-power-sfx.md) | Transpiler 实战：自定义能力音效（零第三方依赖） |
+| `harmony/` | [harmony-transpiler.md](harmony/harmony-transpiler.md) | Transpiler：泛型 operand 结构匹配、自定义 comparer 确定性排序 |
 | `serialization/` | [serialization.md](serialization/serialization.md) | 序列化与注册（ModelDb、SavedProperty、InjectTypeIntoCache、自动注册框架） |
 | `settings/` | [settings.md](settings/settings.md) | 设置界面（纯原生：Attribute + ConfigFile 持久化 + NSubmenu UI + 主菜单注入） |
 | `baselib/` | [design-patterns.md](baselib/design-patterns.md) | 纯原生设计模式总纲（从 BaseLib 提炼，零第三方依赖） |
 | `multiplayer/` | [multiplayer.md](multiplayer/multiplayer.md) | 多人模式（约束声明、身份检查、网络消息） |
+| `multiplayer/` | [multiplayer-netactions.md](multiplayer/multiplayer-netactions.md) | 网络行动（GameAction/INetAction）、阶段门控、交互状态防护 |

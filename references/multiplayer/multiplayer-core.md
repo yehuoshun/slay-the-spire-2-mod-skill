@@ -68,3 +68,5 @@ public struct MyMessage : INetMessage, IPacketSerializable, IRunLocationTargeted
 - **角色**：`MultiplayerStartingRelics` 指定多人初始遗物
 - **能力本地化**：`remoteDescription` 字段（多人对方玩家视角，支持动态变量；单人忽略）
 - **战斗结束判定**：循环效果每轮检查 `CombatManager.Instance?.IsEnding != false` 提前 break，防结算后效果继续跑报错
+
+> 自定义网络行动（`GameAction`/`INetAction`）、PlayPhase 门控、交互状态防护 → [multiplayer-netactions.md](multiplayer-netactions.md)

@@ -10,6 +10,7 @@
 |------|------|
 | 基础 Patch 类型与参数 | [harmony-basics.md](harmony-basics.md) |
 | PatchCategory 与安全模式 | [harmony-patches.md](harmony-patches.md) |
+| Transpiler：泛型匹配与确定性排序 | [harmony-transpiler.md](harmony-transpiler.md) |
 | 组织方式与常用目标 | [harmony-guide.md](harmony-guide.md) |
 | Transpiler 实战：自定义能力音效（导航） | [harmony-custom-power-sfx.md](harmony-custom-power-sfx.md) |
 | ├ 接口 + Transpiler | [harmony-custom-power-sfx-core.md](harmony-custom-power-sfx-core.md) |
@@ -30,6 +31,7 @@ Harmony 是 STS2 模组开发的必需品。几乎所有自定义效果都要通
 | 找不到目标方法 | 使用 `AccessTools.TypeByName()`（或自研 RuntimeTypeResolver 封装）反射查找 |
 | 类型不匹配 | 用 `AccessTools` 而非直接写类型 |
 | Postfix 修改返回值无效 | 参数声明为 `ref int __result` |
+| Transpiler 匹配不到泛型调用 | operand 是闭合实例，按 `DeclaringType.GetGenericTypeDefinition()` 结构判定 |
 | 多人模式下崩溃 | 用 `MultiplayerSafety` 检查后再 Patch |
 
 ---

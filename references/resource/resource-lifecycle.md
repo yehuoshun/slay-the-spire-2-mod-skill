@@ -97,6 +97,32 @@ if (mana.Amount >= 2)
 }
 ```
 
+## 自定义图标预加载（防战斗中丢图）
+
+游戏的运行期预加载列表由 `PreloadManager.GetRunAssetPaths`（**private static**，在 `MegaCrit.Sts2.Core.Assets`）生成：卡牌走 `CardModel.RunAssetPaths`（虚属性 `ExtraRunAssetPaths` 可覆写）、卡池走 `CardPoolModel.EnergyIconPath`、角色走 `CharacterModel.AssetPaths`。**能力的图标不在此列**（原生按 Id 约定路径推导），所以用非常规路径的自定义图标，战斗中可能加载失败/显示占位图。
+
+补法：Postfix 把自定义图标路径并进返回值。
+
+```csharp
+[HarmonyPatch(typeof(PreloadManager), "GetRunAssetPaths")]   // private → 用字符串名
+static class CustomIconPreloadPatch
+{
+    [HarmonyPostfix]
+    static void AddCustomIcons(ref IEnumerable<string> __result)
+        => __result = __result.Concat(GetCustomIconPaths()).Distinct(StringComparer.Ordinal);
+
+    private static IEnumerable<string> GetCustomIconPaths()
+    {
+        foreach (PowerModel p in ModelDb.AllPowers)          // 遍历自定义能力，取自研图标属性
+            if (p is IHasCustomIcon ic) yield return ic.PackedIconPath;
+        foreach (CardPoolModel pool in ModelDb.AllCardPools)
+            yield return pool.EnergyIconPath;
+    }
+}
+```
+
+> `ModelDb.AllPowers` / `ModelDb.AllCardPools` 可直接枚举；`Distinct` 去重避免与原生路径重复。`IHasCustomIcon` 为自研接口（原生 `PowerModel` 无自定义图标属性）。
+
 ## 参见
 
 - [resource-core.md](resource-core.md) — 资源基类

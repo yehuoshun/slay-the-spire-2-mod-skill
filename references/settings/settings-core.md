@@ -82,4 +82,6 @@ public static class ModConfigStorage
 
 `ModEntry.Initialize` 里调用一次 `ModConfigStorage.Load()`；UI 修改后 `Save()`（也可在改值回调里即时保存）。
 
+> ⚠️ **延迟/异步注册配置**（等初始化之后、游戏 UI 就绪时再挂）必须同时确认本地化管理器已就绪：`if (MainFile.Config == null || LocManager.Instance == null) return;`。`LocManager.Instance` 初值为 `null`，早于它就绪注册会拿不到本地化串，配置项显示为 key。`LocManager` 在 `MegaCrit.Sts2.Core.Localization`。
+
 > Attribute 定义与 UI 生成 → [settings-attributes.md](settings-attributes.md)
