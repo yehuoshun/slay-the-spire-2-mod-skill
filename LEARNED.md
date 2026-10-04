@@ -1,6 +1,6 @@
 # 已学仓库登记（LEARNED）
 
-> 防止重复 clone 上游仓库扫代码。**学习新仓库前先查本表**，学过的只跟进增量（git fetch + diff），不重扫。
+> 防止重复 clone 上游仓库扫代码。**学习/增量扫描前先查这两个表**：`学习登记表` = 活跃仓库（只跟进增量 git fetch + diff，不重扫）；`非活跃来源` = 不扫描（直接跳过，防浪费时间）。
 
 ---
 
@@ -12,8 +12,17 @@
 | [Alchyr/ModTemplate-StS2](https://github.com/Alchyr/ModTemplate-StS2) | 2026-09-19 | 2026-10-02 | 55ca2c6（2026-08-22，v2.5.1 后） | `references/setup/`（project-godot/mod-manifest/export-presets/template-pack/skeleton-build-targets 等） |
 | [YuWan886/Sts2-YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard) | 2026-10-02 | 2026-10-04 | 08165915（v0.5.12 后，2026-10-04） | 融合进 card/power/relic/harmony/setup/serialization/baselib + 新建 `multiplayer/` 模块（真实 API 校验、多人、自定义稀有度、loader）。**10-04 增量**：`multiplayer/multiplayer-netactions.md`（网络行动/PlayPhase 门控/交互状态防护）+ `harmony/harmony-transpiler.md`（泛型 operand 结构匹配、确定性排序）+ `resource-lifecycle.md` 图标预加载 + `settings-core.md` LocManager 就绪门控 |
 | [yehuoshun/STS2-ShunMod](https://github.com/yehuoshun/STS2-ShunMod) | 2026-09-19 | — | main 分支 | `references/setup/ci-build.md`（GitHub Actions 流水线） |
-| [godotengine/godot](https://github.com/godotengine/godot) | 2026-08-28 | — | 4.5.x 文档 | 环境搭建参考（Megadot 分支，非直接学习） |
-| 烟汐忆梦_YM 教程（B站） | 2026-08-28 | — | 9 篇 | 各模块入门（card/relic/potion/enchantment/event/power/character/monster） |
+
+---
+
+## 非活跃来源（不参与增量扫描）
+
+> 仅作历史来源登记，**一律不做 git fetch / 增量扫描**（无跟进价值 / 非仓库形式）。查表时看到它们 = 已学，直接跳过，别再花时间扫。
+
+| 来源 | 首次学习 | 学到版本 | 学习产出 |
+|------|---------|---------|---------|
+| [godotengine/godot](https://github.com/godotengine/godot) | 2026-08-28 | 4.5.x 文档 | 环境搭建参考（Megadot 分支，非直接学习） |
+| 烟汐忆梦_YM 教程（B站） | 2026-08-28 | 9 篇 | 各模块入门（card/relic/potion/enchantment/event/power/character/monster） |
 
 ---
 
@@ -21,11 +30,18 @@
 
 在「读内容」之前，先：
 
-1. **查本表** — 目标仓库/教程是否已登记
-2. **已登记** → 只跟进增量：
+1. **查表** — 目标仓库/教程是否已登记：
+   - 命中「非活跃来源」→ 已学，直接跳过（不扫）
+   - 命中「学习登记表」→ 走第 2 步
+   - 都没命中 → 走第 3 步
+2. **已登记（活跃）** → 只跟进增量：
    - `git fetch` 上游，对比上次学到版本 → 只学新增 commit
    - 参考上次产出文件，判断哪些 references 需要更新
 3. **未登记** → 完整学习 + 学完登记本表（仓库名 + 日期 + 版本 + 产出）
+
+> ⚠️ 增量扫描只针对「学习登记表」里的活跃仓库。「非活跃来源」列在这里就是为了**防止扫描扫到它们浪费时间**。
+
+---
 
 ## 登记规范
 
