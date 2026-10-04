@@ -2,6 +2,8 @@
 
 > 实战验证（YuWanCard 2026-10-04 增量：序列化缓存去重排序补丁）。
 
+> ⚠️ 命名空间：**`OpCodes` 在 `System.Reflection.Emit`**（Harmony 2.x 的 `CodeInstruction.opcode` 是 `System.Reflection.Emit.OpCode`，**不是** Mono.Cecil），`CodeInstruction`/`HarmonyPatch`/`AccessTools` 在 `HarmonyLib`。写 `using Mono.Cecil.Cil;` 会报 CS0122 `OpCodes is inaccessible`（2026-10-04 CI 真实报错、已回流）。
+
 ## 1. 匹配泛型方法：用结构判定，别用引用相等
 
 定位"要替换的调用"时，**不要**拿 `AccessTools.Method` 的 `MethodInfo` 去和指令 `operand` 比引用：

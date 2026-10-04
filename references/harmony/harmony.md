@@ -32,6 +32,7 @@ Harmony 是 STS2 模组开发的必需品。几乎所有自定义效果都要通
 | 类型不匹配 | 用 `AccessTools` 而非直接写类型 |
 | Postfix 修改返回值无效 | 参数声明为 `ref int __result` |
 | Transpiler 匹配不到泛型调用 | operand 是闭合实例，按 `DeclaringType.GetGenericTypeDefinition()` 结构判定 |
+| Transpiler 报 `OpCodes` 不存在/不可访问 | 补 `using System.Reflection.Emit;`（**不是** Mono.Cecil；CodeInstruction.opcode 用 System 的 OpCode） |
 | 多人模式下崩溃 | 用 `MultiplayerSafety` 检查后再 Patch |
 
 ---
