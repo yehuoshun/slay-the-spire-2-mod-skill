@@ -1,6 +1,6 @@
 # 自定义卡牌：增幅（Amplify/Kicker）系统
 
-> 实战验证（STS2_MarisaMod 2026-10-05）。增幅 = 多付额外费用换更强效果（如 Master Spark：1 费打 8，增幅共 2 费打 15）。纯原生：基类 + 3 个 Harmony Patch，零 BaseLib 依赖。
+> 实战验证（STS2_MarisaMod 2026-10-05）。增幅 = 多付额外费用换更强效果（如 Master Spark：1 费打 8，增幅共 2 费打 15）。纯原生：基类 + 3 个 Harmony Patch。
 
 ## 1. 基类设计（费用结算 + 状态）
 ```csharp
@@ -8,7 +8,7 @@ public abstract class AmplifiedCard(int baseCost, int kickerCost, CardType type,
     : CardModel(baseCost, type, rarity, target)
 {
     public int KickerCost { get; } = kickerCost;          // 增幅额外费用
-    public bool AmplifiedInPlay { get; protected set; }   // 本次打出是否增幅（OnPlay 时定稿）
+    public bool AmplifiedInPlay { get; protected set; }   // 本次打出是否增幅
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
         base.CanonicalVars.Concat([new EnergyVar(KickerCost)]);  // 费用标签显示
@@ -25,13 +25,13 @@ public abstract class AmplifiedCard(int baseCost, int kickerCost, CardType type,
 
     protected override async Task OnPlay(PlayerChoiceContext ctx, CardPlay cardPlay)
     {
-        AmplifiedInPlay = cardPlay.IsAutoPlay || /* 由费用 Patch 置位的标记 */;
+        AmplifiedInPlay = cardPlay.IsAutoPlay || /* 费用 Patch 置位标记 */;
         // 效果里用 AmplifiedInPlay 分支选伤害/数值
     }
 }
 ```
 
-> ⚠️ 关键：**不改 `EnergyCost` 字段**，只改 `GetAmountToSpend` 的返回值。`EnergyCost.AddThisCombat` 改的是模型状态，多人/重进战斗会残留；返回值的方案打完即清零（`AfterCardPlayed` 里重置 `PaidAmplifiedCost = false`）。
+> ⚠️ 关键：**不改 `EnergyCost` 字段**，只改 `GetAmountToSpend` 返回值。`AddThisCombat` 改模型状态，多人/重进战斗会残留；返回值方案打完即清零（`AfterCardPlayed` 重置 `PaidAmplifiedCost`）。
 
 ## 2. 三个必需 Patch（费用 → 标签 → 高亮）
 
@@ -93,11 +93,11 @@ static class HoverRefreshPatch
 // 新悬停卡同样刷新。事件签名 Action<ulong>（玩家 NetId）。
 ```
 
-> `HoveredModelTracker` 在 `MegaCrit.Sts2.Core.Multiplayer.Game.PeerInput`（已用 sts2-res 验证）。
+> `HoveredModelTracker` 在 `MegaCrit.Sts2.Core.Multiplayer.Game.PeerInput`。
 
 ## 4. 超脱卡（Transcendence）
 
-BaseLib 有 `ITranscendenceCard` 接口（`GetTranscendenceTransformedCard()`，配合原版遗物 ArchaicTooth 把基础卡进化）。**纯原生无此接口**，等价做法 = Patch `ArchaicTooth.GetTranscendenceStarterCard` / `GetTranscendenceTransformedCard`（Prefix，返回 null/自定义卡时 return false）。
+BaseLib 有 `ITranscendenceCard`（`GetTranscendenceTransformedCard()`，配合原版遗物 ArchaicTooth 把基础卡进化）。**纯原生无此接口**，等价 = Patch `ArchaicTooth.GetTranscendenceStarterCard` / `GetTranscendenceTransformedCard`（Prefix 返回自定义卡时 return false）。
 
 ## 5. 常见坑
 
