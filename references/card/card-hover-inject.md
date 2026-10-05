@@ -7,7 +7,7 @@
 > 卡牌/遗物/药水可用 `ExtraHoverTips` 追加悬停提示，`HoverTipFactory`（sts2-res 已验证）提供工厂：
 
 ```csharp
-public override IEnumerable<IHoverTip> ExtraHoverTips =>
+protected override IEnumerable<IHoverTip> ExtraHoverTips =>
     base.ExtraHoverTips.Concat([
         HoverTipFactory.FromEnchantment<StarlitEnchantment>(),  // 附魔说明
         HoverTipFactory.FromRelic<BigShroomBag>(),              // 遗物说明
