@@ -14,7 +14,7 @@
 
 > 📌 每个模块的 `xx.md` 为导航页（概述 + 常见问题 + **章节导航表**），正文按章节拆分在 `xx-*.md` 子文件中。读模块时先开导航页，再按需读子文件。
 
-> 完整文件级索引见 [references/index.md](references/index.md)。
+> 模块级索引见 [references/index.md](references/index.md)，子文件由各模块导航页章节导航表索引。
 
 
 ---

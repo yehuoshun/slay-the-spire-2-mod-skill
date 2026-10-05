@@ -90,7 +90,7 @@ graph TD
 | `baselib/` | [design-patterns.md](references/baselib/design-patterns.md) | 纯原生设计模式总纲 |
 | `multiplayer/` | [multiplayer.md](references/multiplayer/multiplayer.md) | 多人模式 |
 
-> 完整文件级索引见 [index.md](references/index.md)。
+> 模块级索引（导航页 + setup 全列）见 [index.md](references/index.md)；子文件索引在各模块导航页章节导航表内。
 
 ---
 

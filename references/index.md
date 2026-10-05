@@ -1,6 +1,6 @@
-# references 完整文件级索引
+# references 模块级索引
 
-> 📌 每个模块的 `xx.md` 为导航页（概述 + 常见问题 + **章节导航表**），正文按章节拆分在 `xx-*.md` 子文件中。读模块时先开导航页，再按需读子文件。`setup/` 无独立导航页，全文件平级列出。
+> 📌 本索引只列**模块导航页**；每个模块的 `xx.md` 导航页含**章节导航表**，正文按章节拆分在 `xx-*.md` 子文件中，子文件索引归导航页管。读模块时先开导航页，再按需读子文件。`setup/` 无独立导航页，全文件平级列出。
 
 | 分类 | 文件 | 内容 |
 |------|------|------|
@@ -40,10 +40,7 @@
 | `reward/` | [reward.md](reward/reward.md) | 自定义奖励（RewardType 注入、序列化、示例） |
 | `energy/` | [energy.md](energy/energy.md) | 自定义能量（图标、类型、视觉效果） |
 | `harmony/` | [harmony.md](harmony/harmony.md) | Harmony 补丁模式（PatchCategory、安全、组织规范） |
-| `harmony/` | [harmony-custom-power-sfx.md](harmony/harmony-custom-power-sfx.md) | Transpiler 实战：自定义能力音效（零第三方依赖） |
-| `harmony/` | [harmony-transpiler.md](harmony/harmony-transpiler.md) | Transpiler：泛型 operand 结构匹配、自定义 comparer 确定性排序 |
 | `serialization/` | [serialization.md](serialization/serialization.md) | 序列化与注册（ModelDb、SavedProperty、InjectTypeIntoCache、自动注册框架） |
 | `settings/` | [settings.md](settings/settings.md) | 设置界面（纯原生：Attribute + ConfigFile 持久化 + NSubmenu UI + 主菜单注入） |
 | `baselib/` | [design-patterns.md](baselib/design-patterns.md) | 纯原生设计模式总纲（从 BaseLib 提炼，零第三方依赖） |
-| `multiplayer/` | [multiplayer.md](multiplayer/multiplayer.md) | 多人模式（约束声明、身份检查、网络消息） |
-| `multiplayer/` | [multiplayer-netactions.md](multiplayer/multiplayer-netactions.md) | 网络行动（GameAction/INetAction）、阶段门控、交互状态防护 |
+| `multiplayer/` | [multiplayer.md](multiplayer/multiplayer.md) | 多人模式（约束声明、身份检查、网络消息、网络行动、阶段门控） |
