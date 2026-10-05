@@ -12,7 +12,7 @@ protected override IEnumerable<IHoverTip> ExtraHoverTips =>
         HoverTipFactory.FromEnchantment<StarlitEnchantment>(),  // 附魔说明
         HoverTipFactory.FromRelic<BigShroomBag>(),              // 遗物说明
         HoverTipFactory.FromCard<Spark>(),                      // 关联卡牌
-        HoverTipFactory.FromKeyword(CardKeyword.Burn),          // 关键词
+        HoverTipFactory.FromKeyword(CardKeyword.Innate),       // 关键词（枚举：Exhaust/Ethereal/Innate/Unplayable/Retain/Sly/Eternal）
         HoverTipFactory.FromPower<StarlitPower>()               // 能力
     ]);
 ```
