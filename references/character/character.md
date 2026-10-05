@@ -13,6 +13,7 @@
 | 官方模板骨架（PlaceholderCharacterModel） | [character-template.md](character-template.md) |
 | 场景、Spine、注册与本地化 | [character-assets.md](character-assets.md) |
 | 角色资源路径表 | [character-paths.md](character-paths.md) |
+| 资源覆写点与解锁屏蔽 | [character-overrides.md](character-overrides.md) |
 | 纯原生一键注册 | [character-advanced.md](character-advanced.md) |
 
 ## 概述

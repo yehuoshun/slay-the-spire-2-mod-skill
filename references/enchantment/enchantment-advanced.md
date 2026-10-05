@@ -70,6 +70,24 @@ enchant <手牌位置> <附魔ID> <层数>
 
 ---
 
+## 进阶：按消耗能量成长的附魔
+
+> 实战验证（STS2_MarisaMod 2026-10-05）。附魔在 `AfterCardPlayed`（AbstractModel 虚方法，附魔/遗物/能力都能覆写）里读 `cardPlay.Resources.EnergySpent`——**实际花费的能量**（AutoPlay 时为 0，与 `EnergyValue` 不同）：
+
+```csharp
+public override async Task AfterCardPlayed(PlayerChoiceContext ctx, CardPlay cardPlay)
+{
+    var amt = cardPlay.Resources.EnergySpent;              // 实际消耗能量
+    var gain = Mathf.RoundToInt(Mathf.Pow(2, amt));        // 2^能量 层数成长
+    if (cardPlay.Card == Card && gain > 0)
+        await PowerCmd.Apply<StarlitPower>(ctx, Card.Owner.Creature, gain, Card.Owner.Creature, Card);
+}
+```
+
+> `ResourceInfo.EnergySpent` / `EnergyValue` / `StarsSpent` / `StarValue`（sts2-res 已验证）：Spent = 实扣，Value = 卡面费用；AutoPlay 实扣 0 但 Value 仍是卡面费用。附魔成长用 Spent，显示用 Value。
+
+---
+
 ## 进阶：纯原生自动注册
 
 > 从 BaseLib 提炼，零第三方依赖。用 `[EnchantmentModel]` 标记 + ContentRegistry 统一注册。

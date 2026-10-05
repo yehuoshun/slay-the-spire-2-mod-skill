@@ -10,6 +10,7 @@
 |------|------|
 | 怪物类与模型 | [monster-core.md](monster-core.md) |
 | 状态机与 AI 行为树 | [monster-ai.md](monster-ai.md) |
+| 动画状态机（CreatureAnimator） | [monster-animator.md](monster-animator.md) |
 | 资源、遭遇与添加 | [monster-encounter.md](monster-encounter.md) |
 | 纯原生注册辅助 | [monster-advanced.md](monster-advanced.md) |
 

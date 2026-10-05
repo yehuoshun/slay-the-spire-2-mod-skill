@@ -4,16 +4,10 @@
 
 ```csharp
 [HarmonyPatch(typeof(Ironclad), nameof(Ironclad.StartingRelics), MethodType.Getter)]
-public static class IroncladStartingRelicsPatch
+static class IroncladStartingRelicsPatch
 {
-    private static void Postfix(Ironclad __instance, ref IReadOnlyList<RelicModel> __result)
-    {
-        var list = new List<RelicModel>(__result)
-        {
-            ModelDb.Relic<MyCustomRelic>()
-        };
-        __result = list;
-    }
+    static void Postfix(Ironclad __instance, ref IReadOnlyList<RelicModel> __result)
+        => __result = __result.Append(ModelDb.Relic<MyCustomRelic>()).ToList();
 }
 ```
 
@@ -53,6 +47,7 @@ public static class IroncladStartingRelicsPatch
 | `AfterCombatVictory` | `Task AfterCombatVictory(CombatRoom)` | 战斗胜利（推荐） |
 | `AfterDamageReceived` | `Task AfterDamageReceived(PlayerChoiceContext, Creature target, DamageResult, ValueProp, Creature? dealer, CardModel?)` | 持有者受伤（target == Owner.Creature） |
 | `AfterDamageGiven` | `Task AfterDamageGiven(PlayerChoiceContext, Creature? dealer, DamageResult, ValueProp, Creature target, CardModel?)` | 造成伤害（含击杀判断） |
+| `ModifyNextEvent` | `EventModel ModifyNextEvent(EventModel)` | 进下个事件前替换（见 event-core.md） |
 | `BeforeBlockGained` / `AfterBlockGained` | `Task ...(Creature, decimal, ValueProp, CardModel?)` | 获得格挡前后 |
 
 > 判断持有者是否参与回合：`participants.Contains(Owner.Creature)`（真实遗物写法）。

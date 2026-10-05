@@ -83,6 +83,8 @@ protected override void OnUpgrade()
 - 扩展方法类名带 `CardFx` 前缀，避免与其他 Mod 命名冲突
 - 需要原生链式的高级用法（多段伤害、特效、随机目标）时，直接用原生链式即可
 
+---
+
 ## 添加卡牌到卡池
 
 ```csharp

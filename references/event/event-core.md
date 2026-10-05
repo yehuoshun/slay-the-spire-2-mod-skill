@@ -80,6 +80,30 @@ new EventOption(
 
 | 方法 | 说明 |
 |------|------|
+| `SetEventFinished(LocString)` | 结束事件并显示后续描述 |
+| `RelicOption<T>(回调)` | 获得遗物选项（带悬停提示） |
+| `L10NLookup(键)` | 查本地化键（`LocString`） |
+
+---
+
+## 替换原版事件（ModifyNextEvent）
+
+> 实战验证（STS2_MarisaMod 2026-10-05）。遗物/角色等模型可覆写 `ModifyNextEvent`（AbstractModel 虚方法）把即将进入的事件换成自定义版：
+
+```csharp
+// 遗物里：原版「HungryForMushrooms」替换成自定义事件
+public override EventModel ModifyNextEvent(EventModel currentEvent)
+{
+    if (currentEvent is HungryForMushrooms)
+        return ModelDb.Event<HungryForMushroomsMarisa>();
+    return currentEvent;
+}
+```
+
+自定义事件类继承 `EventModel`（纯原生）即可被 `ModelDb.Event<T>` 引用；BaseLib 用 `CustomEventModel`。
+
+| 方法 | 说明 |
+|------|------|
 | `L10NLookup(string key)` | 本地化查询，返回 `LocString` |
 | `SetEventFinished(LocString desc)` | 退出事件并显示结束文本 |
 | `SetEventState(LocString desc, IEnumerable<EventOption> options)` | 切换到新一页选项（多页） |

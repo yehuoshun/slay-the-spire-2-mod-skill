@@ -35,6 +35,7 @@
 - [Alchyr/BaseLib-StS2](https://github.com/Alchyr/BaseLib-StS2) — 官方模组标准库（Custom*Model 基类、[Pool]、Builder、工具）
 - [Alchyr/ModTemplate-StS2](https://github.com/Alchyr/ModTemplate-StS2) — 官方模组脚手架模板（工程化思想：骨架自动化、路径检测、目录规范）
 - [YuWan886/Sts2-YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard) — 实战大型 mod（真实 API 用法样本：多人、自定义稀有度、多版本 loader、生命条预测）
+- [lf201014/STS2_MarisaMod](https://github.com/lf201014/STS2_MarisaMod) — 实战角色 mod（增幅卡系统、动画状态机、角色资源覆写、AsyncLocal 异步 Patch）
 
 ### 项目仓库
 

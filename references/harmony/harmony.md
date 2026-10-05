@@ -10,6 +10,7 @@
 |------|------|
 | 基础 Patch 类型与参数 | [harmony-basics.md](harmony-basics.md) |
 | PatchCategory 与安全模式 | [harmony-patches.md](harmony-patches.md) |
+| AsyncLocal 异步 Patch | [harmony-async-local.md](harmony-async-local.md) |
 | Transpiler：泛型匹配与确定性排序 | [harmony-transpiler.md](harmony-transpiler.md) |
 | 组织方式与常用目标 | [harmony-guide.md](harmony-guide.md) |
 | Transpiler 实战：自定义能力音效（导航） | [harmony-custom-power-sfx.md](harmony-custom-power-sfx.md) |
