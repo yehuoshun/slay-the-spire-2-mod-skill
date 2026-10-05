@@ -8,13 +8,12 @@
 
 ```csharp
 protected override IEnumerable<IHoverTip> ExtraHoverTips =>
-    base.ExtraHoverTips.Concat([
-        HoverTipFactory.FromEnchantment<StarlitEnchantment>(),  // 附魔说明
-        HoverTipFactory.FromRelic<BigShroomBag>(),              // 遗物说明
-        HoverTipFactory.FromCard<Spark>(),                      // 关联卡牌
-        HoverTipFactory.FromKeyword(CardKeyword.Innate),       // 关键词（枚举：Exhaust/Ethereal/Innate/Unplayable/Retain/Sly/Eternal）
-        HoverTipFactory.FromPower<StarlitPower>()               // 能力
-    ]);
+    base.ExtraHoverTips
+        .Concat(HoverTipFactory.FromEnchantment<StarlitEnchantment>())  // 附魔说明（返回 IEnumerable）
+        .Concat(HoverTipFactory.FromRelic<BigShroomBag>())              // 遗物说明（返回 IEnumerable）
+        .Append(HoverTipFactory.FromCard<Spark>())                      // 关联卡牌（返回 IHoverTip）
+        .Append(HoverTipFactory.FromKeyword(CardKeyword.Innate))        // 关键词（枚举：Exhaust/Ethereal/Innate/Unplayable/Retain/Sly/Eternal）
+        .Append(HoverTipFactory.FromPower<StarlitPower>());             // 能力
 ```
 
 ## 往原版容器注入（TrashHeap）
