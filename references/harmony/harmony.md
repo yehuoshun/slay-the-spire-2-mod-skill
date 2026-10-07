@@ -16,6 +16,7 @@
 | MonoMod RuntimeDetour（DetourHook）模式 | [harmony-detour-monomod.md](harmony-detour-monomod.md) |
 | 组织方式与常用目标 | [harmony-guide.md](harmony-guide.md) |
 | 属性式 Patch 框架（元数据/门控/共享检测） | [harmony-attribute-patcher.md](harmony-attribute-patcher.md) |
+| 属性式 Patch 框架 v2（IL 指纹/拓扑冲突） | [harmony-patch-framework-v2.md](harmony-patch-framework-v2.md) |
 | Transpiler 实战：自定义能力音效（导航） | [harmony-custom-power-sfx.md](harmony-custom-power-sfx.md) |
 | ├ 接口 + Transpiler | [harmony-custom-power-sfx-core.md](harmony-custom-power-sfx-core.md) |
 | └ 使用 + 常见问题 | [harmony-custom-power-sfx-usage.md](harmony-custom-power-sfx-usage.md) |
