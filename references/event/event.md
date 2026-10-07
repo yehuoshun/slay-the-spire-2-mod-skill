@@ -17,6 +17,7 @@
 | ├ 对话、纹理与注册 | [event-ancient-register.md](event-ancient-register.md) |
 | └ 纯原生注册辅助 | [event-ancient-advanced.md](event-ancient-advanced.md) |
 | 共享事件注入 + 选项链式 | [event-shared-inject.md](event-shared-inject.md) |
+| 全事件「离开」选项（SetEventState 注入） | [event-leave-option.md](event-leave-option.md) |
 
 ## 概述
 
