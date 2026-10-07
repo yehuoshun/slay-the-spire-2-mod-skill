@@ -1,6 +1,6 @@
 # ModConfig 内部机制（注入 / 渲染 / 持久化 / KeyBind / i18n）
 
-> 来源：ModConfig-STS2 `Scripts/`（v0.2.2）逐行精读。写「像 ModConfig 一样的框架」或理解其行为时参考；纯接入方只需看 modconfig-integration.md。
+> 来源：ModConfig-STS2 `Scripts/`（v0.2.2）逐行精读。**本文件 = 纯原生转译素材**：完整可编译转译示例见 sts2-mod-examples `Settings/ModsTabInjector.cs`（设置页 Tab 注入核心，CI 真编译验证）。纯接入方只需看 modconfig-integration.md。
 
 ## 1. Settings「Mods」Tab 注入（核心 hack）
 

@@ -1,6 +1,7 @@
-# ModConfig 接入：零依赖反射桥（ModConfigBridge）
+# ModConfig 接入：零依赖反射桥（生态 mod 可选方案）
 
-> 来源：ModConfig-STS2 `examples/ModConfigBridge.cs`（v0.2.2）。**复制模板 → 改命名空间/modId → 编辑 `BuildEntries()` → `Initialize()` 里调 `DeferredRegister()`**，完事。
+> 来源：ModConfig-STS2 `examples/ModConfigBridge.cs`（v0.2.2）。**仅适用于「上游生态已普及 ModConfig」的 mod**（Skada/SpeedX 等）；skill 自身推荐路线：纯原生转译（`ModsTabInjector.cs`，见 modconfig-internals.md §1）。
+> 用法：**复制模板 → 改命名空间/modId → 编辑 `BuildEntries()` → `Initialize()` 里调 `DeferredRegister()`**，完事。
 
 ## 三步接入
 

@@ -1,13 +1,20 @@
-# 设置界面（第三方框架 ModConfig）— 通用模组配置框架
+# 设置界面（ModConfig 源码精读）— 设置页 Tab 注入机制
 
-> **2026-10-07 学习**：精读 [xhyrzldf/ModConfig-STS2](https://github.com/xhyrzldf/ModConfig-STS2)（v0.2.2，commit 639eb97，MIT）源码提炼。作者「皮一下就很凡」。与「纯原生方案」并列的**第三种设置方案**，适合「多配置项 + 零开发成本 + 玩家生态成熟」的场景。
+> **2026-10-07 学习**：精读 [xhyrzldf/ModConfig-STS2](https://github.com/xhyrzldf/ModConfig-STS2)（v0.2.2，commit 639eb97，MIT）源码。**该项目即 ModConfig.dll 框架本体源码**。按 skill 一贯套路（BaseLib→纯原生转译）：核心机制已转译为纯原生实现（examples `Settings/ModsTabInjector.cs`，真编译验证），反射桥接入仅作为生态 mod 的可选方案。
 
 ## 章节导航
 
 | 内容 | 文件 |
 |------|------|
-| 零依赖反射接入（ModConfigBridge 模板） | [modconfig-integration.md](modconfig-integration.md) |
-| 内部机制（Tab 注入 / 控件渲染 / 持久化 / KeyBind / i18n） | [modconfig-internals.md](modconfig-internals.md) |
+| 零依赖反射桥接入（生态 mod 可选，非 skill 推荐路线） | [modconfig-integration.md](modconfig-integration.md) |
+| 内部机制（Tab 注入 / 控件渲染 / 持久化 / KeyBind / i18n）— 转译素材 | [modconfig-internals.md](modconfig-internals.md) |
+
+## 与纯原生方案的关系（关键）
+
+- ModConfig 框架本身 = **mod**（玩家必须装 ModConfig.dll+pck）；它的注入点是**设置页 Tab**（`NSettingsTabManager._tabs` 反射注入），与纯原生方案的**主菜单子菜单**（NSubmenu）是不同入口
+- **转译产出**：`ModsTabInjector.cs` 把 Tab 注入 hack 完整复刻为纯原生（零 Harmony、零第三方）——tree.NodeAdded 监听 + Duplicate 原生 tab/panel + 反射注册 + Godot Call 切 tab
+- 两种纯原生设置入口可并存：主菜单子菜单（settings-core/attributes）+ 设置页 Mods Tab（ModsTabInjector）
+- 反射桥（integration）只适用于「上游生态已普及 ModConfig」的 mod（Skada/SpeedX/Rewind/QuickLink），skill 自身推荐纯原生
 
 ## 三种设置方案选型
 
@@ -39,9 +46,3 @@
 | Slider 格式不对 | 设 `Format`：`"F0"` 整数 / `"F1"` 一位小数 / `"P0"` 百分比 |
 | mod 改了设置不同步 | 调 `ModConfigBridge.SetValue(key, value)` 同步回框架 |
 | ModConfig 没装 | `IsAvailable == false`，所有 GetValue 返回 fallback，照常运行 |
-
-## 与纯原生方案的关系
-
-- 二者不冲突：ModConfig 框架本身就是个 mod；你的 mod 通过反射桥接
-- 桥接模板只有 1 个文件（`examples/ModConfigBridge.cs`，319 行），复制即用
-- 若你的 mod 已内建纯原生设置，无需迁移；ModConfig 适合「设置项很多、想省 UI 工作量」的场景
