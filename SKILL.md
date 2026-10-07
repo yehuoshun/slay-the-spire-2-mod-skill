@@ -92,6 +92,7 @@ graph TD
 | `multiplayer/` | [multiplayer.md](references/multiplayer/multiplayer.md) | 多人模式 |
 | `overlay/` | [overlay.md](references/overlay/overlay.md) | 游戏内 Overlay 渲染（光标/UI 覆写、单 DLL 源生成器坑） |
 | `ui/` | [ui.md](references/ui/ui.md) | 手牌/战斗 UI 覆写（布局/边界接管/多 mod 撞车） |
+| `run/` | [run.md](references/run/run.md) | Run 生命周期扩展（无尽循环/确定性种子/Interop/配置） |
 
 > 模块级索引（导航页 + setup 全列）见 [index.md](references/index.md)；子文件索引在各模块导航页章节导航表内。
 

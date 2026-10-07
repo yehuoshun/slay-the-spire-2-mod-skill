@@ -47,3 +47,4 @@
 | `multiplayer/` | [multiplayer.md](multiplayer/multiplayer.md) | 多人模式（约束声明、身份检查、网络消息、网络行动、阶段门控） |
 | `overlay/` | [overlay.md](overlay/overlay.md) | 游戏内 Overlay 渲染（光标/UI 覆写、单 DLL 源生成器坑） |
 | `ui/` | [ui.md](ui/ui.md) | 手牌/战斗 UI 覆写（布局/边界接管/多 mod 撞车） |
+| `run/` | [run.md](run/run.md) | Run 生命周期扩展（无尽循环/确定性种子/Interop/配置） |
