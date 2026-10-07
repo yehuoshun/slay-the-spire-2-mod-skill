@@ -9,6 +9,9 @@
 |------|------|
 | 配置声明与持久化 | [settings-core.md](settings-core.md) |
 | Attribute、UI 生成与主菜单注入 | [settings-attributes.md](settings-attributes.md) |
+| ModConfig 源码精读：Tab 注入纯原生转译（入口） | [modconfig.md](modconfig.md) |
+| └ 反射桥集成 | [modconfig-integration.md](modconfig-integration.md) |
+| └ 内部实现精读 | [modconfig-internals.md](modconfig-internals.md) |
 
 ## 方案组成
 

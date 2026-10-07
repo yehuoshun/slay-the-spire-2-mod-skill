@@ -126,8 +126,9 @@ public class MyPet : MonsterModel { ... }
 - v3（本版）：API 全量校正，弃用 v2 的错误签名（`public GenerateMoveStateMachine`、`MoveState(..., List<IntentType>)`）
 - 灵感来源：BaseLib 的 `autoAdd` + `[Pool]` 机制，本方案零第三方依赖
 
-## 进阶
+## 章节导航
 
 | 内容 | 文件 |
 |------|------|
+| 宠物基础模板（固定不行动） | [pet.md](pet.md) |
 | 宠物进阶：持久化位置 / 视觉复制 / 避让布局 | [pet-advanced.md](pet-advanced.md) |
