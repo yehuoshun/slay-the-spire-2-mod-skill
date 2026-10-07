@@ -13,6 +13,7 @@
 | AsyncLocal 异步 Patch | [harmony-async-local.md](harmony-async-local.md) |
 | Transpiler：泛型匹配与确定性排序 | [harmony-transpiler.md](harmony-transpiler.md) |
 | 组织方式与常用目标 | [harmony-guide.md](harmony-guide.md) |
+| 属性式 Patch 框架（元数据/门控/共享检测） | [harmony-attribute-patcher.md](harmony-attribute-patcher.md) |
 | Transpiler 实战：自定义能力音效（导航） | [harmony-custom-power-sfx.md](harmony-custom-power-sfx.md) |
 | ├ 接口 + Transpiler | [harmony-custom-power-sfx-core.md](harmony-custom-power-sfx-core.md) |
 | └ 使用 + 常见问题 | [harmony-custom-power-sfx-usage.md](harmony-custom-power-sfx-usage.md) |

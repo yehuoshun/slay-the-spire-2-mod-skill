@@ -14,6 +14,7 @@
 | 资源、注册与自动注册 | [relic-register.md](relic-register.md) |
 | 遗物开局选择流程（多人同步/持久化） | [relic-keystone-flow.md](relic-keystone-flow.md) |
 | 机制模式（计数器/临时力量/选择界面/图鉴） | [relic-keystone-mechanics.md](relic-keystone-mechanics.md) |
+| 遗物获得流程 + 涅奥固定选项 + 实时材质 | [relic-ancient-sword.md](relic-ancient-sword.md) |
 
 ## 概述
 
