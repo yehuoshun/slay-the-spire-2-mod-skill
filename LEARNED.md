@@ -25,7 +25,16 @@
 | 来源 | 首次学习 | 学到版本 | 学习产出 |
 |------|---------|---------|---------|
 | [godotengine/godot](https://github.com/godotengine/godot) | 2026-08-28 | 4.5.x 文档 | 环境搭建参考（Megadot 分支，非直接学习） |
-| 烟汐忆梦_YM 教程（B站） | 2026-08-28 | 9 篇 | 各模块入门（card/relic/potion/enchantment/event/power/character/monster） |
+| 烟汐忆梦_YM 教程（B站，9 篇） | 2026-08-28 | 01-09 | 各模块入门，已在对应模块文档头部引用：
+  - 01 环境搭建 [bilibili](https://www.bilibili.com/opus/1179300682687053826)（setup 引用）
+  - 02 自定义遗物 [bilibili](https://www.bilibili.com/opus/1179604439936270359)（relic 引用）
+  - 03 自定义卡牌 [bilibili](https://www.bilibili.com/opus/1179979923167641608)（card 引用）
+  - 04 自定义药水 [bilibili](https://www.bilibili.com/opus/1180032536494997541)（potion 引用）
+  - 05 自定义附魔 [bilibili](https://www.bilibili.com/opus/1180713881530531843)（enchantment 引用）
+  - 06 自定义事件 [bilibili](https://www.bilibili.com/opus/1180714323922649110)（event 引用）
+  - 07 自定义能力 [bilibili](https://www.bilibili.com/opus/1181126133981118470)（power 引用）
+  - 08 自定义角色 [bilibili](https://www.bilibili.com/opus/1182961747166756931)（character 引用）
+  - 09 自定义敌怪 [bilibili](https://www.bilibili.com/opus/1183380755590414377)（monster 引用） |
 
 ---
 
