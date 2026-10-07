@@ -15,6 +15,9 @@
 | 角色资源路径表 | [character-paths.md](character-paths.md) |
 | 资源覆写点与解锁屏蔽 | [character-overrides.md](character-overrides.md) |
 | 纯原生一键注册 | [character-advanced.md](character-advanced.md) |
+| 手动注册 + 初始化时序（ModelDb 缓存重置） | [character-manual-register.md](character-manual-register.md) |
+| 资源注入总闸（AssetHooks 模式） | [character-asset-hooks.md](character-asset-hooks.md) |
+| 占位角色双基类（分步替换美术） | [character-placeholder-base.md](character-placeholder-base.md) |
 
 ## 概述
 

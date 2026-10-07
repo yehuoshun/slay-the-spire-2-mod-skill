@@ -125,3 +125,9 @@ public class MyPet : MonsterModel { ... }
 - 纯原生自动注册（Attribute 标记 + ContentRegistry）——已并入 v3「进阶」章节
 - v3（本版）：API 全量校正，弃用 v2 的错误签名（`public GenerateMoveStateMachine`、`MoveState(..., List<IntentType>)`）
 - 灵感来源：BaseLib 的 `autoAdd` + `[Pool]` 机制，本方案零第三方依赖
+
+## 进阶
+
+| 内容 | 文件 |
+|------|------|
+| 宠物进阶：持久化位置 / 视觉复制 / 避让布局 | [pet-advanced.md](pet-advanced.md) |

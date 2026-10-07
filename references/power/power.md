@@ -11,6 +11,7 @@
 | 模板、图标命名与核心属性 | [power-core.md](power-core.md) |
 | 真实回调 | [power-callbacks.md](power-callbacks.md) |
 | 临时能力、调试与自动注册 | [power-advanced.md](power-advanced.md) |
+| 签名适配基类 + 临时力量装饰层 | [power-signature-and-temp.md](power-signature-and-temp.md) |
 | 自定义音效、治疗量修正与本地化 | [power-effects.md](power-effects.md) |
 | 预见（Scry）修改 | [power-scry.md](power-scry.md) |
 
