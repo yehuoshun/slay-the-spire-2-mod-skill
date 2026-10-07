@@ -97,7 +97,6 @@ private static bool OnHolderFocusedPrefix(NPlayerHand __instance, NHandCardHolde
 |-----|------|
 | `CardPile.MaxCardsInHand` | 手牌上限静态 getter（原版 10） |
 | `HandPosHelper.GetPosition/GetAngle/GetScale` | 扇形布局表查询（public static） |
-| `NPlayerHand.RefreshLayout/ReturnHolderToHand/OnHolderFocused/StartCardPlay` | 私有布局/焦点/出牌方法 |
-| `NPlayerHand.FocusedHolder/CardHolderContainer/ActiveHolders` | 状态与容器 |
+| `NPlayerHand.RefreshLayout/OnHolderFocused/StartCardPlay` | 私有布局/焦点/出牌方法 |
 | `NHandCardHolder.BeginDrag/SetIndexLabel/Hitbox` | 卡片节点操作 |
-| `NMouseCardPlay.Create(holder, input, bool)` / `NCardPlay.SignalName.Finished` | 鼠标出牌流程 |
+| `NMouseCardPlay.Create(holder, input, bool)` | 鼠标出牌流程 |
