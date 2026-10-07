@@ -78,7 +78,7 @@ private static bool StartCardPlayPrefix(NPlayerHand __instance, NHandCardHolder 
 ## ⑤ 焦点管理（超限时接管 OnHolderFocused/Unfocused）
 
 ```csharp
-// 超过 10 张时原版焦点逻辑假定单排 → prefix 短路，自己记录 lastFocusedIndex + hover 追踪：
+// 超过 10 张时原版焦点逻辑假定单排 → prefix 短路，自己记录 lastFocusedIndex + hover 追踪
 private static bool OnHolderFocusedPrefix(NPlayerHand __instance, NHandCardHolder holder)
 {
     if (ActiveHolders.Count <= 10) return true;
