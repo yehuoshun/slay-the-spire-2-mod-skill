@@ -25,15 +25,15 @@
 | 来源 | 首次学习 | 学到版本 | 学习产出 |
 |------|---------|---------|---------|
 | [godotengine/godot](https://github.com/godotengine/godot) | 2026-08-28 | 4.5.x 文档 | 环境搭建参考（Megadot 分支，非直接学习） |
-| 烟汐忆梦_YM 教程（B站）-setup | 2026-08-28 | 01 | 环境搭建 [bilibili](https://www.bilibili.com/opus/1179300682687053826)（setup 引用） |
-| 烟汐忆梦_YM 教程（B站）-relic | 2026-08-28 | 02 | 自定义遗物 [bilibili](https://www.bilibili.com/opus/1179604439936270359)（relic 引用） |
-| 烟汐忆梦_YM 教程（B站）-card | 2026-08-28 | 03 | 自定义卡牌 [bilibili](https://www.bilibili.com/opus/1179979923167641608)（card 引用） |
-| 烟汐忆梦_YM 教程（B站）-potion | 2026-08-28 | 04 | 自定义药水 [bilibili](https://www.bilibili.com/opus/1180032536494997541)（potion 引用） |
-| 烟汐忆梦_YM 教程（B站）-enchantment | 2026-08-28 | 05 | 自定义附魔 [bilibili](https://www.bilibili.com/opus/1180713881530531843)（enchantment 引用） |
-| 烟汐忆梦_YM 教程（B站）-event | 2026-08-28 | 06 | 自定义事件 [bilibili](https://www.bilibili.com/opus/1180714323922649110)（event 引用） |
-| 烟汐忆梦_YM 教程（B站）-power | 2026-08-28 | 07 | 自定义能力 [bilibili](https://www.bilibili.com/opus/1181126133981118470)（power 引用） |
-| 烟汐忆梦_YM 教程（B站）-character | 2026-08-28 | 08 | 自定义角色 [bilibili](https://www.bilibili.com/opus/1182961747166756931)（character 引用） |
-| 烟汐忆梦_YM 教程（B站）-monster | 2026-08-28 | 09 | 自定义敌怪 [bilibili](https://www.bilibili.com/opus/1183380755590414377)（monster 引用） |
+| [烟汐忆梦_YM 教程（B站）-setup](https://www.bilibili.com/opus/1179300682687053826) | 2026-08-28 | 01 | 环境搭建（setup 引用） |
+| [烟汐忆梦_YM 教程（B站）-relic](https://www.bilibili.com/opus/1179604439936270359) | 2026-08-28 | 02 | 自定义遗物（relic 引用） |
+| [烟汐忆梦_YM 教程（B站）-card](https://www.bilibili.com/opus/1179979923167641608) | 2026-08-28 | 03 | 自定义卡牌（card 引用） |
+| [烟汐忆梦_YM 教程（B站）-potion](https://www.bilibili.com/opus/1180032536494997541) | 2026-08-28 | 04 | 自定义药水（potion 引用） |
+| [烟汐忆梦_YM 教程（B站）-enchantment](https://www.bilibili.com/opus/1180713881530531843) | 2026-08-28 | 05 | 自定义附魔（enchantment 引用） |
+| [烟汐忆梦_YM 教程（B站）-event](https://www.bilibili.com/opus/1180714323922649110) | 2026-08-28 | 06 | 自定义事件（event 引用） |
+| [烟汐忆梦_YM 教程（B站）-power](https://www.bilibili.com/opus/1181126133981118470) | 2026-08-28 | 07 | 自定义能力（power 引用） |
+| [烟汐忆梦_YM 教程（B站）-character](https://www.bilibili.com/opus/1182961747166756931) | 2026-08-28 | 08 | 自定义角色（character 引用） |
+| [烟汐忆梦_YM 教程（B站）-monster](https://www.bilibili.com/opus/1183380755590414377) | 2026-08-28 | 09 | 自定义敌怪（monster 引用） |
 
 ---
 
