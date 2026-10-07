@@ -46,3 +46,8 @@
 | Slider 格式不对 | 设 `Format`：`"F0"` 整数 / `"F1"` 一位小数 / `"P0"` 百分比 |
 | mod 改了设置不同步 | 调 `ModConfigBridge.SetValue(key, value)` 同步回框架 |
 | ModConfig 没装 | `IsAvailable == false`，所有 GetValue 返回 fallback，照常运行 |
+
+## 演进路线
+
+- 2026-10-07：源码精读 → 核心机制（设置页 Tab 注入）转译为纯原生 `ModsTabInjector.cs`；反射桥仅作生态 mod 可选方案
+- 后续：按 internals 文档把 9 种控件渲染（Slider/Dropdown/KeyBind/ColorPicker）、防抖持久化、i18n 双通道逐项转译进 settings 模块
