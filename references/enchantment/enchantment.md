@@ -9,6 +9,8 @@
 |------|------|
 | 模板、回调与案例 | [enchantment-core.md](enchantment-core.md) |
 | 应用、速查与自动注册 | [enchantment-advanced.md](enchantment-advanced.md) |
+| 复合附魔容器（一卡多附魔） | [enchantment-composite.md](enchantment-composite.md) |
+| 多附魔机制（Enchant 接管 + UI） | [enchantment-multi.md](enchantment-multi.md) |
 
 ## 概述
 

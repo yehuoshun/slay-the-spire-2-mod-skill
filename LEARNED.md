@@ -13,7 +13,7 @@
 | [YuWan886/Sts2-YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard) | 2026-10-02 | 2026-10-04 | 08165915（v0.5.12 后，2026-10-04） | 实战卡牌扩展 mod：卡牌/能力/遗物/自定义稀有度/多人/loader 全流程示例 |
 | [lf201014/STS2_MarisaMod](https://github.com/lf201014/STS2_MarisaMod) | 2026-10-05 | 2026-10-05 | 637f17a（main，2026-10-05） | 东方魔理沙角色 mod：实战角色（170 cs/9.7k 行，BaseLib 依赖），增幅卡/动画状态机/角色覆写点示例 |
 | [xhyrzldf/ModConfig-STS2](https://github.com/xhyrzldf/ModConfig-STS2) | 2026-10-07 | 2026-10-07 | v0.2.2（639eb97，2026-10-07） | 通用模组配置框架（MIT）：设置页注入「Mods」标签页，9 种控件自动渲染，反射零依赖接入 |
-| [s1f102500012/sts2mod](https://github.com/s1f102500012/sts2mod) | 2026-10-07 | 2026-10-07 | main（2026-10-07） | 多聚合 mod 仓库：PRTSCursor/俄洛伊/海克斯符文/心之钢等。已学 PRTS动态光标（overlay 光标）+ 俄洛伊（手动注册/资源总闸/占位双基类/宠物进阶/临时力量装饰层） |
+| [s1f102500012/sts2mod](https://github.com/s1f102500012/sts2mod) | 2026-10-07 | 2026-10-07 | main（2026-10-07） | 多聚合 mod 仓库：PRTSCursor/俄洛伊/海克斯符文/心之钢等。已学 PRTS动态光标（overlay）、俄洛伊（手动注册/资源总闸/占位双基类/宠物进阶/临时力量装饰层）、可重复附魔（复合容器/Enchant 接管） |
 | [yehuoshun/STS2-ShunMod](https://github.com/yehuoshun/STS2-ShunMod) | 2026-09-19 | — | main 分支 | 自研 ShunMod：多项目结构，GitHub Actions CI 流水线参考 |
 
 ---
