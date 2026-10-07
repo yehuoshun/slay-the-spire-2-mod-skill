@@ -9,6 +9,7 @@
 | 无尽循环：确定性种子 / RunState 重建 / 多人同步 | [run-endless-loop.md](run-endless-loop.md) |
 | 公共 Interop + JSON 配置（位标志同步） | [run-interop-config.md](run-interop-config.md) |
 | 进阶难度扩展（11-15 进阶 + MonoMod） | [run-ascension-extra.md](run-ascension-extra.md) |
+| 自定义难度（怪物缩放/设置中心/联机） | [run-difficulty-scale.md](run-difficulty-scale.md) |
 
 ## 概述
 
