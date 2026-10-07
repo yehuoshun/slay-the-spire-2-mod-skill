@@ -24,7 +24,7 @@ public abstract class MyPowerBase : PowerModel
 
 ## ② 临时力量装饰层（ITemporaryPower + 负值抵消）
 
-目标：给角色「临时力量/敏捷」——显示在原版力量系统上、但 X 回合后自动消退。原版 `TemporaryStrengthPower` 是回合末减层的原生实现（见 power-advanced.md）；本模式是**独立包装层**：
+目标：独立的「临时力量/敏捷」——显示在原版力量系统上、X 回合后自动消退（原版 `TemporaryStrengthPower` 是回合末减层，见 power-advanced.md）：
 
 ```csharp
 public abstract class MyTemporaryStatPower<TStatPower> : MyPowerBase, ITemporaryPower
@@ -61,7 +61,7 @@ public sealed class MyTemporaryStrengthPower : MyTemporaryStatPower<StrengthPowe
 { public override AbstractModel OriginModel => ModelDb.Card<MyCard>(); }
 ```
 
-- `ITemporaryPower` 在 `MegaCrit.Sts2.Core.Models`（3 成员，见上）。`IgnoreNextInstance` 是给 Misery 这类复制 debuff 的效果用的（内部 debuff 已被复制，不应再 Apply 一次）。
+- `ITemporaryPower` 在 `MegaCrit.Sts2.Core.Models`（3 成员）。`IgnoreNextInstance` 给 Misery 类复制 debuff 效果用（内部 debuff 已被复制，不应再 Apply）。
 - 真力量变更用 `silent: true`，避免双 UI 闪烁；装饰层自己 `Flash()`。
 - **BeforeApplied + AfterPowerAmountChanged 双钩子**：新增层数走前者，后续增减走后者（`amount == Amount` 判断防重复应用）。
 - 回合结束：先 `Remove` 装饰层再 Apply 负值——顺序保证真力量也先减后清。
