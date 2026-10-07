@@ -87,7 +87,7 @@ graph TD
 | `harmony/` | [harmony.md](references/harmony/harmony.md) | Harmony 补丁 |
 | `serialization/` | [serialization.md](references/serialization/serialization.md) | 序列化与注册 |
 | `settings/` | [settings.md](references/settings/settings.md) | 设置界面（纯原生） |
-| `settings/` | [modconfig.md](references/settings/modconfig.md) | 设置界面（第三方框架 ModConfig：反射零依赖接入，9 种控件） |
+| `settings/` | [modconfig.md](references/settings/modconfig.md) | ModConfig 源码精读：设置页 Tab 注入纯原生转译 + 反射桥（生态可选） |
 | `baselib/` | [design-patterns.md](references/baselib/design-patterns.md) | 纯原生设计模式总纲 |
 | `multiplayer/` | [multiplayer.md](references/multiplayer/multiplayer.md) | 多人模式 |
 
