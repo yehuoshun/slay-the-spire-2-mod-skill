@@ -14,7 +14,7 @@ private static bool MaxCardsInHandPrefix(ref int __result) { __result = 20; retu
 ## ② 原版布局表偷换（HandPosHelper prefix）
 
 ```csharp
-// 启动时反射读原版静态布局表（10 行扇形坐标/角度/基础缩放），缓存住
+// 启动时反射读原版静态布局表（扇形坐标/角度/基础缩放）并缓存
 private static readonly Vector2[][] VanillaCardPositionData = GetStaticFieldValue<Vector2[][]>(
     RequireField(typeof(HandPosHelper), "_cardPositionData", BindingFlags.Static | BindingFlags.NonPublic));
 // 同样缓存 _cardAngleData、_baseScale
@@ -37,8 +37,8 @@ private static bool GetPositionPrefix(int handSize, int cardIndex, ref Vector2 _
 // GetAnglePrefix：上排角度 = 原版角度 × 0.82（收窄）；GetScalePrefix：固定用 10 张缩放
 ```
 
-- **复用原版扇形表**（坐标/角度/缩放按手牌数查表），只做行偏移——双排视觉与原版一致，不用手写曲线。
-- `GetVanillaScale` 原版 8~12 张有额外缩放系数（0.95~0.75）——直接查表乘系数。
+- **复用原版扇形表**（坐标/角度/缩放按手牌数查表）只做行偏移——双排视觉与原版一致，不用手写曲线。
+- `GetVanillaScale`：8~12 张有额外缩放系数（0.95~0.75）查表乘系数。
 
 ## ③ 分层与 hitbox 修正（RefreshLayout postfix）
 
