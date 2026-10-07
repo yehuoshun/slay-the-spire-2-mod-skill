@@ -31,6 +31,7 @@
 | 便捷 override 与内联本地化 | [design-patterns-extras.md](design-patterns-extras.md) |
 | 资源路径工具与卡池卡背 | [design-patterns-assets.md](design-patterns-assets.md) |
 | 常见坑与映射 | [design-patterns-pitfalls.md](design-patterns-pitfalls.md) |
+| 巨型 Mod 工程模式（分层/裁决/Interop/文档） | [design-patterns-mega.md](design-patterns-mega.md) |
 
 ## 演进路线
 
