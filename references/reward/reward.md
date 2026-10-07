@@ -37,6 +37,7 @@ graph LR
 | SerializableReward 字段参考 | [reward-save.md](reward-save.md) |
 | 完整示例 | [reward-examples.md](reward-examples.md) |
 | 更多示例与注册 | [reward-examples-more.md](reward-examples-more.md) |
+| 奖励卡内容修改（附魔/商店） | [reward-enchant.md](reward-enchant.md) |
 
 ## 常见问题
 
