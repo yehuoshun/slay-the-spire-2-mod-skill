@@ -16,7 +16,7 @@
 | `setup/` | [rider-live-templates.md](setup/rider-live-templates.md) | Rider Live Templates 速查 |
 | `setup/` | [mod-manifest.md](setup/mod-manifest.md) | 模组清单 JSON（字段说明、纯原生方案） |
 | `setup/` | [export-presets.md](setup/export-presets.md) | 导出预设 export_presets.cfg（PCK 打包必需） |
-| `setup/` | [project-godot.md](setup/project-godot.md) | Godot 项目配置 project.godot（字段说明） |
+| `setup/` | [project-godot.md](setup/project-godot.md) | Godot 项目配置（字段说明） |
 | `setup/` | [loader-variants.md](setup/loader-variants.md) | 加载器方案（BepInEx vs 原生 mods 目录） |
 | `setup/` | [ci-build.md](setup/ci-build.md) | CI 构建与打包（GitHub Actions 流水线） |
 | `setup/` | [ci-build-package.md](setup/ci-build-package.md) | CI 打包发布流程 |
@@ -43,7 +43,7 @@
 | `harmony/` | [harmony.md](harmony/harmony.md) | Harmony 补丁模式（PatchCategory、安全、组织规范） |
 | `serialization/` | [serialization.md](serialization/serialization.md) | 序列化与注册（ModelDb、SavedProperty、InjectTypeIntoCache、自动注册框架） |
 | `settings/` | [settings.md](settings/settings.md) | 设置界面（纯原生：Attribute + ConfigFile 持久化 + NSubmenu UI + 主菜单注入） |
-| `settings/` | [modconfig.md](settings/modconfig.md) | ModConfig 源码精读：设置页 Tab 注入纯原生转译 + 反射桥（生态可选） |
+| `settings/` | [modconfig.md](settings/modconfig.md) | ModConfig 源码精读：Tab 注入转译 + 反射桥（生态可选） |
 | `baselib/` | [design-patterns.md](baselib/design-patterns.md) | 纯原生设计模式总纲（从 BaseLib 提炼，零第三方依赖） |
 | `multiplayer/` | [multiplayer.md](multiplayer/multiplayer.md) | 多人模式（约束声明、身份检查、网络消息、网络行动、阶段门控） |
 | `overlay/` | [overlay.md](overlay/overlay.md) | 游戏内 Overlay 渲染（光标/UI 覆写、单 DLL 源生成器坑） |
