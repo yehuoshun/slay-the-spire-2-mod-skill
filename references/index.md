@@ -44,3 +44,4 @@
 | `settings/` | [settings.md](settings/settings.md) | 设置界面（纯原生：Attribute + ConfigFile 持久化 + NSubmenu UI + 主菜单注入） |
 | `baselib/` | [design-patterns.md](baselib/design-patterns.md) | 纯原生设计模式总纲（从 BaseLib 提炼，零第三方依赖） |
 | `multiplayer/` | [multiplayer.md](multiplayer/multiplayer.md) | 多人模式（约束声明、身份检查、网络消息、网络行动、阶段门控） |
+| `overlay/` | [overlay.md](overlay/overlay.md) | 游戏内 Overlay 渲染（光标/UI 覆写、单 DLL 源生成器坑） |
