@@ -81,10 +81,9 @@ protected override bool IsVisibleInternal => false;      // 隐藏（PowerModel.
 ```csharp
 public static IHoverTip FromPowerWithoutIcon<TPower>() where TPower : PowerModel
 {
-    PowerModel power = ModelDb.Power<TPower>();
-    return new HoverTip(power.Title, power.Description.GetFormattedText())
-    { Id = power.Id.ToString(), IsDebuff = power.Type == PowerType.Debuff,
-      IsInstanced = power.InstanceType != PowerInstanceType.None, IsSmart = false };
+    PowerModel p = ModelDb.Power<TPower>();
+    return new HoverTip(p.Title, p.Description.GetFormattedText())
+    { Id = p.Id.ToString(), IsDebuff = p.Type == PowerType.Debuff, IsSmart = false };
 }
 ```
 
