@@ -18,6 +18,7 @@
 | └ 纯原生注册辅助 | [event-ancient-advanced.md](event-ancient-advanced.md) |
 | 共享事件注入 + 选项链式 | [event-shared-inject.md](event-shared-inject.md) |
 | 全事件「离开」选项（SetEventState 注入） | [event-leave-option.md](event-leave-option.md) |
+| 内容事件 Mod 组织（facade/一事件一文件/树洞） | [event-facade-organization.md](event-facade-organization.md) |
 
 ## 概述
 

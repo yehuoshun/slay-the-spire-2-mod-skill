@@ -21,6 +21,7 @@
 | `setup/` | [ci-build.md](setup/ci-build.md) | CI 构建与打包（GitHub Actions 流水线） |
 | `setup/` | [ci-build-package.md](setup/ci-build-package.md) | CI 打包发布流程 |
 | `setup/` | [ci-build-pck.md](setup/ci-build-pck.md) | CI 导出 PCK 资源包 |
+| `setup/` | [loader-multiversion.md](setup/loader-multiversion.md) | 多版本变体 Loader（一个 loader 按游戏版本选 DLL） |
 | `relic/` | [relic.md](relic/relic.md) | 自定义遗物（代码模板、稀有度、池、图标、本地化） |
 | `card/` | [card.md](card/card.md) | 自定义卡牌（构造函数、API 速查、卡池、肖像、本地化） |
 | `potion/` | [potion.md](potion/potion.md) | 自定义药水（属性、回调、图标、池、本地化） |
