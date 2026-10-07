@@ -15,6 +15,7 @@
 | 遗物开局选择流程（多人同步/持久化） | [relic-keystone-flow.md](relic-keystone-flow.md) |
 | 机制模式（计数器/临时力量/选择界面/图鉴） | [relic-keystone-mechanics.md](relic-keystone-mechanics.md) |
 | 遗物获得流程 + 涅奥固定选项 + 实时材质 | [relic-ancient-sword.md](relic-ancient-sword.md) |
+| 战斗标记追踪（冷却/刷新/体型/音频） | [relic-combat-mark.md](relic-combat-mark.md) |
 
 ## 概述
 
