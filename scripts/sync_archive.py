@@ -22,7 +22,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.normpath(os.path.join(HERE, "../references"))
 DST = sys.argv[2] if len(sys.argv) > 2 else os.environ.get(
     "ARCHIVE_REFERENCES",
-    os.path.normpath(os.path.join(HERE, "../../tmp/slay-the-spire-2-mod-skill-archive/references")))
+    os.path.normpath(os.path.join(HERE, "../../../tmp/slay-the-spire-2-mod-skill-archive/references")))
 
 copied = updated = deleted = 0
 
