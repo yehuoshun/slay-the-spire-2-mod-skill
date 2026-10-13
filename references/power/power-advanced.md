@@ -32,6 +32,60 @@ public class MyTempPower : PowerModel
 - `AllowNegative = false` + 归零移除机制自动清理
 - 判断持有者是否在场用 `participants.Contains(Owner)`（真实 TemporaryStrengthPower 风格）
 
+### 变体：回合结束直接移除（不留递减过程）
+
+> 实战验证（STS2_MarisaMod 2026-10-14，PrismaticNebularPower）。不需要「每回合减 1 层」的渐退过程、只要「本回合结束时整个消失」的临时 Buff，直接 `PowerCmd.Remove(this)`：
+
+```csharp
+public class PrismaticNebularPower : PowerModel
+{
+    public override PowerType Type => PowerType.Buff;
+    public override PowerStackType StackType => PowerStackType.Counter;
+
+    public override async Task AfterSideTurnEnd(PlayerChoiceContext choiceContext, CombatSide side, IEnumerable<Creature> participants)
+    {
+        if (side == Owner.Side)      // 只在自己的回合结束时移除
+        {
+            Flash();
+            await PowerCmd.Remove(this);
+        }
+    }
+}
+```
+
+- 判断己方回合用 `side == Owner.Side`（不依赖 participants 列表）
+- 与 Decrement 模式的区别：Decrement 保留递减动画（每回合 -1 直到归零），Remove 直接整个消失；效果语义不同，按需选择
+
+## 增益扩散器（ModifyPowerAmountGivenAdditive 拦截）
+
+> 实战验证（STS2_MarisaMod 2026-10-14，PrismaticNebularPower）。持有本 Power 时，自己给**其他人**上某 Buff → 自动**扩散给全队队友**，且扩散量带修正（原始量 + 本层数 - 1）。核心：覆写 `ModifyPowerAmountGivenAdditive` 拦截「给他人施加」的瞬间。
+
+```csharp
+public override decimal ModifyPowerAmountGivenAdditive(
+    PowerModel power, Creature giver, decimal amount, Creature? target, CardModel? cardSource)
+{
+    // 拦截点：自己（giver == Owner）给他人（target != Owner）上目标 Buff 且量为正
+    if (power is StarlitPower && giver == Owner && amount > 0)
+    {
+        var teammates = CombatState.GetTeammatesOf(Owner)
+            .Where(c => c is { IsAlive: true, IsPlayer: true } && c != Owner);
+        foreach (var creature in teammates)
+        {
+            // 扩散量 = 原始量 + 本层数 - 1；同步回调里用 Throwing 上下文发起异步命令
+            _ = PowerCmd.Apply<StarlitPower>(
+                new ThrowingPlayerChoiceContext(), creature, amount + Amount - 1, Owner, null);
+        }
+    }
+
+    return base.ModifyPowerAmountGivenAdditive(power, giver, amount, target, cardSource);
+}
+```
+
+- **拦截点语义**：`giver == Owner`（自己给的）、`power is 目标Buff`、`amount > 0`（排除移除/负向），三者齐了才扩散
+- **ThrowingPlayerChoiceContext**：同步签名回调里发起异步 `PowerCmd.Apply` 必须用 `new ThrowingPlayerChoiceContext()`（丢弃上下文，立即执行；参考 power-signature-and-temp.md）
+- **扩散量修正**：`amount + Amount - 1` 把本 Power 自身层数算进扩散值——层数越高，队友吃到的越多
+- 与「临时力量装饰层」的区别：装饰层同步**同目标**的真力量；扩散器是**跨目标**复制增益（自己上 Buff 时捎带全队）
+
 ## 调试
 
 战斗中按反单引号 `` ` `` 打开控制台：
@@ -41,19 +95,6 @@ power <目标> <能力ID> <层数>
 ```
 
 `目标` 为整数，单人游戏时 `0` 表示玩家角色。
-
-## 生命条预测（HealthBarForecast）
-
-> ⚠️ **原生 `sts2.dll` 无此 API**（反编译验证：无 `IHealthBarForecastSource`/`HealthBarForecastSegment`）。这是 BaseLib v3.4.7 的方向、YuWanCard 自研接口。纯原生想实现要自研：定义接口 + Harmony Patch 生命条 UI 节点，成本高；**需要时建议直接用 BaseLib**（本 skill 唯一允许的第三方场景是设置界面，生命条预测不属于，此处仅作知识记录）。
-
-```csharp
-// 自研接口设计（灵感 BaseLib v3.4.7：OutwardFromCurrentHp / InwardFromMaxHp）
-// 能力实现 IHealthBarForecastSource，返回预测段：
-//   new HealthBarForecastSegment(Amount, color, HealthBarForecastDirection.FromRight, Order: 0)
-//   （Amount=预测值, color=颜色, direction=方向, order=排序, material=可选毁灭条着色器）
-// 毁灭条样式：ShaderUtils.CreateDoomBarShaderMaterial(
-//     ShaderUtils.CreateVanillaDoomBarGradientTexture())
-```
 
 ## 进阶：纯原生自动注册
 

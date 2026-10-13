@@ -13,6 +13,7 @@
 | 卡牌效果完整示例 | [card-api-effects.md](card-api-effects.md) |
 | 进阶写法与资源 | [card-advanced.md](card-advanced.md) |
 | 增幅（Amplify/Kicker）系统 | [card-amplify.md](card-amplify.md) |
+| 增幅实战案例（Token 增幅卡 + 动态伤害） | [card-amplify-examples.md](card-amplify-examples.md) |
 | 悬停提示与原版容器注入 | [card-hover-inject.md](card-hover-inject.md) |
 | 肖像图尺寸规格 | [card-portrait-sizes.md](card-portrait-sizes.md) |
 | 自定义动态变量 | [card-variables.md](card-variables.md) |

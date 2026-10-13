@@ -1,6 +1,17 @@
 # 自定义卡牌：增幅（Amplify/Kicker）系统
 
-> 实战验证（STS2_MarisaMod 2026-10-05）。增幅 = 多付额外费用换更强效果（如 Master Spark：1 费打 8，增幅共 2 费打 15）。纯原生：基类 + 3 个 Harmony Patch。
+> 实战验证（STS2_MarisaMod 2026-10-05 / 2026-10-14 增量）。增幅 = 多付额外费用换更强效果（如 Master Spark：1 费打 8，增幅共 2 费打 15）。纯原生：基类 + 3 个 Harmony Patch。
+
+## 章节导航
+
+| 内容 | 文件 |
+|------|------|
+| 基类设计（费用结算 + 状态） | §1 |
+| 三个必需 Patch（费用 → 标签 → 高亮） | §2 |
+| 悬停刷新（切换悬停时重算费用） | §3 |
+| 超脱卡（Transcendence） | §4 |
+| 常见坑 | [card-amplify-pitfalls.md](card-amplify-pitfalls.md) |
+| 实战案例（Token 增幅卡 + 动态增幅伤害） | [card-amplify-examples.md](card-amplify-examples.md) |
 
 ## 1. 基类设计（费用结算 + 状态）
 ```csharp
@@ -98,12 +109,3 @@ static class HoverRefreshPatch
 ## 4. 超脱卡（Transcendence）
 
 BaseLib 有 `ITranscendenceCard`（`GetTranscendenceTransformedCard()`，配合原版遗物 ArchaicTooth 把基础卡进化）。**纯原生无此接口**，等价 = Patch `ArchaicTooth.GetTranscendenceStarterCard` / `GetTranscendenceTransformedCard`（Prefix 返回自定义卡时 return false）。
-
-## 5. 常见坑
-
-| 坑 | 解法 |
-|----|------|
-| AutoPlay 不经过费用计算 | `OnPlay` 里 `cardPlay.IsAutoPlay` 强制 `AmplifiedInPlay = true` |
-| 打出一张后再打下一张，增幅状态残留 | `AfterCardPlayed` 里 `cardPlay.Card == this && cardPlay.IsLastInSeries` 时重置 |
-| 增幅费用显示没刷新 | 三个 Patch 缺一不可：费用计算 / 费用标签 / 高亮 |
-| `EnergyVar` 只显示一次 | 增幅态总费用手写拼进标签（基础费 + Kicker） |

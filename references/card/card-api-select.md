@@ -46,3 +46,31 @@ CardSelectCmd.FromHandForUpgrade(context, player, filter, source);
 // 从手牌选牌丢弃（需手动调用 CardCmd.Discard(card)）
 CardSelectCmd.FromHandForDiscard(context, player, filter, source);
 ```
+
+## 任意数量选择（0-N）+ 多玩家遍历
+
+> 实战验证（STS2_MarisaMod 2026-10-14，HeatDeathOfUniverse）。`minCount: 0, maxCount: 99` = 任意数量（可一张不选）；`FromHand` 的 `player` 参数可传**其他玩家**——多玩家模式下每个队友独立选牌。
+
+```csharp
+// 每个存活玩家队友从手牌选任意张烧掉，烧几张叠几层（示例为蓄力）
+var playersAvail = CombatState!.GetTeammatesOf(Owner.Creature)
+    .Where(c => c is { IsAlive: true, IsPlayer: true })
+    .Select(c => c.Player!).Distinct().ToList();
+
+foreach (var player in playersAvail)
+{
+    foreach (var item in await CardSelectCmd.FromHand(choiceContext, player,
+        new CardSelectorPrefs(SelectionScreenPrompt, 0, 99), null, this))
+    {
+        await CardCmd.Exhaust(choiceContext, item);
+        count += 1;
+    }
+}
+
+await PowerCmd.Apply<ChargeUpPower>(choiceContext, Owner.Creature, DynamicVars["Power"].BaseValue, Owner.Creature, this);
+```
+
+- **0-99 任意数量**：`new CardSelectorPrefs(提示, 0, 99)` —— 最小 0 = 允许一张不选直接确认；最大 99 约等于不限
+- **filter 传 null**：不过滤，任何手牌可选
+- **多玩家遍历**：`GetTeammatesOf` + `IsPlayer` 过滤 + `Distinct()` 去重（同一玩家多角色时防重复弹窗）
+- 注意：每玩家选择结果独立处理（各自 Exhaust），跨玩家不串扰
