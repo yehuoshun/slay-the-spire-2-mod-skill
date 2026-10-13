@@ -111,4 +111,4 @@ foreach (var creature in teammates)
 
 - `CombatState.CreateCard<T>(player)`：按归属玩家创建卡实例（本地化/所有权正确）
 - `CardPileCmd.AddGeneratedCardToCombat(card, PileType.Draw, owner, CardPilePosition.Random)`：生成的卡随机入抽牌堆，`owner` 为发卡方
-- `LocalContext.IsMe(creature)`：判断该玩家是否本机（多人关键——只有本机才播 `PreviewCardPileAdd` 预览）
+- `LocalContext.IsMe(creature)`（命名空间 `MegaCrit.Sts2.Core.Context`，非 Multiplayer）：判断该玩家是否本机——多人关键，只有本机才播 `PreviewCardPileAdd` 预览
