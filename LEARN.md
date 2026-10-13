@@ -69,7 +69,7 @@ git push origin main
 - **大改前先留档（硬规则）**：模块内容结构性大改（API 校正 / 方案转正 / 文件拆分）前，先把 archive 中该模块当前版复制为 `v<N+1>`（全库统一递增：当前 v4 → 下次 v5），再同步新内容；小改动靠 git 提交 diff 记录即可（“备份旧的”二选一：vX 留档 或 git diff）
 - 主仓库 push 后**必须**同步 archive，两个仓库才算完事（历次都是先主仓后备份）
 - README.md / CHANGELOG.md 只在 archive 维护，主仓库的版本不同，禁止互相覆盖
-- 沙箱无 rsync 时用 python 脚本对比复制（缺的复制、差异覆盖）
+- 沙箱无 rsync 时用 python 脚本对比复制（缺的复制、差异覆盖）→ 已固化 `scripts/sync_archive.py`（自动跳过 v*/ 归档目录）
 
 ## 重要
 
