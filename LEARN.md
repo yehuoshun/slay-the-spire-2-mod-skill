@@ -35,7 +35,7 @@
 2. **同步示例** — 在 `sts2-mod-examples/Sts2ModExamplesCode/<模块>/` 补/改对应示例：
    - 新 API 必须有示例类覆盖（类型/方法逐条对照 `sts2-res/src/`）
    - 修改的 API 更新示例调用
-3. **本地静态自检** — `python3 scripts/check-api.py`（API 白名单，防幻觉）通过
+3. **本地静态自检** — `python3 scripts/doc-api-check.py`（API 白名单，防幻觉）通过
 4. **push → CI** — push 后 GitHub Actions 自动跑：dotnet build（真编译）+ ModAnalyzers + 白名单 + 本地化 JSON 校验
 5. **CI 全绿才算完** — 编译报错 → 按错误修正示例（或修正文档）→ 重推，直到绿色
 6. **示例里踩的坑必须回流** — 真编译暴露的文档 bug/签名差异，当天修进 references + SKILL.md/README 同步
