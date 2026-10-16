@@ -51,12 +51,20 @@
     <Publicize Include="sts2" IncludeVirtualMembers="false" IncludeCompilerGeneratedMembers="false" />
 </ItemGroup>
 
-<!-- ModAnalyzers：官方静态分析器，检查模组 API 误用（推荐开） -->
+<!-- ModAnalyzers：官方静态分析器，检查模组 API 误用（有内容后推荐开） -->
 <ItemGroup>
     <PackageReference Include="Alchyr.Sts2.ModAnalyzers" Version="*" />
     <!-- 让分析器读本地化 JSON，校验 key 是否完整 -->
     <AdditionalFiles Include="ContentMod/localization/**/*.json"/>
 </ItemGroup>
+```
+
+> 📌 **上游默认已改为「空模组不开分析器」**（ModTemplate-StS2 2c900a0，v2.5.3，2026-10-15）：
+> 官方三个模板里，**只有空的 `ModTemplate` 默认把 `ModAnalyzers` 注释掉**，内容/角色模板（`ContentMod` / `CharMod`）仍默认启用。
+> 原因：分析器会校验模型注册与本地化 key，空模组什么都还没有 → 一开就报一堆「缺模型/缺 key」的噪声。
+> 实践口径：**空骨架先注释掉，等有卡牌/能力/遗物等模型 + 本地化 JSON 后再打开**（`AdditionalFiles` 保留即可，注释说明「Used by analyzer, if it's enabled」）。
+
+```xml
 
 <!-- 资源目录排除：ContentMod/ images/ 等只作资源，不参与编译 -->
 <ItemGroup>

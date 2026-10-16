@@ -9,7 +9,7 @@
 | 上游仓库 | 首次学习 | 最后跟进 | 学到版本/commit | 项目介绍 |
 |---------|---------|---------|----------------|---------|
 | [Alchyr/BaseLib-StS2](https://github.com/Alchyr/BaseLib-StS2) | 2026-08-28 | 2026-09-19 | v3.4.7（2026-09-11） | 杀戮尖塔 2 底层模组库：模型注册、设置界面、公共 API 框架，大量 mod 的依赖基础 |
-| [Alchyr/ModTemplate-StS2](https://github.com/Alchyr/ModTemplate-StS2) | 2026-09-19 | 2026-10-02 | 55ca2c6（2026-08-22，v2.5.1 后） | 官方模组模板仓库：项目骨架、导出预设、构建配置的标准参考 |
+| [Alchyr/ModTemplate-StS2](https://github.com/Alchyr/ModTemplate-StS2) | 2026-09-19 | 2026-10-16 | 2c900a0（2026-10-15，v2.5.3） | 官方模组模板仓库：项目骨架、导出预设、构建配置的标准参考 |
 | [YuWan886/Sts2-YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard) | 2026-10-02 | 2026-10-04 | 08165915（v0.5.12 后，2026-10-04） | 实战卡牌扩展 mod：卡牌/能力/遗物/自定义稀有度/多人/loader 全流程示例 |
 | [lf201014/STS2_MarisaMod](https://github.com/lf201014/STS2_MarisaMod) | 2026-10-05 | 2026-10-14 | 2ced719（main，2026-10-13） | 东方魔理沙角色 mod：实战角色（170 cs/9.7k 行，BaseLib 依赖），增幅卡（Token 增幅/动态增幅伤害）/动画状态机/角色覆写点/崩坏流（按实际伤害叠层+队友全员发卡）/增益扩散器示例 |
 | [xhyrzldf/ModConfig-STS2](https://github.com/xhyrzldf/ModConfig-STS2) | 2026-10-07 | 2026-10-07 | v0.2.2（639eb97，2026-10-07） | 通用模组配置框架（MIT）：设置页注入「Mods」标签页，9 种控件自动渲染，反射零依赖接入 |
