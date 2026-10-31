@@ -16,6 +16,10 @@ protected override IEnumerable<IHoverTip> ExtraHoverTips =>
         .Append(HoverTipFactory.FromPower<StarlitPower>());             // 能力
 ```
 
+> 集合表达式写法（C# 12，实测 STS2_MarisaMod v0.4.2）：直接 `=> [HoverTipFactory.FromPower<HoukaiPower>()]`，多个逗号分隔。
+
+> ⚠️ `FromCard<T>()` 引用**自定义卡**时，被引用卡需可见（同命名空间或 `using`）：MarisaMod 的 FourOfASpark 引用自己的 Token 卡 TabooSpark（`marisamod.Scripts.Cards.Colorless` 命名空间），靠 `using marisamod.Scripts.Cards.Colorless;` 解析。配套做法：被引用卡声明 `CanonicalKeywords`（如 TabooSpark 声明 `[CardKeyword.Exhaust]`），提示里才会带上关键词条。
+
 ## 往原版容器注入（TrashHeap）
 
 > 垃圾堆容器 `TrashHeap` 的 `Relics`/`Cards` Getter Postfix 拼接自定义内容：

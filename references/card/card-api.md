@@ -92,7 +92,11 @@ public override CardTag[] Tags => new[] { CardTag.Strike };
 
 ```csharp
 // 覆盖关键词，如"保留"
-public override CardKeyword[] CanonicalKeywords => new[] { CardKeyword.Retain };
+// ⚠️ 返回类型必须是 IEnumerable<CardKeyword>（基类签名 CardModel.cs:498），
+//    写 CardKeyword[] 会编译失败（override 返回类型不一致）。
+//    实测：STS2_MarisaMod v0.4.2（000c33f）TabooSpark → [CardKeyword.Exhaust]、
+//    PrismaticNebular → [CardKeyword.Retain]，均用集合表达式
+public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Retain];
 ```
 
 ---
