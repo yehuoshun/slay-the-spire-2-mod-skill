@@ -68,7 +68,7 @@ graph TD
 | `setup/` | [environment-setup.md](references/setup/environment-setup.md) | 环境/骨架/构建/CI/loader 全流程 |
 | `relic/` | [relic.md](references/relic/relic.md) | 遗物 |
 | `card/` | [card.md](references/card/card.md) | 卡牌 |
-| `cardgen/` | [cardgen.md](references/cardgen/cardgen.md) | 程序化卡牌生成 & 组件 API（AutoAnthony：本地化无关语义/冻结注册/外部角色接入/编辑器/平衡货币） |
+| `cardgen/` | [cardgen.md](references/cardgen/cardgen.md) | ⚠️ **生态参考，非主路线**：程序化卡牌生成 & 组件 API（AutoAnthony 纯原生本体 + 其自有生态契约；写普通卡牌一律走 `card/`，禁用本模块 API） |
 | `potion/` | [potion.md](references/potion/potion.md) | 药水 |
 | `enchantment/` | [enchantment.md](references/enchantment/enchantment.md) | 附魔 |
 | `event/` | [event.md](references/event/event.md) | 事件 + 先古之民 |

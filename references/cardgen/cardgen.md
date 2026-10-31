@@ -1,7 +1,10 @@
 # 程序化卡牌生成 & 组件 API（AutoAnthony 东尼算法）
 
-> 来源：[mewcodex/AutoAnthony](https://github.com/mewcodex/AutoAnthony) v0.3.147（2026-10-31 学习，HEAD 78e6c9d），STS2 0.111.x，**纯原生**（只依赖 sts2.dll + GodotSharp + 0Harmony，LangVersion 12 / net9.0）。
-> 定位：**生态集成参考 + 架构思想库**。skill 主路线仍是纯原生手写卡牌；本模块提供「程序化生成卡牌、组件 API、编辑器生态」的完整范例，适合做随机卡池/生成器/外部角色集成时参考。
+> ⚠️⚠️ **定位红线：本模块是「生态集成参考 + 架构思想库」，不是开发主路线。**
+> 写普通卡牌/遗物/角色 → **一律走 `card/`、`relic/`、`character/` 等主模块**，禁止调用本模块任何 API。
+> 本模块的 API（ComponentPackageApi/ComponentRuntimeApi/CardTinkeringApi 等）是 **AutoAnthony 自有生态契约**，仅在「开发 AutoAnthony 生态集成/随机卡池/卡牌编辑器」场景才可参考；其架构思想（本地化只是输出/冻结注册/概率与数值分离）可作设计借鉴，实现一律回到 sts2.dll 原生 API（硬规则 3）。
+
+> 来源：[mewcodex/AutoAnthony](https://github.com/mewcodex/AutoAnthony) v0.3.147（2026-10-31 学习，HEAD 78e6c9d），STS2 0.111.x，**本体纯原生**（只依赖 sts2.dll + GodotSharp + 0Harmony，LangVersion 12 / net9.0）。
 
 ---
 
