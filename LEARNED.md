@@ -15,6 +15,7 @@
 | [xhyrzldf/ModConfig-STS2](https://github.com/xhyrzldf/ModConfig-STS2) | 2026-10-07 | 2026-10-07 | v0.2.2（639eb97，2026-10-07） | 通用模组配置框架（MIT）：设置页注入「Mods」标签页，9 种控件自动渲染，反射零依赖接入 |
 | [s1f102500012/sts2mod](https://github.com/s1f102500012/sts2mod) | 2026-10-07 | 2026-10-07 | main（2026-10-07） | 多聚合 mod 仓库：PRTSCursor/俄洛伊/海克斯符文/心之钢等。已学 PRTS动态光标（overlay）、俄洛伊（手动注册/资源总闸/占位双基类/宠物进阶/临时力量装饰层）、可重复附魔（复合容器/Enchant 接管）、基石符文（开局选择/计数器遗物/图鉴注入）、奖励附魔（奖励卡修改/Rng 派生）、寰宇支配之剑（属性式 Patch 框架/涅奥选项/实时材质）、心之钢（共享事件注入/战斗标记追踪）、我路过（全事件离开选项）、手牌上限解除（async transpiler/手牌 UI 覆写）、无尽模式（Run 生命周期/确定性种子/Interop/配置）、更多进阶挑战（MonoMod detour/进阶 11-15）、更好的角色遗物（Patch 框架 v2/IL 指纹守卫/观者兼容）、海克斯符文（迁移独立仓库 HextechRunes：Patch v3/巨型 mod 工程/Interop 双轨）、自定义难度（怪物缩放/递进计数/联机同步）、集成战略（内容事件组织/facade/多版本 loader/树洞） |
 | [yehuoshun/STS2-ShunMod](https://github.com/yehuoshun/STS2-ShunMod) | 2026-09-19 | — | main 分支 | 自研 ShunMod：多项目结构，GitHub Actions CI 流水线参考 |
+| [mewcodex/AutoAnthony](https://github.com/mewcodex/AutoAnthony) | 2026-10-31 | 2026-10-31 | 78e6c9d（main，2026-10-21，v0.3.147） | 程序化卡池随机 mod「东尼算法」：组件化卡牌（ComponentAtom→RuntimeSpec，本地化只是输出）、出现率/数值分离、冻结注册、组件 API v3（外部角色接入/自定义关键词/运行时路由）、CardTinkering 编辑器 v6、平衡货币模型（100 单位=1 伤害）、快照 schema 迁移、单工程双用、审计文化（ApiContractSmoke） |
 
 ---
 
