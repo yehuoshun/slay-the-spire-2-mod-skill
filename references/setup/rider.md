@@ -74,6 +74,8 @@ Error → Warning → Suggestion → Hint
 2. `.sln.DotSettings` — 方案级，可入 Git 团队共享
 3. Settings Layer 覆盖 — 当前层级覆盖下级
 
+**官方模板的 .editorconfig**（学自 ModTemplate 48151e0，模板自带并入库）：只关两个 `this.` 前缀提示——`dotnet_diagnostic.IDE0009.severity = none`（建议加 `this.`）+ `dotnet_diagnostic.IDE0003.severity = none`（建议删 `this.`）。STS2 mod 代码直接写字段/属性的场景多，这俩提示噪音大，直接按掉。完整文件见 [skeleton-directory.md](skeleton-directory.md)「.editorconfig」节。
+
 ### 性能策略
 
 - 大方案默认开 **退出延迟模式**：停止输入 2 秒后才开始扫
