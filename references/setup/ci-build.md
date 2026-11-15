@@ -25,14 +25,14 @@
 
 ## 一、上传依赖
 
-手动打一个 Release，标签名如 `0.107.1`，上传两个文件：
+手动打一个 Release，标签名如 `0.113`，上传两个文件：
 
 ```
-sts2.dll         ~9 MB
-0Harmony.dll     ~2.2 MB
+sts2.dll         ~10.6 MB（0.113）
+0Harmony.dll     ~2.3 MB
 ```
 
-> 文件从游戏目录 `data_sts2_*/` 下复制。每次游戏更新后上传新版本。
+> 文件从游戏目录 `data_sts2_*/` 下复制。每次游戏更新后上传新版本，并把工作流里的 `DEPS_VERSION` 一起改掉（见下）。
 
 ---
 
@@ -49,7 +49,7 @@ on:
   workflow_dispatch:
 
 env:
-  DEPS_VERSION: "0.107.1"          # 依赖 Release 标签
+  DEPS_VERSION: "0.113"            # 依赖 Release 标签（跟游戏版本走）
   GODOT_VERSION: "4.5.1-stable"    # PCK 打包用
 
 jobs:

@@ -31,7 +31,7 @@ MyMod/
 | `author` | string | ✅ | 作者名 |
 | `description` | string | ✅ | 模组描述 |
 | `version` | string | ✅ | 语义版本号，建议 `"vX.Y.Z"` |
-| `min_game_version` | string | ✅ | 兼容的最低游戏版本（当前 `"0.107.0"`） |
+| `min_game_version` | string | ✅ | 兼容的最低游戏版本（当前 `"0.113"`） |
 | `has_pck` | bool | ✅ | 是否有资源包（通常是 `true`） |
 | `has_dll` | bool | ✅ | 是否有 C# DLL（通常是 `true`） |
 | `dependencies` | array | ❌ | 依赖列表，每项 `{ "id", "min_version" }` |
@@ -48,7 +48,7 @@ MyMod/
   "author": "YourName",
   "description": "A pure native Slay the Spire 2 mod.",
   "version": "v0.0.1",
-  "min_game_version": "0.107.0",
+  "min_game_version": "0.113",
   "has_pck": true,
   "has_dll": true,
   "dependencies": [],
@@ -61,7 +61,7 @@ MyMod/
 ## 常见问题
 
 **Q: `min_game_version` 填什么？**
-A: 填当前游戏版本。当前 STS2 为 `"0.107.0"`，可从 Steam 库 → 游戏属性查看。
+A: 填当前游戏版本。当前 STS2 为 `"0.113"`（写短版本号即可，不要带补丁号；跟随游戏升级时见 [game-version-migration.md](game-version-migration.md)），可从 Steam 库 → 游戏属性查看。
 
 **Q: `dependencies` 留空会有问题吗？**
 A: 不会。纯原生模组只依赖 `0Harmony.dll` + `sts2.dll`（在 csproj 中通过 `<Reference>` 引用），不需要在清单中声明依赖。
