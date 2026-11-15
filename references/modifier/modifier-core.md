@@ -21,7 +21,8 @@ public class MyModifier : ModifierModel
     }
 
     // 效果示例：所有攻击伤害 +2（Modify 钩子直接 override）
-    public override decimal ModifyDamageAdditive(Creature? target, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource)
+    // 0.113 起末尾多一个 CardPlay? cardPlay，旧签名编译不过
+    public override decimal ModifyDamageAdditive(Creature? target, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource, CardPlay? cardPlay)
     {
         if (dealer?.Player != null && props.IsPoweredAttack())
             return amount + 2m;

@@ -15,7 +15,7 @@
 ```csharp
 // 创建伤害操作
 DamageCmd.Attack(<伤害值>)
-    .FromCard(this)                    // 指定来源为卡牌
+    .FromCard(this, cardPlay)          // 指定来源为卡牌（0.113 起 cardPlay 必填，取自 OnPlay 参数）
     .FromOsty(creature, this)          // 指定来源为奥斯提宠物
     .FromMonster(monster)              // 指定来源为怪物
     .Targeting(creature)               // 指定单一目标
@@ -28,7 +28,7 @@ DamageCmd.Attack(<伤害值>)
 
 | 方法 | 说明 |
 |------|------|
-| `FromCard(CardModel)` | 伤害来源为卡牌 |
+| `FromCard(CardModel, CardPlay)` | 伤害来源为卡牌（0.113 起 cardPlay 必填，旧单参编译不过） |
 | `FromOsty(Creature, CardModel)` | 伤害来源为奥斯提宠物 |
 | `FromMonster(MonsterModel)` | 伤害来源为怪物 |
 | `Targeting(Creature)` | 指定单一目标 |

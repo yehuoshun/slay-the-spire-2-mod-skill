@@ -27,7 +27,7 @@ animator.AddAnyState("Dead", die, () => 条件);            // 第三个参数 =
 ```csharp
 public class MyCharacter : CharacterModel
 {
-    public override CreatureAnimator GenerateAnimator(MegaSprite controller)
+    public override CreatureAnimator GenerateAnimator(MegaSprite controller, Creature creature)
     {
         var idle = new AnimState("idle_loop", isLooping: true);
         var cast = new AnimState("cast");
@@ -51,6 +51,8 @@ public class MyCharacter : CharacterModel
 ```
 
 > `GenerateAnimator` 是 `CharacterModel` 原生虚方法（sts2-res 已验证），纯原生角色直接覆写即可，动画名要与角色骨架（Spine）里的动画名一致。
+>
+> 0.113 起多一个 `Creature` 参数（`GenerateAnimator(MegaSprite controller, Creature creature)`），旧单参签名编译不过；怪物 `MonsterModel` 仍是单参。
 
 ## 3. 怪物：Patch GenerateAnimator 重定义
 
@@ -58,6 +60,7 @@ public class MyCharacter : CharacterModel
 [HarmonyPatch(typeof(PhantasmalGardener), nameof(PhantasmalGardener.GenerateAnimator))]
 static class GardenerAnimatorPatch
 {
+    // 怪物 MonsterModel.GenerateAnimator 仍是单参（0.113 只给角色 CharacterModel 加 Creature）
     static bool Prefix(PhantasmalGardener __instance, ref CreatureAnimator __result, MegaSprite controller)
     {
         var idle = new AnimState("idle_loop", isLooping: true);

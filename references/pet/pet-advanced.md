@@ -26,7 +26,7 @@ public sealed class MyTentacleMonster : MonsterModel
 public override int MinInitialHp => 1;  public override int MaxInitialHp => 1;
 public override bool CanChangeScale => true;      // 允许缩放（视觉大小随布局）
 public override bool HasDeathSfx => false;  public override bool HasHurtSfx => false;
-public override bool IsHealthBarVisible => false;
+public override bool IsInteractable => false;    // 0.113 起 IsHealthBarVisible 已移除
 protected override string VisualsPath => SceneHelper.GetScenePath("creature_visuals/fallback");
 protected override MonsterMoveStateMachine GenerateMoveStateMachine()
 {

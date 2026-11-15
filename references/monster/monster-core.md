@@ -47,7 +47,7 @@ public class MyMonster : MonsterModel
 | 成员 | 类型 | 说明 |
 |------|------|------|
 | `MinInitialHp` / `MaxInitialHp` | `public abstract int` | 初始血量范围 |
-| `IsHealthBarVisible` | `public virtual bool` | 是否显示血条（宠物 false） |
+| `IsInteractable` | `public virtual bool` | 是否可交互（宠物 false）；0.113 起 `IsHealthBarVisible` 已移除 |
 | `TakeDamageSfxType` | `public virtual DamageSfxType` | 受击音效类型 |
 | `AfterAddedToRoom()` | `public virtual Task` | 入场后 |
 | `AfterDeath(...)` | `public virtual Task` | 死亡后 |

@@ -93,9 +93,9 @@ public class ExampleStrike : CardModel
     {
         // 空值检查（真实源码风格）
         ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
-        // 执行伤害
+        // 执行伤害（0.113 起 FromCard 的 cardPlay 必填）
         await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
-            .FromCard(this)
+            .FromCard(this, cardPlay)
             .Targeting(cardPlay.Target)
             .WithHitFx("vfx/vfx_attack_slash")
             .Execute(choiceContext);

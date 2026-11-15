@@ -31,7 +31,8 @@ public class MyPower : PowerModel
     }
 
     // 示例②：力量式伤害修正（持有者造成攻击伤害 +Amount）
-    public override decimal ModifyDamageAdditive(Creature? target, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource)
+    // 0.113 起末尾多一个 CardPlay? cardPlay，旧签名编译不过
+    public override decimal ModifyDamageAdditive(Creature? target, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource, CardPlay? cardPlay)
     {
         if (Owner != dealer) return 0m;
         return props.IsPoweredAttack() ? Amount : 0m;

@@ -14,7 +14,8 @@ public static class CardFx
         CardPlay play, int damage, int hits = 1, string? hitFx = null)
     {
         ArgumentNullException.ThrowIfNull(play.Target, "play.Target");
-        var cmd = DamageCmd.Attack(damage).FromCard(card).Targeting(play.Target)
+        // 0.113 起 FromCard 的 cardPlay 必填（此处形参名叫 play）
+        var cmd = DamageCmd.Attack(damage).FromCard(card, play).Targeting(play.Target)
             .WithHitCount(hits);
         if (hitFx != null) cmd = cmd.WithHitFx(hitFx);
         return cmd.Execute(ctx);
@@ -23,7 +24,7 @@ public static class CardFx
     // 攻击所有敌人
     public static Task DealDamageAll(this CardModel card, PlayerChoiceContext ctx,
         CardPlay play, int damage)
-        => DamageCmd.Attack(damage).FromCard(card)
+        => DamageCmd.Attack(damage).FromCard(card, play)
             .TargetingAllOpponents(card.CombatState).Execute(ctx);
 
     // 抽牌（真实签名：Draw(PlayerChoiceContext, decimal count, Player, bool)）

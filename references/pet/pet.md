@@ -13,7 +13,7 @@
 | | 怪物 | 宠物 |
 |------|------|------|
 | AI 状态机 | 自定义行为树 | 固定不行动 |
-| 血条 | 显示 | 可选隐藏 |
+| 血条 | 显示 | 无开关（0.113 起移除） |
 | 阵营 | 敌方 | 己方 |
 | 攻击 | 攻击玩家 | 不攻击 |
 
@@ -35,8 +35,8 @@ public class MyPet : MonsterModel
     public override int MinInitialHp => 10;
     public override int MaxInitialHp => 10;
 
-    // 宠物不显示血条（可选）
-    public override bool IsHealthBarVisible => false;
+    // 宠物不可交互（0.113 起 IsHealthBarVisible 已整个移除，改用 IsInteractable）
+    public override bool IsInteractable => false;
 
     // 宠物固定不行动（protected override，不是 public）
     protected override MonsterMoveStateMachine GenerateMoveStateMachine()
@@ -55,8 +55,8 @@ public class MyPet : MonsterModel
 ```csharp
 public class MyPet : MonsterModel
 {
-    // 是否显示血条（宠物通常隐藏）
-    public override bool IsHealthBarVisible => false;
+    // 宠物不可交互（0.113 起没有血条开关）
+    public override bool IsInteractable => false;
 
     // 动画场景（与怪物相同规则）
     // res://scenes/creature_visuals/<ID小写>.tscn
@@ -67,7 +67,7 @@ public class MyPet : MonsterModel
 
 | 属性 | 默认值 | 说明 |
 |------|--------|------|
-| `IsHealthBarVisible` | `true` | 是否显示血条（宠物设为 false） |
+| `IsInteractable` | `true` | 是否可交互（宠物设 false；0.113 起没有血条开关，宠物判定 = `PetOwner` 非空） |
 | `GenerateMoveStateMachine()` | - | 返回固定不行动的 AI 状态机 |
 
 ---
@@ -100,7 +100,7 @@ ModelDb.Inject(typeof(MyPet));
 | 问题 | 解决 |
 |------|------|
 | 宠物乱动 | 检查 `GenerateMoveStateMachine` 是否返回固定状态机（`protected override`） |
-| 血条显示 | 将 `IsHealthBarVisible` 设为 false |
+| 血条显示 | 0.113 起没有血条开关（`IsHealthBarVisible` 已移除），宠物判定 = `PetOwner` 非空 |
 | 场景不显示 | 检查 `res://scenes/creature_visuals/` 路径 |
 | 宠物不跟随 | 需要通过卡牌/能力/事件代码召唤 |
 | 缺血量报错 | 必填 `MinInitialHp`/`MaxInitialHp` |
@@ -117,7 +117,7 @@ ModelDb.Inject(typeof(MyPet));
 public class MyPet : MonsterModel { ... }
 ```
 
-> 宠物本质是 `MonsterModel`，注册用 `ModelDb.Inject`；如需自定义血条显示，参考上方「宠物场景」。
+> 宠物本质是 `MonsterModel`，注册用 `ModelDb.Inject`；0.113 起没有血条开关，宠物判定 = `PetOwner` 非空，可否交互看 `IsInteractable`。
 
 ## 演进路线
 

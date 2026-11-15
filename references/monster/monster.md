@@ -33,7 +33,7 @@
 | 条件分支不触发 | `AddState(move, () => condition)`，按顺序判断，先精确后默认 |
 | 遭遇不出现 | 检查 `GenerateAllEncounters` Patch（ref IEnumerable，非 getter） |
 | 遭遇只在特定章节 | 章节有效性由章节配置控制（`IsValidForAct` 是 BaseLib 的） |
-| 怪物不显示血条 | `IsHealthBarVisible = false`（宠物） |
+| 怪物不显示血条 | 0.113 起 `IsHealthBarVisible` 已移除；可否交互看 `IsInteractable`（宠物设 false） |
 
 ---
 

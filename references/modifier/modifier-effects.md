@@ -18,8 +18,8 @@ protected override void AfterRunCreated(RunState runState)
 ### 模式 2：伤害/格挡修正（Modify 钩子）
 
 ```csharp
-// 所有攻击伤害 +2
-public override decimal ModifyDamageAdditive(Creature? target, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource)
+// 所有攻击伤害 +2（0.113 起末尾多一个 CardPlay? cardPlay，旧签名编译不过）
+public override decimal ModifyDamageAdditive(Creature? target, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource, CardPlay? cardPlay)
 {
     if (dealer?.Player != null && props.IsPoweredAttack())
         return amount + 2m;
@@ -27,7 +27,7 @@ public override decimal ModifyDamageAdditive(Creature? target, decimal amount, V
 }
 
 // 敌人 HP 翻倍（乘算钩子）
-public override decimal ModifyDamageMultiplicative(Creature? target, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource)
+public override decimal ModifyDamageMultiplicative(Creature? target, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource, CardPlay? cardPlay)
 {
     return amount * 2m;
 }
@@ -56,8 +56,8 @@ public override float ModifyOddsIncreaseForUnrolledRoomType(RoomType roomType, f
 // Modifier 模型（元数据自动从 modifiers.json 读取）
 public class AttackBuffModifier : ModifierModel
 {
-    // 效果直接写在钩子里：所有攻击伤害 +2
-    public override decimal ModifyDamageAdditive(Creature? target, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource)
+    // 效果直接写在钩子里：所有攻击伤害 +2（0.113 起带 CardPlay? 末参）
+    public override decimal ModifyDamageAdditive(Creature? target, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource, CardPlay? cardPlay)
     {
         if (dealer?.Player != null && props.IsPoweredAttack())
             return amount + 2m;

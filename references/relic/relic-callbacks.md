@@ -58,7 +58,7 @@ static class IroncladStartingRelicsPatch
 
 > 实战项目验证（YuWanCard 真实代码）。除事件钩子外，遗物还可覆写以下数值/奖励修改钩子。
 
-| `ModifyDamageMultiplicative` | `decimal ModifyDamageMultiplicative(Creature? target, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource)` | 伤害倍率 |
+| `ModifyDamageMultiplicative` | `decimal ModifyDamageMultiplicative(Creature? target, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource, CardPlay? cardPlay)` | 伤害倍率（0.113 起带 CardPlay? 末参） |
 | `ModifyBlockMultiplicative` | `decimal ModifyBlockMultiplicative(Creature target, decimal block, ValueProp props, CardModel? cardSource, CardPlay? cardPlay)` | 格挡倍率 |
 | `ModifyMaxEnergy` | `decimal ModifyMaxEnergy(Player player, decimal amount)` | 最大能量 |
 | `ModifyHandDraw` | `decimal ModifyHandDraw(Player player, decimal count)` | 抽牌数（⚠️ decimal 非 int） |

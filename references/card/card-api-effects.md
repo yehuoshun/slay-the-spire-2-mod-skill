@@ -12,18 +12,20 @@ protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay
     ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
 
     await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
-        .FromCard(this)
+        .FromCard(this, cardPlay)
         .Targeting(cardPlay.Target)
         .Execute(choiceContext);
 }
 ```
+
+> 0.113 起 `FromCard` 的 `cardPlay` 必填（旧单参编译不过），本文各示例统一传 `cardPlay`。
 
 ## 攻击 + 施加能力
 
 ```csharp
 ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
 await DamageCmd.Attack(DynamicVars.Damage.BaseValue)
-    .FromCard(this).Targeting(cardPlay.Target)
+    .FromCard(this, cardPlay).Targeting(cardPlay.Target)
     .Execute(choiceContext);
 
 await PowerCmd.Apply<VulnerablePower>(choiceContext, cardPlay.Target, 1, Owner.Creature, this);
@@ -58,7 +60,7 @@ protected override void OnUpgrade()
 protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 {
     ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
-    await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+    await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this, cardPlay)
         .Targeting(cardPlay.Target).Execute(choiceContext);
     await CardPileCmd.Draw(choiceContext, 1, Owner);
 }
@@ -69,7 +71,7 @@ protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay
 > 实战验证（STS2_MarisaMod 2026-10-14，FourOfASpark）。`Execute()` 返回攻击命令对象，`Results` 里是**每个目标实际结算结果**——汇总未格挡伤害（`UnblockedDamage`），按真实造成伤害量给目标叠 debuff：
 
 ```csharp
-var attackCommand = await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this)
+var attackCommand = await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this, cardPlay)
     .Targeting(cardPlay.Target)
     .WithHitFx("vfx/vfx_attack_slash")
     .Execute(choiceContext);

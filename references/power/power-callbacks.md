@@ -8,10 +8,12 @@
 
 | 回调 | 签名 | 说明 |
 |------|------|------|
-| `ModifyDamageAdditive` | `decimal ModifyDamageAdditive(Creature? target, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource)` | 伤害加减（力量） |
-| `ModifyDamageMultiplicative` | 同左 5 参 | 伤害乘除（易伤） |
+| `ModifyDamageAdditive` | `decimal ModifyDamageAdditive(Creature? target, decimal amount, ValueProp props, Creature? dealer, CardModel? cardSource, CardPlay? cardPlay)` | 伤害加减（力量） |
+| `ModifyDamageMultiplicative` | 同左 6 参 | 伤害乘除（易伤） |
 | `ModifyBlockAdditive` | `decimal ModifyBlockAdditive(Creature target, decimal block, ValueProp props, CardModel? cardSource, CardPlay? cardPlay)` | 格挡加减 |
 | `ModifyBlockMultiplicative` | 同左 5 参 | 格挡乘除 |
+
+> 0.113 起伤害四钩子（`ModifyDamageAdditive` / `…Multiplicative` / `…MultiplicativeLate` / `…DamageCap`）末尾都多一个 `CardPlay? cardPlay`，旧 5 参签名编译不过；格挡系列**没有** dealer 参数。
 
 ### 生命周期 / 事件钩子（AbstractModel）
 
