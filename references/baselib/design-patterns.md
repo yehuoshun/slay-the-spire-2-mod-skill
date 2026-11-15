@@ -4,13 +4,14 @@
 
 > 本 skill 主推**纯原生**开发：只靠 `0Harmony.dll` + `sts2.dll`，零第三方依赖。
 > BaseLib 是优秀的设计参考，本文件把它所有便利机制**转译为纯原生实现**，作为各模块子项的通用地基。
-> **基于 BaseLib v3.4.7（2026-09-11）** 提炼。
+> **基于 BaseLib v3.4.8（6fc4adb，2026-11-12）** 提炼。
 
 ## BaseLib 更新记录
 
 | 版本 | 日期 | 新增内容（影响纯原生设计参考） |
 |------|------|------------------------------|
 | v3.4.7 | 2026-09-11 | `IPlayCustomPowerSfx`（✅ → [harmony-custom-power-sfx.md](../harmony/harmony-custom-power-sfx.md)）、`HealthBarForecast` 新方向（OutwardFromCurrentHp / InwardFromMaxHp）、`ConfigSection CollapsedByDefault`（✅ → [settings-attributes.md](../settings/settings-attributes.md)）、ModInterop 扩展通用类/方法补丁、自定义资源默认视觉处理 |
+| v3.4.8 | 2026-11-12 | 多版本兼容工程化（兼容层独立程序集 + 按 `SemanticVersion` 分档 + 目标方法多签名兜底 → [design-patterns-compat.md](design-patterns-compat.md)）、基块修改钩子真正生效（`ModifyBaseBlockAdditive/Multiplicative`）、Act 1 自定义先古（`HealFromZero` + 原生 `_sharedAncientSubset` 为 null → ✅ [event-ancient-advanced.md](../event/event-ancient-advanced.md)）、自定义战斗牌堆（→ [pile-custom-combat.md](../pile/pile-custom-combat.md)）、`GetDynamicVarSet` / `.smartTitle` / `TooltipSource` 支持球（✅ → [design-patterns-extras.md](design-patterns-extras.md)）、韧性写法清单（✅ → [design-patterns-pitfalls.md](design-patterns-pitfalls.md)）、`IHealthbarForecastContext` 破坏性变更（→ [power-healthbar-forecast.md](../power/power-healthbar-forecast.md)） |
 
 > ✅ 标记的项已完成纯原生转译或文档补充。其余为 BaseLib API 自身增量，**不影响本文件的纯原生转译内容**。
 
@@ -32,6 +33,7 @@
 | 资源路径工具与卡池卡背 | [design-patterns-assets.md](design-patterns-assets.md) |
 | 常见坑与映射 | [design-patterns-pitfalls.md](design-patterns-pitfalls.md) |
 | 巨型 Mod 工程模式（分层/裁决/Interop/文档） | [design-patterns-mega.md](design-patterns-mega.md) |
+| 多版本兼容工程化与补丁韧性 | [design-patterns-compat.md](design-patterns-compat.md) |
 
 ## 演进路线
 

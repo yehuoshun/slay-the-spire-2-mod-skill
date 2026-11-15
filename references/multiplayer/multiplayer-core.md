@@ -70,3 +70,18 @@ public struct MyMessage : INetMessage, IPacketSerializable, IRunLocationTargeted
 - **战斗结束判定**：循环效果每轮检查 `CombatManager.Instance?.IsEnding != false` 提前 break，防结算后效果继续跑报错
 
 > 自定义网络行动（`GameAction`/`INetAction`）、PlayPhase 门控、交互状态防护 → [multiplayer-netactions.md](multiplayer-netactions.md)
+
+
+### 自定义网络消息：lobby 阶段就要注册
+
+接收 handler 如果只挂在「战斗开始」这类时机上，lobby 里发的消息就收不到——网络服务在 lobby 阶段早已创建。v3.4.8 的解法是双层注册：
+
+1. 给 `NetHostGameService` / `NetClientGameService` 的**构造器**打 Postfix，构造完立刻 `Register(service)`；
+2. 再在 `RunManager.InitializeShared` 的 Postfix 里先 `Unregister(service)` 再 `Register(service)`，防止同一连接被注册两次。
+
+自定义消息类型要点：
+
+- 类型必须**静态存在于 mod 程序集**里（启动期反射扫描收集）；
+- 消息 id 由类型 `FullName` 的哈希决定 —— **改类名或命名空间 = 联机不兼容**；
+- lobby 阶段 `RunManager.Instance.NetService` 未必可用，发送时把服务显式传进去；
+- 抄 Postfix 时核对参数类型：`[HarmonyPatch]` + `TargetMethod()` 的目标类型必须与 Postfix 第一个参数一致，否则静默失效（BaseLib 自己的 client 版就写成了 host 类型）。

@@ -75,3 +75,11 @@ public class MyOrb : OrbModel
 
 > ⚠️ 图标/精灵路径 `IconPath`/`SpritePath` 是原生 **private**（命名约定 `orbs/<id小写>.png` + `orb_visuals/<id小写>` 场景），不可 override。`IncludeInRandomPool` 是 BaseLib `CustomOrbModel` 的，原生用 `OrbModel.GetRandomOrb(Rng)` 随机池机制。
 
+
+### 悬停提示：球模型的 `DumbHoverTip`
+
+给自定义球做悬停提示时，`TooltipSource` 的隐式转换原来只认 Power/Card/Potion/Enchantment，传球类型会抛 `Unable to generate hovertip from type …`。v3.4.8 补了 `OrbModel` 分支，走 `ModelDb.GetById<OrbModel>(ModelDb.GetId(type)).DumbHoverTip`：
+
+- `DumbHoverTip` 是**静态描述**（不含实例数值），适合说明型提示；
+- 要带实例数值就自己 `new HoverTip(orbModel, description)` 构造，别指望 Dumb 版本；
+- 类型必须已在 ModelDb 注册，查询发生在「生成提示」那一刻，而不是注册那一刻。

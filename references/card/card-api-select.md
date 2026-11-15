@@ -74,3 +74,20 @@ await PowerCmd.Apply<ChargeUpPower>(choiceContext, Owner.Creature, DynamicVars["
 - **filter 传 null**：不过滤，任何手牌可选
 - **多玩家遍历**：`GetTeammatesOf` + `IsPlayer` 过滤 + `Distinct()` 去重（同一玩家多角色时防重复弹窗）
 - 注意：每玩家选择结果独立处理（各自 Exhaust），跨玩家不串扰
+
+
+### 按牌堆原顺序选牌（别用 `FromCombatPile` 的默认排序）
+
+原生 `CardSelectCmd.FromCombatPile` 会把抽牌堆**按稀有度排序**再显示，并且只取一次快照。于是「看牌堆顶部 N 张」「别人塞牌后界面要跟着刷新」这两类需求都会错。
+
+BaseLib v3.4.8 的做法值得抄结构：`BaseLibCardSelectCmd.FromCombatPileInOrder(context, pile, player, prefs, filter)` 保留牌堆原顺序，内部流程是
+
+1. `CombatManager.Instance.IsEnding` 为真直接返回空（别在该结束的战斗里弹选择）；
+2. 校验是真·战斗牌堆，否则 `InvalidOperationException`；
+3. 玩家已 ready 且轮到我方时先撤销结束回合（`UndoEndTurnReadyForCardSelect`）；
+4. 卡数 0 → 空；非强制确认且已满足最小选数 → 直接全给，不弹界面；
+5. 没有现成 selector 时申请 `choiceId` 并广播「选择开始」；
+6. 本地玩家才真正 `NCombatPileCardSelectScreen.Create(...)` + `NOverlayStack.Push`；
+7. 最后 `SyncLocalChoice(player, choiceId, PlayerChoiceResult.FromMutableCombatCards(result))`。
+
+要点：`prefs.Comparison` 必须留空才保序；多人同步复用原生 `PlayerChoiceSynchronizer`，**不要自己发网络消息**；只有当前没有 selector 时才申请 `choiceId`，否则会和别的选择流程抢。

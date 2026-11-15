@@ -34,5 +34,5 @@ public static class CustomModifierListPatch
 
 ## 序列化
 
-Modifier 序列化由原生 `FromSerializable` 自动处理（`SaveUtil.ModifierOrDeprecated` + `SavedProperties`）。自定义属性用 `[SavedProperty]` + `InjectTypeIntoCache` 即可（见 [serialization.md](../serialization/serialization.md)），**无需 Patch `FromSerializable`**。
+Modifier 序列化由原生 `FromSerializable` 自动处理（`SaveUtil.ModifierOrDeprecated` + `SavedProperties`）。自定义属性用 `[SavedProperty]`（≤0.112 还要 `InjectTypeIntoCache`；0.113 起该 API 已删、游戏自动扫描）即可（见 [serialization.md](../serialization/serialization.md)），**无需 Patch `FromSerializable`**。
 

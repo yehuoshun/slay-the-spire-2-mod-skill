@@ -59,7 +59,9 @@ private static readonly ConditionalWeakTable<Player, KeystoneSelectionRuntimeSta
 - 运行时状态用 `ConditionalWeakTable<Player, T>`（不持有 Player 引用，防泄漏）。
 - marker 写入：`SavedProperties.bools` 里按 `name` 找/加 `SavedProperty<bool>`；读：`props.bools.Any(p => p.name == X && p.value)`。
 
-## 联机属性位宽修复（重要坑）
+## 联机属性位宽修复（重要坑，仅 ≤0.112）
+
+> 0.113 起 `SavedPropertiesTypeCache` 已从游戏删除（并入 `ModelIdSerializationCache` 并转私有），下面这段反射直接失效；按 `typeof(...)` 反射取不到类型时（返回 null）就跳过整段，不要让它成为启动期异常。
 
 `SavedPropertiesTypeCache.NetIdBitSize` 是联机属性 ID 的位宽，自定义 SavedProperty 多到溢出会 **desync**：
 

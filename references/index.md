@@ -21,6 +21,7 @@
 | [project-godot.md](setup/project-godot.md) | Godot 项目配置（字段说明） |
 | [loader-variants.md](setup/loader-variants.md) | 加载器方案（BepInEx vs 原生 mods 目录） |
 | [loader-multiversion.md](setup/loader-multiversion.md) | 多版本变体 Loader（一个 loader 按游戏版本选 DLL） |
+| [game-version-migration.md](setup/game-version-migration.md) | 跟随游戏版本升级（0.113 断点清单 + 排查流程：dll 编译、MetadataLoadContext 查签名、上游源码对照） |
 | [ci-build.md](setup/ci-build.md) | CI 构建与打包（GitHub Actions 流水线） |
 | [ci-build-package.md](setup/ci-build-package.md) | CI 打包发布流程 |
 | [ci-build-pck.md](setup/ci-build-pck.md) | CI 导出 PCK 资源包 |
@@ -53,7 +54,7 @@
 | 模块 | 入口 | 内容 |
 |------|------|------|
 | harmony | [harmony.md](harmony/harmony.md) | Harmony 补丁模式（PatchCategory、安全、组织规范） |
-| serialization | [serialization.md](serialization/serialization.md) | 序列化与注册（ModelDb、SavedProperty、InjectTypeIntoCache、自动注册框架） |
+| serialization | [serialization.md](serialization/serialization.md) | 序列化与注册（ModelDb、SavedProperty、InjectTypeIntoCache（≤0.112）、自动注册框架） |
 | settings | [settings.md](settings/settings.md) | 设置界面（纯原生：Attribute + ConfigFile 持久化 + NSubmenu UI + 主菜单注入） |
 | settings | [modconfig.md](settings/modconfig.md) | ModConfig 源码精读：Tab 注入转译 + 反射桥（生态可选） |
 | baselib | [design-patterns.md](baselib/design-patterns.md) | 纯原生设计模式总纲（从 BaseLib 提炼，零第三方依赖） |

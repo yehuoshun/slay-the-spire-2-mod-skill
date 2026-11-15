@@ -70,3 +70,22 @@ public class FireVar : CalculatedVar
 
 - [card-advanced.md](card-advanced.md) — 链式辅助方法、注册、肖像、本地化
 - [card-constructor.md](card-constructor.md) — 卡牌构造函数基础
+
+
+### `GetBaseValueForIConvertible` 已不可覆写（v3.4.8）
+
+自定义 `DynamicVar`（`DisplayVar<T>`、自定义 Calculated 变量等）原先靠覆写 `GetBaseValueForIConvertible()` 把「显示值」喂给基类。v3.4.8 起基类不再调用它——覆写还留着也能编过，但**完全不生效**，卡面显示的永远是基类算出来的值。
+
+改成在预览更新时直接赋 `BaseValue`：
+
+```csharp
+protected override void UpdateCardPreview()
+{
+    BaseValue = NumericValue;   // 不是 PreviewValue
+}
+
+// NumericValue = 文本能 parse 就用 parse 值，否则回退 BaseValue
+public decimal NumericValue => _owner != null && decimal.TryParse(_displayText(_owner), out var v) ? v : BaseValue;
+```
+
+判断「这个 override 还有没有用」的通用手法：升级游戏/库之后，凡是「删掉还能编过」的 `override`，多半是该抽象层已经换了实现，留着就是死代码——直接删，别留「以防万一」。

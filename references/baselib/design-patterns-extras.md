@@ -56,3 +56,11 @@ public static class LocKeys
 
 **结论：本地化保持原生 JSON 方案即可，BaseLib 的内联写法没有纯原生优势，不转译。**
 
+
+### v3.4.8 增量：通用取值 / 悬停标题 / 注册时机
+
+- **任意模型取动态变量**：`GetDynamicVarSet(this AbstractModel)` 覆盖 Card/Relic/Power/**Potion/Enchantment/Event**，不支持时返回 `null`；`GetDynamicVar(model, key)` 改为 `GetDynamicVarSet()?[key] ?? throw`。写通用工具先判空——「不支持」的唯一信号是 null，不是异常。
+- **悬停标题带实时数值**：`WithTooltip(locKey)` 现在优先查 `<key>.smartTitle`（可写 `"流血 {Bleed}"` 这种带格式化的标题），缺了才回落 `<key>.title`；描述同理优先 `.smartDescription`。缺键静默回落，不报错。
+- **药水也吃动态变量提示**：`PotionModel.HoverTips` 的 getter Postfix 已把 `DynamicVars` 里带 tooltip 的变量挂上，模组侧不要再重复加。
+- **球模型的悬停提示**：`TooltipSource` 支持 `OrbModel`，走 `DumbHoverTip`（静态描述，不含实例数值）。
+- **自定义网络消息**：接收 handler 改在网络服务构造时注册，lobby 里发的消息也能收到。

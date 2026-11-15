@@ -35,3 +35,24 @@ protected override async Task OnUse(PlayerChoiceContext choiceContext, Creature?
 public override bool CanBeGeneratedInCombat => false;  // 阻止随机生成
 ```
 
+
+### 动态变量 tooltip：`HoverTips` 是 lazy Concat，不是集合
+
+给 `PotionModel.HoverTips` 打 getter Postfix 注入提示时，`__result` 通常是 `Concat` 出来的惰性序列，直接 `Add` 要么改不动要么抛。必须先物化再改：
+
+```csharp
+[HarmonyPatch(typeof(PotionModel), nameof(PotionModel.HoverTips), MethodType.Getter)]
+public static class PotionHoverTipsPatch
+{
+    private static void Postfix(PotionModel __instance, ref IEnumerable<IHoverTip> __result)
+    {
+        var tips = __result.ToList();          // 必须物化
+        tips.AddRange(BuildTips(__instance));
+        __result = tips;
+    }
+}
+```
+
+同类补丁要给卡牌、遗物、能力、药水**各打一处**：只打了前三者，就会出现「药水的数值变量没有悬停说明」这种半边生效的问题。
+
+模组侧不要重复加：库已经自动把 `DynamicVars` 里带 tooltip 的变量挂上去，自己再加一遍就是重复显示。

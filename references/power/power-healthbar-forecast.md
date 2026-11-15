@@ -16,3 +16,17 @@
 // 毁灭条样式：ShaderUtils.CreateDoomBarShaderMaterial(
 //     ShaderUtils.CreateVanillaDoomBarGradientTexture())
 ```
+
+
+### v3.4.8 破坏性变更：`CombatStateWrapper` 已删
+
+`HealthBarForecastContext.CombatState` 的类型从 `CombatStateWrapper?` 变成 `ICombatState?`（record struct 本体没变，只需重编译），原来的包装类整族消失：
+
+| 旧写法 | 现在 |
+|---|---|
+| `new CombatStateWrapper(creature.CombatState)` / `x.WrappedCombatState(creature)` | `creature.CombatState` |
+| `x.WrappedCombatState(creature)?.CurrentSide` | `creature.CombatState?.CurrentSide` |
+| `new CombatStateWrapper(state).RunState` | `creature.CombatState?.RunState` |
+| `RunState.IterateHookListeners.Invoke(...)` | `runState.IterateHookListeners(combatState)` |
+
+另外 `CommonActions.Apply<T>()` / `ApplySelf<T>()` 的无上下文重载全部删除：必须传 `PlayerChoiceContext`，手上确实没有就 `new ThrowingPlayerChoiceContext()`——它会在真被调用时抛异常，比传 null 更早暴露「这里不该有选择」。

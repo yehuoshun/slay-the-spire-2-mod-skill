@@ -47,6 +47,24 @@ entries.Sort((left, right) =>
 
 Transpiler 最脆（依赖 IL 形态，游戏更新易失效）。能用 Postfix（改返回值）/ Prefix（跳过原逻辑）解决就别上；必须改方法体指令时才用，并在 `## 演进路线` 备注脆弱点。
 
+### 插入而非替换：`Dup` 保留原调用结果
+
+想在某个原生调用「之后」再叠一层自己的判定，别直接改 `instruction.operand`：
+
+```csharp
+if (code[i].Calls(original))
+{
+    code.Insert(i++, new CodeInstruction(OpCodes.Dup));                    // 复制原生结果
+    code.Insert(++i, new CodeInstruction(OpCodes.Call, combineMethod));    // 与自己的判定合并
+}
+```
+
+`combineMethod` 签名形如 `static bool Combine(SomeEnum value, bool originalResult) => MyRegistry.Contains(value) || originalResult;`，并加 `[MethodImpl(MethodImplOptions.NoInlining)]`（否则 JIT 内联后 IL 指纹可能对不上，也便于浮点数/枚举边界调试）。
+
+**为什么不能替换**：把 operand 换成自己的方法等于抹掉原生结果，其它 mod 基于同一个调用打的补丁全部失效，而且这类冲突只在装了别的 mod 时才复现，极难查。`Dup` 保留原结果再或上自己的判定，天然兼容。
+
+注意索引位移：`Insert(i++, dup)` 之后原指令整体后移，第二次插入用 `++i` 才能落在正确位置；改完用 `Harmony.Debug` 或打印 `code` 长度自检一遍。
+
 ## 演进路线
 
 - 2026-10-04 新增（YuWanCard 增量：泛型 operand 结构匹配 + 排序确定性）。

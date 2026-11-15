@@ -18,7 +18,7 @@ description: 杀戮尖塔 2 纯原生 Mod 开发技能（零第三方依赖，�
 
 ### 二、代码规范
 4. 所有模型类必须注册（二选一，不混用）：① 自定义 `[XxxPool]`/`[XxxModel]` Attribute + 扫描自动注册；② 手动 `ModHelper.AddModelToPool` / `ModelDb.Inject`
-5. 所有 `[SavedProperty]` 必须调 `InjectTypeIntoCache`
+5. 所有 `[SavedProperty]` 在 **≤0.112** 必须调 `InjectTypeIntoCache`（0.113 起该 API 已删、游戏自动扫描 mod 类型，见 [serialization-save.md](references/serialization/serialization-save.md)）
 6. 所有 Harmony Patch 必须用 try-catch 包裹
 7. `OnPlay` 必须有 `if (cardPlay.Target == null) return;` 空值检查
 8. `OnUpgrade` 必须调 `UpgradeValueBy()`，不能直接改字段值
@@ -28,7 +28,7 @@ description: 杀戮尖塔 2 纯原生 Mod 开发技能（零第三方依赖，�
 10. `ModEntry.Initialize` 必须三阶段：Harmony → 注册 → 设置，缺一不可
 
 ### 四、静态验证
-11. 逐行对照 API 源码检查：方法名存在、命名空间正确、无外部 mod 依赖、`[SavedProperty]` 有对应 `InjectTypeIntoCache`、Harmony 有 try-catch
+11. 逐行对照 API 源码检查：方法名存在、命名空间正确、无外部 mod 依赖、`[SavedProperty]` 有对应 `InjectTypeIntoCache`（仅 ≤0.112）、Harmony 有 try-catch
 12. 文件清单完整：入口 + 模型 + 本地化 JSON + 清单 JSON，缺一不可输出
 
 ### 五、GitHub 工作流（如果项目托管在 GitHub 且配置了 CI）
@@ -89,7 +89,7 @@ graph TD
 | `serialization/` | [serialization.md](references/serialization/serialization.md) | 序列化与注册 |
 | `settings/` | [settings.md](references/settings/settings.md) | 设置界面（纯原生） |
 | `settings/` | [modconfig.md](references/settings/modconfig.md) | ModConfig 源码精读：设置页 Tab 注入纯原生转译 + 反射桥（生态可选） |
-| `baselib/` | [design-patterns.md](references/baselib/design-patterns.md) | 纯原生设计模式总纲 |
+| `baselib/` | [design-patterns.md](references/baselib/design-patterns.md) | 纯原生设计模式总纲（含多版本兼容工程化 [design-patterns-compat.md](references/baselib/design-patterns-compat.md)） |
 | `multiplayer/` | [multiplayer.md](references/multiplayer/multiplayer.md) | 多人模式 |
 | `overlay/` | [overlay.md](references/overlay/overlay.md) | 游戏内 Overlay 渲染（光标/UI 覆写、单 DLL 源生成器坑） |
 | `ui/` | [ui.md](references/ui/ui.md) | 手牌/战斗 UI 覆写（布局/边界接管/多 mod 撞车） |

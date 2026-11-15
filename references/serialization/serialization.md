@@ -21,7 +21,7 @@ STS2 的所有模型（卡牌/遗物/能力/药水等）必须注册到 `ModelDb
 
 | 问题 | 解决 |
 |------|------|
-| 属性没保存 | 检查 `[SavedProperty]` + `InjectTypeIntoCache` |
+| 属性没保存 | ≤0.112 检查 `[SavedProperty]` + `InjectTypeIntoCache`；0.113 起该 API 已删（游戏自动扫描 mod 类型），只需确认类型真在 mod 程序集里且 `[SavedProperty]` 没写成字段 |
 | 模型不注册 | 检查注册时机 |
 | `AddModelToPool` 泛型报错 | 用反射重载 `AddModelToPool(poolType, modelType)` |
 | ModelDb 已初始化无法注册 | 用 `ModelDb.Inject(type)` |
@@ -32,6 +32,6 @@ STS2 的所有模型（卡牌/遗物/能力/药水等）必须注册到 `ModelDb
 
 ## 演进路线
 
-- 当前：手动注册 + 手动 `InjectTypeIntoCache`（保留为基准写法）
+- 当前：手动注册 + 手动 `InjectTypeIntoCache`（仅 ≤0.112 的基准写法；0.113 起该类已从游戏删除，注入改为游戏自动扫描）
 - **纯原生自动注册框架**（见上方章节）——自定义 Attribute + ContentRegistry 反射扫描，免手动 `AddModelToPool`
 - 灵感来源：BaseLib 的 `autoAdd` + `[Pool]` 机制，但本框架零第三方依赖

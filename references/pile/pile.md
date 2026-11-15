@@ -29,6 +29,7 @@ graph LR
 | Patch 5 + 注册 + 示例 | [pile-patches-more.md](pile-patches-more.md) |
 | 手牌上限修改 | [pile-hand-size.md](pile-hand-size.md) |
 | 手牌布局修正（超 10 张） | [pile-hand-layout.md](pile-hand-layout.md) |
+| 战斗内自定义堆：卡面节点与过场（`CardPileCmd.Add` 内联判断 + 插入式 transpiler） | [pile-custom-combat.md](pile-custom-combat.md) |
 
 ## 常见问题
 
@@ -38,6 +39,7 @@ graph LR
 | 牌堆位置不对 | `GetTargetPosition` 返回坐标有问题 |
 | 卡牌移动动画不对 | `CustomTween` 返回 false = 走默认动画 |
 | 多牌堆选择界面不显示图标 | 需调用 `MultiPileCardSelect.RegisterPileIndicator` |
+| 卡进了自定义堆但界面上没有卡、也没有过场动画 | `CardPileCmd.Add` 把 `IsCombatPile()` 结果内联了，只补 `AllPiles`/`Get` 不够 → [pile-custom-combat.md](pile-custom-combat.md) |
 
 ## 演进路线
 
