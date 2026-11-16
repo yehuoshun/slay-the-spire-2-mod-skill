@@ -81,3 +81,10 @@ private static void PreloadDependencyAssemblies()
 | 生态 | 游戏自带 0Harmony.dll | 需随包带 MonoMod 依赖 + 预加载 |
 
 > 建议：默认 Harmony（skill 主推）；仅当需要「完整接管 + 手动控制原方法调用时机」（如消息序列化改写）时考虑 MonoMod。
+
+## 本 skill 的定位：只讲原理，不带依赖
+
+示例仓库 `yehuoshun/sts2-mod-examples` 里的 `Patches/ExampleMonoModDetour.cs` **默认不参与编译**——整文件包在 `#if MONOMOD_DETOUR` 里，csproj 中那个 `MonoMod.RuntimeDetour` 的 `PackageReference` 也挂在 `'$(MONOMOD_DETOUR)' == 'true'` 条件下并标了 `PrivateAssets="All"`（编译期可解析类型，但不进产物）。所以默认构建仍然只有 `0Harmony.dll` + `sts2.dll` 两颗游戏自带库。
+
+- 想编译/运行这个对照示例：`dotnet build -c Release -p:MONOMOD_DETOUR=true`，运行时还得把 `MonoMod.RuntimeDetour.dll` 及其依赖随包带上并按上一节预加载
+- 真要用 MonoMod 时，先想清楚代价：多一份随包 DLL、多一条预加载路径、多一个和 Harmony 生态不互通的 patch 通道
