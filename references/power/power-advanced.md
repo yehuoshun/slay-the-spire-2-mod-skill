@@ -55,17 +55,18 @@ public class PrismaticNebularPower : PowerModel
 
 - 判断己方回合用 `side == Owner.Side`（不依赖 participants 列表）
 - 与 Decrement 模式的区别：Decrement 保留递减动画（每回合 -1 直到归零），Remove 直接整个消失；效果语义不同，按需选择
+- 若「移除」之前还要先让玩家选牌/结算，移除要放到 `AfterSideTurnEnd`、交互放到 `BeforeSideTurnEnd`，见 [power-deferred-turnend.md](power-deferred-turnend.md)
 
 ## 增益扩散器（ModifyPowerAmountGivenAdditive 拦截）
 
-> 实战验证（STS2_MarisaMod 2026-10-14，PrismaticNebularPower）。持有本 Power 时，自己给**其他人**上某 Buff → 自动**扩散给全队队友**，且扩散量带修正（原始量 + 本层数 - 1）。核心：覆写 `ModifyPowerAmountGivenAdditive` 拦截「给他人施加」的瞬间。
+> 实战验证（STS2_MarisaMod 2026-10-14，PrismaticNebularPower；2026-11-14 补 `target == Owner` 守卫）。持有本 Power 时，自己给**自己**上某 Buff → 自动**扩散给全队队友**，且扩散量带修正（原始量 + 本层数 - 1）。核心：覆写 `ModifyPowerAmountGivenAdditive` 拦截「自己施加给自己」的瞬间。
 
 ```csharp
 public override decimal ModifyPowerAmountGivenAdditive(
     PowerModel power, Creature giver, decimal amount, Creature? target, CardModel? cardSource)
 {
-    // 拦截点：自己（giver == Owner）给他人（target != Owner）上目标 Buff 且量为正
-    if (power is StarlitPower && giver == Owner && amount > 0)
+    // 拦截点：自己（giver == Owner）给自己（target == Owner）上目标 Buff 且量为正
+    if (power is StarlitPower && giver == Owner && target == Owner && amount > 0)
     {
         var teammates = CombatState.GetTeammatesOf(Owner)
             .Where(c => c is { IsAlive: true, IsPlayer: true } && c != Owner);
@@ -81,7 +82,7 @@ public override decimal ModifyPowerAmountGivenAdditive(
 }
 ```
 
-- **拦截点语义**：`giver == Owner`（自己给的）、`power is 目标Buff`、`amount > 0`（排除移除/负向），三者齐了才扩散
+- **拦截点语义**：`giver == Owner`（自己施加）、`target == Owner`（施给自己）、`power is 目标Buff`、`amount > 0`（排除移除/负向），四个条件齐了才扩散。漏掉 `target == Owner` 会把「队友之间互相加同类 Buff」也当成扩散源（2026-11-14 上游补的就是这个守卫）
 - **ThrowingPlayerChoiceContext**：同步签名回调里发起异步 `PowerCmd.Apply` 必须用 `new ThrowingPlayerChoiceContext()`（丢弃上下文，立即执行；参考 power-signature-and-temp.md）
 - **扩散量修正**：`amount + Amount - 1` 把本 Power 自身层数算进扩散值——层数越高，队友吃到的越多
 - 与「临时力量装饰层」的区别：装饰层同步**同目标**的真力量；扩散器是**跨目标**复制增益（自己上 Buff 时捎带全队）
