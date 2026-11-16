@@ -66,6 +66,29 @@ public class FireVar : CalculatedVar
 
 描述：`"造成 {Fire} 点火伤。"`（{Ice} 同理建 IceVar 子类）。
 
+## 乘数取自战斗历史（动态倍率）
+
+> 实战验证（STS2_MarisaMod 2026-11-14，`LuminesStrike` 光棱打击）。伤害倍率不来自场上的能力，而来自「本场战斗已经生成过多少张某张牌」：
+
+```csharp
+protected override IEnumerable<DynamicVar> CanonicalVars => [
+    new CalculationBaseVar(6),          // 基础伤害
+    new ExtraDamageVar(6),             // 每满足一次条件追加的伤害
+    new CalculatedDamageVar(ValueProp.Move).WithMultiplier(
+        (card, _) => CombatManager.Instance.History.Entries
+            .Count(x => x is CardGeneratedEntry { Card: Burn })),   // 本场生成过几张灼伤
+];
+
+// OnPlay 里直接打这个变量对象，倍率交结算层求值
+await DamageCmd.Attack(DynamicVars.CalculatedDamage).FromCard(this)
+    .TargetingAllOpponents(CombatState!).Execute(choiceContext);
+```
+
+- `WithMultiplier` 第二个参数是 `Creature?` 目标，用不到就 `_` 丢弃
+- 乘数可以读全局历史 `CombatManager.Instance.History.Entries`（按 `CardGeneratedEntry.Card` 判类型），于是「本场已生成 N 张灼伤」这类累计条件能直接变成动态伤害
+- 伤害类要用 `CalculatedDamageVar(ValueProp.Move)`，不是 `CalculatedVar("名字")`：前者参与伤害结算，后者只做显示/非伤害数值
+- 历史只增不减，卡面上的 `{CalculatedDamage:diff()}` 会随历史变大，通常配合 `{InCombat:…|}` 只在战斗内显示（见 [card-localization.md](card-localization.md)）
+
 ## 参见
 
 - [card-advanced.md](card-advanced.md) — 链式辅助方法、注册、肖像、本地化
