@@ -8,3 +8,5 @@
 | 打出一张后再打下一张，增幅状态残留 | `AfterCardPlayed` 里 `cardPlay.Card == this && cardPlay.IsLastInSeries` 时重置 |
 | 增幅费用显示没刷新 | 三个 Patch 缺一不可：费用计算 / 费用标签 / 高亮 |
 | `EnergyVar` 只显示一次 | 增幅态总费用手写拼进标签（基础费 + Kicker） |
+| 子类覆写 `CanonicalVars` 后，基类的增幅 `EnergyVar(KickerCost)` 不见了 | 必须 `base.CanonicalVars.Concat([...])`；写成裸数组会把基类变量整个吞掉（TabooSpark 2026-11-14 修复的正是这一条） |
+| 增幅伤害不随场上状态变化 | `DamageCmd.Attack(DynamicVars.CalculatedDamage)` 传 `CalculatedDamageVar` **对象本身**，让结算层按当前状态求值；传 `DynamicVars.Damage.BaseValue` 只拿到当时算好的固定数值 |
