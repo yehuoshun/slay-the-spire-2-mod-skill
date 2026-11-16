@@ -1,6 +1,8 @@
 # 跟随游戏版本升级（0.113 迁移实录）
 
-> 一个 60 文件、24 个 API 调用点的示例仓库从 0.107.1 跳到 0.113，一次编译报出 **29 个错误**（9 个 `CS0115` 覆写断点 + 20 个签名/成员缺失），全部是**签名变动**，没有语义改动。本文件给出断点清单与可复用的排查流程。
+> 跳版本有**两类**断点：一类编译就报错（签名变了，见 §一），一类**编译全绿但行为变了**（语义/身份/生命周期变了，见 [`game-version-migration-semantics.md`](./game-version-migration-semantics.md)）。前者靠 `dotnet build` 一次列全，后者只能靠原生卡数据与行为对账 —— 后者才是真正花时间的部分。
+>
+> §一来自一个 60 文件、24 个 API 调用点的示例仓库从 0.107.1 跳到 0.113：一次报出 **29 个错误**（9 个 `CS0115` 覆写断点 + 20 个签名/成员缺失），全部是签名变动、**没有**语义改动。
 
 ## 一、0.107.1 → 0.113 的断点清单（实测）
 
@@ -17,7 +19,11 @@
 | 悬停提示 | `new HoverTip { Id = …, IsDebuff = … }` 对象初始化器 | `Id`/`IsDebuff`/`IsSmart` 变 get-only 计算属性，只能走构造器（如 `(PowerModel power, string description, bool isSmart)`） |
 | 随机数 | `Rng.Counter`（`uint` 种子） | 无 `Counter`；用 `ToSerializable().counter`；种子统一 `ulong`（`PlayerRngSet.Seed` 是 `ulong`） |
 
-## 二、排查流程（下次跳版本照抄）
+## 二、非签名断点（编译能过、行为变了）
+
+见 [`game-version-migration-semantics.md`](./game-version-migration-semantics.md)：多段伤害的 `HitCount`/`Repeat` 身份、升级审计的对象、`UpgradeDelta = 0`、升级之外的关键词增删、downgrade 克隆规范槽、`CombatCardSelection` 与 `CombatId`、击杀来源身份、复制伤害封顶、`SetPortraitTexture`，以及「池/槽位只许追加」。
+
+## 三、排查流程（下次跳版本照抄）
 
 1. **换 dll**：从上游 release 下 `sts2.dll` + `0Harmony.dll` 到 `deps/`（`deps/` 进 `.gitignore`，别提交游戏二进制）。
 2. **先编再猜**：`dotnet build -p:Sts2DataDir=<绝对路径>/deps`。`CS0115「没有找到适合的方法来重写」`= 父类签名变了，一次就能把所有 override 断点列全；`CS7036/CS1729` = 参数增减。
@@ -26,7 +32,7 @@
 5. **改完双验证**：`dotnet build` 0 错误 + 自有 API 白名单脚本全绿，再 push 看 CI。
 6. **版本号三处对齐**：CI/构建配置里的依赖版本（如 `DEPS_VERSION`）、`manifest.json` 的 `min_game_version`、README 里的说明。
 
-## 三、踩过的坑
+## 四、踩过的坑
 
 - **构建失败 ≠ 没跑**：`dotnet build` 报错后仍可能执行上一次成功编译的旧二进制，把旧输出当新结果会白折腾（表现为「改了没生效」）。先确认 exe 的修改时间。
 - **Windows 控制台的编码**：python 脚本 `print("✅ …")` 在 GBK 代码页抛 `UnicodeEncodeError`，加 `$env:PYTHONIOENCODING='utf-8'` 即可，不是脚本 bug。
@@ -35,5 +41,6 @@
 
 ## 演进路线
 
-- 当前：一次跳 6 个小版本，靠 dll 编译 + 上游源码对照，半天完成 24 个调用点迁移
-- 后续：把本表做成 `#if` 版本分支的模板，跳版本时只改一处符号
+- 当前：一次跳 6 个小版本，靠 dll 编译 + 上游源码对照，半天完成 24 个调用点迁移；语义断点另靠原生卡逐卡对账（482 条 recipe）
+- 后续：把非签名断点那套「逐卡导出 base/首升级的费用、变量绑定、关键词再跨版本 diff」固化成脚本，而不是靠人读反编译
+- 后续：把 §一 的表做成 `#if` 版本分支的模板，跳版本时只改一处符号
