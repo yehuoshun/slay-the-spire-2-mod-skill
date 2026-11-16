@@ -19,6 +19,7 @@
 | [mod-manifest.md](setup/mod-manifest.md) | 模组清单 JSON（字段说明、纯原生方案） |
 | [export-presets.md](setup/export-presets.md) | 导出预设 export_presets.cfg（PCK 打包必需） |
 | [project-godot.md](setup/project-godot.md) | Godot 项目配置（字段说明） |
+| [godot-meta-files.md](setup/godot-meta-files.md) | Godot 元文件入库约定（.cs.uid 稳定脚本标识、*.import 导入设置；哪些必提交、哪些忽略） |
 | [loader-variants.md](setup/loader-variants.md) | 加载器方案（BepInEx vs 原生 mods 目录） |
 | [loader-multiversion.md](setup/loader-multiversion.md) | 多版本变体 Loader（一个 loader 按游戏版本选 DLL） |
 | [game-version-migration.md](setup/game-version-migration.md) | 跟随游戏版本升级（0.113 断点清单 + 排查流程：dll 编译、MetadataLoadContext 查签名、上游源码对照） |
