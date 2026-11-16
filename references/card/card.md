@@ -17,6 +17,7 @@
 | 悬停提示与原版容器注入 | [card-hover-inject.md](card-hover-inject.md) |
 | 肖像图尺寸规格 | [card-portrait-sizes.md](card-portrait-sizes.md) |
 | 自定义动态变量 | [card-variables.md](card-variables.md) |
+| 本地化占位符、条件块与富文本 | [card-localization.md](card-localization.md) |
 
 ## 概述
 

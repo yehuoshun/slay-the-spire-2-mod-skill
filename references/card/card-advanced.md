@@ -140,3 +140,4 @@ ModHelper.AddModelToPool(typeof(ColorlessCardPool), typeof(ExampleStrike));
 
 `{D:diff()}` 表示显示带差异（升级变化）的动态变量值。
 
+> 占位符格式、条件块（`IfUpgraded` / `InCombat`）与复数写法见 [card-localization.md](card-localization.md)。
