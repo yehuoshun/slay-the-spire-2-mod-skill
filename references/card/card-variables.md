@@ -87,10 +87,8 @@ await DamageCmd.Attack(DynamicVars.CalculatedDamage).FromCard(this)
 - `WithMultiplier` 第二个参数是 `Creature?` 目标，用不到就 `_` 丢弃
 - 乘数可以读全局历史 `CombatManager.Instance.History.Entries`（按 `CardGeneratedEntry.Card` 判类型），于是「本场已生成 N 张灼伤」这类累计条件能直接变成动态伤害
 - 伤害类要用 `CalculatedDamageVar(ValueProp.Move)`，不是 `CalculatedVar("名字")`：前者参与伤害结算，后者只做显示/非伤害数值
-- 命名空间（编译器只报 CS0246、不告诉你该 using 哪个）：`CardGeneratedEntry` 在 `MegaCrit.Sts2.Core.Combat.History.Entries`，`Burn` 在 `MegaCrit.Sts2.Core.Models.Cards`，`CombatManager` 在 `MegaCrit.Sts2.Core.Combat`；可编译版见示例 `Cards/ExampleHistoryScaledCard.cs`
+- 命名空间（编译器只报 CS0246、不告诉你该 using 哪个）：`CardGeneratedEntry` 在 `MegaCrit.Sts2.Core.Combat.History.Entries`，`Burn` 在 `MegaCrit.Sts2.Core.Models.Cards`，`CombatManager` 在 `MegaCrit.Sts2.Core.Combat`；可编译版见示例 `Cards/ExampleHistoryScaledCard.cs`（`dotnet build` 通过，CI 真编译验证）
 - 历史只增不减，卡面上的 `{CalculatedDamage:diff()}` 会随历史变大，通常配合 `{InCombat:…|}` 只在战斗内显示（见 [card-localization.md](card-localization.md)）
-- 命名空间最容易漏：`CardGeneratedEntry` 在 `MegaCrit.Sts2.Core.Combat.History.Entries`、`Burn` 在 `MegaCrit.Sts2.Core.Models.Cards`（2026-11-17 写可编译示例时编译器只报 CS0246，不会告诉你去哪找）
-- 可编译示例：sts2-mod-examples `Cards/ExampleHistoryScaledCard.cs`（`dotnet build` 通过，CI 真编译验证）
 
 ## 参见
 
