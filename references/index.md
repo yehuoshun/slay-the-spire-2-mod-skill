@@ -22,6 +22,7 @@
 | [loader-variants.md](setup/loader-variants.md) | 加载器方案（BepInEx vs 原生 mods 目录） |
 | [loader-multiversion.md](setup/loader-multiversion.md) | 多版本变体 Loader（一个 loader 按游戏版本选 DLL） |
 | [game-version-migration.md](setup/game-version-migration.md) | 跟随游戏版本升级（0.113 断点清单 + 排查流程：dll 编译、MetadataLoadContext 查签名、上游源码对照） |
+| [game-version-migration-semantics.md](setup/game-version-migration-semantics.md) | 非签名断点：编译能过但行为变了（HitCount/Repeat 身份、升级审计、downgrade、CombatCardSelection、池槽位只许追加） |
 | [ci-build.md](setup/ci-build.md) | CI 构建与打包（GitHub Actions 流水线） |
 | [ci-build-package.md](setup/ci-build-package.md) | CI 打包发布流程 |
 | [ci-build-pck.md](setup/ci-build-pck.md) | CI 导出 PCK 资源包 |
@@ -62,3 +63,9 @@
 | overlay | [overlay.md](overlay/overlay.md) | 游戏内 Overlay 渲染（光标/UI 覆写、单 DLL 源生成器坑） |
 | ui | [ui.md](ui/ui.md) | 手牌/战斗 UI 覆写（布局/边界接管/多 mod 撞车） |
 | run | [run.md](run/run.md) | Run 生命周期扩展（无尽循环/确定性种子/Interop/配置） |
+
+## 生态参考（⚠️ 非主路线，写普通卡禁止调用其 API）
+
+| 模块 | 入口 | 内容 |
+|------|------|------|
+| cardgen | [cardgen.md](cardgen/cardgen.md) | 程序化卡牌生成 & 组件 API（AutoAnthony 生态契约）：架构 / API / 运行时执行层 / 编辑器 / 平衡货币 / 愚者（Fool）词条 / v113 集成变更 / 回归审计 |

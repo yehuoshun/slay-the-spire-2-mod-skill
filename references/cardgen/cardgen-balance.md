@@ -1,6 +1,6 @@
 # 平衡模型（效果货币 / 触发频率 / 预算包络）
 
-> AutoAnthony BALANCE_MODEL.md（v111 草案）+ 源码核对。刻意近似模型，用于随机组装，不是「原版已被精确求解」的断言。**写卡/评估卡强度时可直接借用这套货币**。
+> AutoAnthony BALANCE_MODEL.md + 源码核对（`ChaosCardGenerator/EffectBalanceModel.cs`、`SelfCostReductionValuation.cs`、`GenerationTuning.cs`，版本 v0.3.165 / STS2 0.113.x）。刻意近似模型，用于随机组装，不是「原版已被精确求解」的断言。**写卡/评估卡强度时可直接借用这套货币**。
 
 ---
 
@@ -22,6 +22,10 @@
 | 上 1 易伤 | 3.10 | | 消耗整手（负面幅度） | 15.00 |
 | 上 1 虚弱 | 2.70 | | 目标 +1 力量（负面幅度） | 9.00 |
 | 上 1 毒 | 2.00 | | 打出抽牌堆顶并消耗 | 9.00 |
+| 自减 1 点本卡未来能量* | 7.00 | | 整手攻击减费至打出（减 1 费） | 28.00 |
+| 生成 1 张 Sadness（负面） | -1.50 | | 本卡变形为 Sadness（负面） | -1.50 |
+
+\* 自降费**不是**按组件独立定价：见 §七，它受「印刷基础能量封顶 + 多组件按比例分享」约束，700/每点只是 cap 前的单价。
 
 - 同费自复制：按最终卡上下文定价（可复用卡=负面≈加 1 张粘液；消耗卡=正好抵消 Exhaust 关键词溢价；免费可复用卡=6.00（Anger 参照）；Power 上=20.00 大引擎且稀有度加权降频）
 - 唯一规则/修饰符/代理按来源卡的能量费、星费、稀有度、正面条款数继承原生强度先验
@@ -31,7 +35,8 @@
 | 触发/条件 | 相对频率 | 典型 payoff 规模 |
 |---|---:|---:|
 | 每打出一张牌 | 3.20/回合 | 25% |
-| 每抽一张牌 | 4.80/回合 | 25% |
+| 每抽一张牌（任意时机） | 4.80/回合 | 25% |
+| 回合内抽牌（`card_drawn_during_turn`） | 3.20/回合，生命期封顶 20/3≈6.7 回合 | 25% |
 | 每打出攻击 | 1.55/回合 | 34% |
 | 每打出技能 | 1.45/回合 | 52% |
 | 每花 1 星 | 2.00/回合 | 34% |
@@ -46,6 +51,17 @@
 | 手中无攻击 | 30% | 155% |
 | 手牌为空 | 16% | 155% |
 | 抽牌堆空（Grand Finale） | 8% | 220% + 专属高价值变体偏置 |
+| 获得 1 个旋律（melody_gained） | 2.00 | 52% |
+| 获得 Wah/Cho | 0.60 | 75% |
+| 有 Ki 旋律 | 0.50 | 75% |
+| 同时有两种旋律 | 0.60 | 75% |
+| 集齐三种旋律（all_melodies_gained） | 0.20 | 155% |
+| 有可用箭矢 / 本卡射出箭矢 | 0.70 | 34% |
+| 目标被本卡箭矢刺穿（`target_impaled`/`target_own_arrow`） | `FoolComponentDefinitions.ImpaledFrequency` | 60% |
+| 目标身上有箭矢（arrow_impaled） | 0.90 | 34% |
+| 每回合首个被拔出的箭矢 | 0.50 | 52% |
+| 本回合下一个非小怪敌人死亡 | 0.10 | 155% |
+| 生成 Sadness / 本卡消耗 Sadness | 0.60 | 52% |
 
 > 一次性门槛给受控溢价而非字面反概率乘法；持续触发器按「每普通回合期望机会数」定价。
 
@@ -72,11 +88,22 @@
 ## 五、Occurrence 先验与反馈
 
 - 每个组件族按 稀有度×卡型×目标模式×语义角色 记录原生出现；Pool→稀有→型→目标 用经验贝叶斯平滑（跨稀有/型/角色重组保持非零路由）
-- 角色：Ironclad/Silent/Defect/Necrobinder/Regent/Colorless 六池独立校准；终极混沌用七号 profile（六池合并，角色不保留隐藏概率）
+- 角色：Ironclad/Silent/Defect/Necrobinder/Regent/**Fool**/Colorless **七池**独立校准（`GeneratedCharacter.Fool` 追加在 Colorless 之后，不重排旧值）；终极混沌 = 6 个可玩角色行相加 + 无色（合并七池，角色不保留隐藏概率）
 - 同一池所有组装器共享一个 tracker，只看已定稿卡，对 稀有/型/角色 族率与源率偏差做有界平方反馈（选择反馈非拒绝，不会无限重试，每组件保持正权重）
 - 同族多效果同卡保留独立 20% 乘法重复惩罚；可替换 derivative/status/orb 槽单次 1.10 出现乘数
 
-## 六、对我们的启示（写卡时直接用）
+## 六、v0.113 / 0.3.158–0.3.165 增量（自降费重定价 + Fool）
+
+- **自降费改成 shell 级共享上限**（`ChaosCardGenerator/SelfCostReductionValuation.cs`）：单价 `ValuePerEnergy = 700`/每点未来能量，但印刷自减不能超过固定基础能量；含重复触发的**总期望节省被基础费封顶**，多组件按比例分享上限（保证逐组件追踪与升级增量求和等于整卡值）。例：2 费卡自减 2、频率 2 → 最多 1 400，不是 2 800。星费与即时能量返还另算；脱离整卡上下文的原子估值（`baseEnergyCost == null`）没有这个上限。
+- **回合内抽牌单独定价**：`card_drawn_during_turn` 由 4.8 降到 3.2（`MidTurnDrawFrequency`），生命期封顶 20/3 回合——原生 Speedster 伤害 2→3 后靠降频保住原 shell 价值，而不是给全池加价。
+- **Expect a Fight（`N:ReduceHandAttackCostUntilPlayed`）** = 28.00/点：整手攻击「打出前」减费算若干次未来支付，不是一次能量；执行侧走新路由 `("modify_cost","reduce_until_played")`，只作用于手牌、跳过 X 费牌。
+- **Phantom Blades**：原生首飞刀加成 9→8 后，`A:ruleFirstShivBonusDamage` 单价 180→200，保住整包价值。
+- **Sadness（愚者负面牌）**：生成/变形 −1.50、手牌堵塞 −1.50；`F:OnlyCardsThisTurn` 乘数 `1 + 0.72/amount`、`F:ExhaustShoot` ×1.36；「变形为 Sadness」按一次性生命周期收费，卡已有 Exhaust 或本身是 Power 时不重复收。
+- **手牌 token 计数**：`compact_hand_token_reference`（Joy/Sadness 等生成到手牌的 token）计数硬上限 3，抽样 1/2/3 = 80%/18%/2%（`NumericGenerationTuning.SampleCompactHandTokenCount`）。
+- **`CL:ForEachGoldThreshold` 的重复次数** = 携带金币 200 ÷ 阈值（`ExpectedCarriedGold`），执行取 `card.Owner.Gold / threshold`。
+- **Fool 能量先验**（印刷能量 0/1/2/3/4 的权重）：Common 3/15/2/0/0、Uncommon 6/20/8/1/0、Rare 与 Ancient 5/12/4/4/1（Coda 固定 6 费尾巴折进生成器 4 费上限）。
+
+## 七、对我们的启示（写卡时直接用）
 
 1. 写单卡先算总价值（货币表求和 + 触发打折），对照同稀有度预算带
 2. 负面效果显式计价并走补偿管线，别当「免费代价」

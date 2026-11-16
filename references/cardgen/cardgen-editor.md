@@ -7,7 +7,7 @@
 ## 一、定位
 
 - `CardTinkeringApi`（v6）：本地化无关的卡牌编辑集成面——序列化完整结构化卡 payload、评估整卡预算、校验替换操作列表、重建描述/升级，**全程不解析渲染文本**
-- 配套衍生 mod CardTinkering：从战斗外（含奖励页）卡组页面进入工匠台，可编辑全部 481 张常规原版牌，不替换原版池、不转换未修改牌
+- 配套衍生 mod CardTinkering：从战斗外（含奖励页）卡组页面进入工匠台，可编辑全部 **566** 张常规原版牌，不替换原版池、不转换未修改牌
 - 数值货币：`100` 单位 = 1 点普通单目标伤害（与生成器同一货币）
 
 ## 二、核心 API 签名
@@ -54,10 +54,12 @@ AutoAnthonyEditorApi.ApplyEditorDefinition(card, rebuilt, identity);
 
 ## 五、原生卡拆解（只读目录 + 可编辑水合）
 
-- `NativeCardDecompositionApi`（只读，Card Tinkering 工具用）：567 条 v111 非多人参考记录 / 449 组件契约 / 7 个原生关键词；全部 `ReferenceOnly=true`、`GenerationEligible=false`
+- `NativeCardDecompositionApi`（只读，Card Tinkering 工具用）：**659 条 v113 非多人参考记录 / 517 组件契约 / 7 个原生关键词**（v111 时是 567 / 449 / 7）；全部 `ReferenceOnly=true`、`GenerationEligible=false`
 - `FindByNativeId` 返回 ModelId 全部变体；`Resolve` 歧义时需显式模板绑定
-- `TryCreateBaseDefinition` 物化 481 张已审角色/无色 recipe（可执行结构化操作）；`TryCreateDefinition` 含精确原生升级动作（repeat/打出添加/全选/升级前打出）
-- 86 个生命周期敏感引用扩展保持结构化但**不可执行**（等专用适配器）
+- `TryCreateBaseDefinition` 物化 **566 张**已审角色/无色 recipe（v111 是 481；可执行结构化操作）；`TryCreateDefinition` 含精确原生升级动作（repeat/打出添加/全选/升级前打出）
+- **93 个**生命周期敏感引用扩展保持结构化但**不可执行**（等专用适配器；v111 是 86）
+- v113 的投影用原生 **`HitCount` / `CalculatedHits`** 身份，别拿数字字面量（伤害 × 次数）去匹配卡；`UpgradeDelta = 0` 是合法升级（纯关键词升级，如 Speedster 3 点伤害只升 Innate）
+- 编辑产物经 `FoolMelodyNames.ApplyNameTags` 归一：旋律标签（`Wah`/`Cho`/`Ki`）是**结构化 `CardTag`**，不从牌名解析，复制身份时要一并复制 `MelodyTags`（见 [cardgen-fool.md](cardgen-fool.md)）
 - 游戏侧 `AutoAnthonyNativeCardApi.TryResolve(CardModel, ...)` 处理原生 ModelId + Mad Science 的 saved type/rider 状态；preview **无副作用**；**不得为了检视而替换原版卡**——只有用户确认的编辑才物化 freeform `ChaosCardModel`，未触碰的原版卡与池保持不变
 
 ## 六、设置 API（v5/v2）

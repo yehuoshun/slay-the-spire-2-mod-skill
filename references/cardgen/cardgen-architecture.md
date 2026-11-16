@@ -83,6 +83,12 @@ OperationRuntimeSpec（版本化运行时规格，快照/多人传输的权威�
 ## 八、审计文化（构建即校验）
 
 - 构建时跑：结构化目录验证、RuntimeSpec 注册表验证、执行路由覆盖率、本地化边界（`Verify-LocalizedTextBoundaries.ps1`）
-- 生成器 `--self-test` + `tests/` 回归（多人开局准备、星费缓存、转化池、统一 X 升级）
+- 生成器 `--self-test` + `tests/` 回归（20 个独立工程，详见 [cardgen-audit.md](cardgen-audit.md)）
 - `ApiContractSmoke/`：以外部消费者身份独立编译的 API 契约测试——**公开 API 有编译级护栏**
 - 历史池漂移语料 `audits/structured_operation_refactor/0.3.5_pre_component_api.json.gz` 作诊断基线
+
+## 延伸
+
+- 运行时执行层的具体技巧（归属掩码、`LiveCombatSourceCard`、增量成长）：[cardgen-runtime.md](cardgen-runtime.md)
+- 回归工程怎么组织、怎么断言：[cardgen-audit.md](cardgen-audit.md)
+- 0.3.147→0.3.165 的契约变更：[cardgen-migration.md](cardgen-migration.md)
