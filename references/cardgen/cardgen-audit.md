@@ -6,7 +6,7 @@
 
 | 层 | 跑什么 | 失败意味着 |
 |---|---|---|
-| 构建期 | 结构化目录验证、RuntimeSpec 注册表验证、执行路由覆盖率、本地化边界（`Verify-LocalizedTextBoundaries.ps1`） | 数据自相矛盾，**根本不该发布** |
+| 构建期 | 结构化目录验证、RuntimeSpec 注册表验证、执行路由覆盖率、本地化边界（`scripts/Verify-LocalizedTextBoundaries.ps1`，由 `Directory.Build.targets:8` 在每次 build 里强制跑一次） | 数据自相矛盾，**根本不该发布** |
 | 生成器自检 | `--self-test`、`--native-decomposition-audit`、`--baseline` 微基准 | 生成逻辑或性能退化 |
 | 真引擎回归 | 隔离 Godot 进程加载真原生卡，比 base/首升级的费用、变量、关键词，再格式化中英双语描述 | 与游戏本体行为脱节 |
 
@@ -27,17 +27,17 @@
 
 ## 三、四条可抄的断言纪律
 
-1. **失败样本留档**：修复前先跑出失败输出，存进 `audits/*.txt`，回归工程里引用它做「这个坑不许回来」的证据。
-2. **固定种子 digest**：固定种子生成 170 张卡 × 六池，跨版本比对摘要 `952C035827E0B6AD035A53BA2B166FBA5FE079EFBA2F2161BE86A8C89B3D4EA1`——数据改动一眼可见。
-3. **按分配字节数做微基准**（GC 分配是最容易悄悄退化的指标）：语义标记 200→40、block flag 32→0、描述缓存 504→0、portrait key 224→0、空 tooltip 2320→0、派生 tooltip 4094→1077。`GeneratedCardHotPathRegression` 的 `--baseline` **只关掉分配断言、保留正确性断言**，所以能既当基准又当回归。
+1. **失败样本留档**：修复前先跑出失败输出，存进 `audits/`（例：`audits/hotpath-0151-before-safety.txt`，见 `tests/GeneratedCardHotPathRegression/README.md:57`），回归工程里引用它做「这个坑不许回来」的证据。
+2. **固定种子 digest**：固定种子生成 170 张卡 × 六池（含 normal / Ultimate 两种模式），跨版本比对摘要 `952C035827E0B6AD035A53BA2B166FBA5FE079EFBA2F2161BE86A8C89B3D4EA1`——数据改动一眼可见。出处在 `tests/GeneratedCardHotPathRegression/README.md:31`–`:34`（0.3.149 / 0.3.150 / 0.3.151 三个运行时产出同一摘要）。
+3. **按分配字节数做微基准**（GC 分配是最容易悄悄退化的指标）：语义标记 200→40、block flag 32→0、描述缓存 504→0、portrait key 224→0、空 tooltip 2320→0、派生 tooltip 4094→1077（同一 README 的 `:38`–`:45` 表格）。`GeneratedCardHotPathRegression` 的 `--baseline` **只关掉分配断言、保留正确性断言**（README `:11`），所以能既当基准又当回归。
 4. **零副作用判据**：读档往返后哈希一致还不够 —— 再加一条「Continue 期间禁止任何池生成」，否则白跑一次兼容生成也看不出来。
 
 ## 四、真引擎回归怎么跑（v113 实测口径）
 
-- 在**隔离 Godot 进程**里加载真原生卡：1,146 个语言/卡用例 + 2,212 条 base/升级描述全过（中英双语各格式化一遍）。
-- 482 条 exact-upgrade 重建全过；六池生成 + Colorless 52→53 快照恢复全过（BaseLib 3.4.8 / RitsuLib 0.6.11，恢复保留 514 条旧定义）。
-- 0.3.165：659 记录 / 566 精确可执行升级；8 个 start-save-continue 用例各校验 7 池 / 606 卡；最终冷 Continue 指纹一致且**零池生成**。
-- 全程用隔离 profile / fixture，不读也不改用户存档；测试结束关掉测试清单，再核对产出的 DLL 哈希与发布包一致。
+- 在**隔离 Godot 进程**里加载真原生卡：1,146 个语言/卡用例 + 2,212 条 base/升级描述全过（中英双语各格式化一遍）——`docs/game-v0.113-card-audit.md:61`–`:62`。
+- 482 条 exact-upgrade 重建全过；六池生成 + Colorless 52→53 快照恢复全过（BaseLib 3.4.8 / RitsuLib 0.6.11，恢复保留 514 条旧定义）——同上 `:62`–`:64`。
+- 0.3.165：659 记录 / 566 精确可执行升级；8 个 start-save-continue 用例各校验 7 池 / 606 卡；最终冷 Continue 指纹一致且**零池生成**（`docs/game-v0.113-follow-up-audit.md:97`；引擎侧断言 `tests/RunLoadRegression/EngineSmoke.cs:129`）。
+- 全程用隔离 profile / fixture，不读也不改用户存档；测试结束关掉测试清单，再核对产出的 DLL 哈希与发布包一致（`docs/game-v0.113-card-audit.md:98`「production DLL hash matched the uploaded package」）。
 
 ## 五、这些测试**不**能替代什么
 

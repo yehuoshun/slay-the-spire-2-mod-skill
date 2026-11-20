@@ -1,6 +1,6 @@
 # 组件化卡牌架构与设计原则
 
-> AutoAnthony 0.3.147 精读笔记（COMPONENT_API.md + 源码核对）。这套架构的价值不在 API 本身，而在**把「卡牌语义」从「文本/代码」里彻底解放出来**的设计决策。
+> AutoAnthony 0.3.147 起的精读笔记（COMPONENT_API.md + 源码核对），已按 v0.3.165（HEAD 705dd61）逐条复核。这套架构的价值不在 API 本身，而在**把「卡牌语义」从「文本/代码」里彻底解放出来**的设计决策。
 
 ---
 
@@ -27,10 +27,10 @@ OperationRuntimeSpec（版本化运行时规格，快照/多人传输的权威�
 ## 二、OperationRuntimeSpec 要点（源码核对）
 
 - `sealed record OperationRuntimeSpec`，`CurrentSchemaVersion = 1`，带 `Validate()`
-- **签名缓存**：`StableSignature()` / `RoutingSignature()`（opcode+variant+target+sourceZone）/ `ShapeSignature()` / `XShapeSignature()`——用签名做组件等价共享（SchemaKey）和迁移判断
-- 数值槽：`RuntimeValueSlot(Id, BaseValue, Source="fixed", Offset, ...)`；`ScaledSummonX` 类槽支持 X 系数渲染（系数 3 + X+2 → 3X+6）
-- 条件/触发：`RuntimeConditionSpec(Kind, Subject, ValueSlot)`、`RuntimeTriggerSpec(Kind, Lifetime, ThresholdSlot)`
-- **升级走结构化**：`CardUpgradeEffect.Kind + OperationIndex + ValueSlotId + Delta`，新快照不写双语标签；`AddedKeywords` 等旧数组仅作 v2/schema 5-9 迁移输入，schema 10 以结构效果为权威（投影时 union 两者）
+- **签名缓存**：`StableSignature()` / `RoutingSignature()`（`BuildRoutingSignature` 的七段 join：`opcode|variant|target|sourceZone|destinationZone|cardFilter|flags(排序后逗号拼接)`，`OperationRuntimeSpec.cs:173-176`）/ `ShapeSignature()` / `XShapeSignature()`——用签名做组件等价共享（SchemaKey）和迁移判断
+- 数值槽：`RuntimeValueSlot(string Id, int BaseValue, string Source="fixed", int Offset=0, bool Upgradable=true, bool Explicit=true)`（`OperationRuntimeSpec.cs:192-193`）；X 系数不在槽里，而在本地化模板的 `:scaled_x` 格式里——`OperationLocalizedText.ScaledSummonX` 用 `[[amount:scaled_x]]`，渲染时读 `hits` 槽：Source 为 `fixed` 就系数×数值，否则拼成 `3X+6` 形式（`OperationLocalizedText.cs:23、:237-245`）
+- 条件/触发：`RuntimeConditionSpec(string Kind, string Subject="none", string? ValueSlot=null)`、`RuntimeTriggerSpec(string Kind, string Lifetime, string? ThresholdSlot=null, string? DurationSlot=null)`；`DurationSlot` 必须能在 `Values` 里有同名槽，否则 `Validate()` 失败（`OperationRuntimeSpec.cs:202、:212、:72-73`）
+- **升级走结构化**：`CardUpgradeEffect(CardUpgradeKind Kind, int? OperationIndex = null, int? Delta = null, string? ValueSlotId = null, string? KeywordId = null)`（`RandomCardGenerator.cs:206-213`），新快照不写双语标签；`AddedKeywords` 等旧数组仅作 v2/schema 5-9 迁移输入，schema 10 以结构效果为权威（投影时 union 两者）
 
 ## 三、ComponentSemanticFlags（语义标记，组装器跨切面规则）
 
@@ -44,6 +44,8 @@ OperationRuntimeSpec（版本化运行时规格，快照/多人传输的权威�
 | `ScalableReward` | 数值可随整卡预算缩放 |
 | `SelfCardMovement` | 移动/重放生成卡自身，Power 上拒绝 |
 
+> 源码里的真实值是 ASCII 字符串（`ChaosCardGenerator/ComponentApi.cs:9-15`）：`api_beneficial` / `api_negative` / `api_restricted` / `api_enemy_damage` / `api_power_foundation` / `api_scalable_reward` / `api_self_card_movement`。外部组件包要参与组装合法性，就在 `RuntimeSpec.Flags` 里带这些字符串，别写 C# 枚举名。
+>
 > ⚠️ 只用于跨切面合法性事实；目标/区域/数值/条件/触发放 RuntimeSpec 专属字段；执行与估值走注册路由。外部 Template 名**永不**被检查来推断玩法。
 
 ## 四、组件共享与归属
@@ -73,7 +75,7 @@ OperationRuntimeSpec（版本化运行时规格，快照/多人传输的权威�
 ## 七、单工程双用（生成器 + 游戏运行时共享源码）
 
 ```xml
-<!-- ChaosMode.csproj：游戏工程用 <Compile Include> 链接生成器源码，同一份代码双场景编译 -->
+<!-- ChaosMode.csproj:26-67（42 条 Compile Include）/ :68-72（5 条 EmbeddedResource）：游戏工程链接生成器源码，同一份代码双场景编译 -->
 <Compile Include="..\ChaosCardGenerator\RandomCardGenerator.cs" Link="Generator\RandomCardGenerator.cs" />
 <EmbeddedResource Include="..\ChaosCardGenerator\Data\catalog_runtime_specs.json" Link="Data\catalog_runtime_specs.json" />
 ```

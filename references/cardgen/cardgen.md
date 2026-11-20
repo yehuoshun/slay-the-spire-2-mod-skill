@@ -4,7 +4,7 @@
 > 写普通卡牌/遗物/角色 → **一律走 `card/`、`relic/`、`character/` 等主模块**，禁止调用本模块任何 API。
 > 本模块的 API（ComponentPackageApi/ComponentRuntimeApi/CardTinkeringApi 等）是 **AutoAnthony 自有生态契约**，仅在「开发 AutoAnthony 生态集成/随机卡池/卡牌编辑器」场景才可参考；其架构思想（本地化只是输出/冻结注册/概率与数值分离）可作设计借鉴，实现一律回到 sts2.dll 原生 API（硬规则 3）。
 
-> 来源：[mewcodex/AutoAnthony](https://github.com/mewcodex/AutoAnthony) v0.3.165（2026-11-16 跟进，HEAD 705dd61；初学版本 v0.3.147 / 78e6c9d），STS2 **0.113.x**，**本体纯原生**（只依赖 sts2.dll + GodotSharp + 0Harmony，LangVersion 12 / net9.0）。
+> 来源：[mewcodex/AutoAnthony](https://github.com/mewcodex/AutoAnthony) v0.3.165（2026-11-16 跟进；初学版本 v0.3.147 / 78e6c9d；**2026-11-20 复核：上游 main 仍 = HEAD 705dd61，无新提交**，本轮转为拿源码快照校正既有文档），STS2 **0.113.x**，**本体纯原生**（只依赖 sts2.dll + GodotSharp + 0Harmony，LangVersion 12 / net9.0）。
 
 ---
 
@@ -25,7 +25,7 @@
 | 章节 | 文件 | 内容 |
 |------|------|------|
 | 架构与设计原则 | [cardgen-architecture.md](cardgen-architecture.md) | ComponentAtom/RuntimeSpec/语义标记/Multiplicity/schema 迁移/单工程双用/审计文化 |
-| API 速查 | [cardgen-api.md](cardgen-api.md) | 5 大注册 API 签名+代码模板+冻结规则 |
+| API 速查 | [cardgen-api.md](cardgen-api.md) | 20 个 API 面的版本矩阵+最小守卫、5 大注册 API 签名+代码模板、冻结规则、`InstallDefinitions` 校验清单 |
 | 运行时执行层 | [cardgen-runtime.md](cardgen-runtime.md) | 编译/估值扩展点、OwnsOperation 归属掩码、运行时身份硬规则、增量成长状态、升级单入口、v113 运行期契约 |
 | 编辑器 API | [cardgen-editor.md](cardgen-editor.md) | CardTinkeringApi v6 / AutoAnthonyEditorApi v2 卡牌编辑流程 |
 | 平衡模型 | [cardgen-balance.md](cardgen-balance.md) | 效果货币/价值表/触发频率/预算包络/稀缺缩放/自降费封顶 |

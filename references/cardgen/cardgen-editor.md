@@ -13,22 +13,40 @@
 ## 二、核心 API 签名
 
 ```csharp
-CardTinkeringApi.SerializeCard(GeneratedCard card) → string      // 存 RuntimeSpec+命名本地化+升级槽身份
-CardTinkeringApi.DeserializeCard(string payload) → GeneratedCard // 适合编辑器自己的持久化/多人 payload
+// —— 序列化（结构化 payload，不解析渲染文本）——
+CardTinkeringApi.SerializeCard(GeneratedCard card) → string        // :107 存 RuntimeSpec+命名本地化+升级槽身份
+CardTinkeringApi.DeserializeCard(string payload) → GeneratedCard    // :117 编辑器自己的持久化 / 多人 payload
 
-CardTinkeringApi.GetComponentPrototypes(ComponentProfileRequest) // 枚举已解析 profile（含外部注册）
-CardTinkeringApi.GetKeywordPrototypes(...)                       // profile 本地的基础/增/删关键词权限
-CardTinkeringApi.GetEditableValues(GeneratorOperation op)        // 可编辑数值槽
-CardTinkeringApi.TrySetEditableValue(op, slotId, value, ...)     // 改槽值（受 schema 校验）
-CardTinkeringApi.Analyze(GeneratedCard card, ...)                // 完整分析
-CardTinkeringApi.AnalyzeAtX(card, resolvedX, ...)                // 特定 X 下的分析
-CardTinkeringApi.IsVariableX(card) / GetEffectiveCost(card, resolvedX)
-CardTinkeringApi.GetKeywordValue(CardTag tag) → double           // 关键词价值（平衡模型）
-CardTinkeringApi.Validate(GeneratedCard shell, IReadOnlyList<GeneratorOperation> ops) → CardTinkeringValidationResult
-CardTinkeringApi.Rebuild(GeneratedCard shell, IReadOnlyList<GeneratorOperation> ops) → GeneratedCard
+// —— 枚举原型（profile = 已解析的组件生成 profile，含外部注册）——
+CardTinkeringApi.GetComponentPrototypes()                                            // :152 全部内置
+CardTinkeringApi.GetComponentPrototypes(ComponentProfileRequest request)             // :180 指定 profile
+CardTinkeringApi.GetComponentPrototypes(string profileId, bool unlockComponentRoles = false) // :199
+CardTinkeringApi.GetKeywordPrototypes(ComponentProfileRequest request)               // :207 基础/增/删关键词权限
+CardTinkeringApi.GetKeywordPrototypes(string profileId, bool unlockComponentRoles = false)  // :226
+
+// —— 改数值槽 ——
+CardTinkeringApi.GetEditableValues(GeneratorOperation operation) → IReadOnlyList<CardTinkeringEditableValue>  // :234
+CardTinkeringApi.TrySetEditableValue(GeneratorOperation operation, string slotId, int value,
+                                     out GeneratorOperation updated) → bool          // :246 改完自动重渲染中英双语描述
+
+// —— 分析 / 判定 ——
+CardTinkeringApi.Analyze(GeneratedCard card, CardTinkeringEvaluationOptions? options = null)          // :283
+CardTinkeringApi.AnalyzeAtX(GeneratedCard card, int resolvedX, CardTinkeringEvaluationOptions? options = null) // :329
+CardTinkeringApi.AnalyzeStandaloneComponent(GeneratorOperation operation,
+                                            GeneratedRarity rarity = GeneratedRarity.Common)          // :333 单组件裸值
+CardTinkeringApi.IsVariableX(GeneratedCard card) → bool                                              // :341
+CardTinkeringApi.GetEffectiveCost(GeneratedCard card, int? resolvedX = null) → double                // :347
+CardTinkeringApi.GetKeywordValue(CardTag tag) → double                                               // :356
+
+// —— 校验 / 重建（顺序不可换）——
+CardTinkeringApi.Validate(GeneratedCard shell, IReadOnlyList<GeneratorOperation> operations,
+                          CardTinkeringValidationOptions? options = null) → CardTinkeringValidationResult  // :359
+CardTinkeringApi.Rebuild(GeneratedCard shell, IReadOnlyList<GeneratorOperation> operations,
+                         IReadOnlyList<CardUpgradeEffect>? operationUpgrades = null) → GeneratedCard       // :449
 ```
 
-**流程铁律**：`Validate` 通过才 `Rebuild`；失败结果是用户可见的非法组合，不是该安装的运行时操作。
+**流程铁律**：`Validate` 通过才 `Rebuild`（`Rebuild` 内部自己再 `Validate` 一次，失败抛）。失败结果是用户可见的非法组合，不是该安装的运行时操作。
+**`Analyze` 的 X 前置**：`options.ResolvedX` 只允许给 Energy-X / Star-X 卡，其它卡传了直接抛 `ArgumentException`（`:289-291`）。
 
 ## 三、预算评估（编辑器要精确不等式用它）
 

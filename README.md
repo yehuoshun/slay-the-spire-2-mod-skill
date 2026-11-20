@@ -36,7 +36,7 @@
 - [Alchyr/ModTemplate-StS2](https://github.com/Alchyr/ModTemplate-StS2) — 官方模组脚手架模板（工程化思想：骨架自动化、路径检测、目录规范）
 - [YuWan886/Sts2-YuWanCard](https://github.com/YuWan886/Sts2-YuWanCard) — 实战大型 mod（真实 API 用法样本：多人、自定义稀有度、多版本 loader、生命条预测）
 - [lf201014/STS2_MarisaMod](https://github.com/lf201014/STS2_MarisaMod) — 实战角色 mod（增幅卡系统：Token 增幅卡 + 动态增幅伤害、动画状态机、角色资源覆写、AsyncLocal 异步 Patch；2026-10-14 增量：崩坏流——按实际伤害叠层 + 队友全员发卡 + 增益扩散器；2026-10-31 增量（v0.4.2）：ExtraHoverTips 悬停提示 + CanonicalKeywords 关键词声明；2026-11-17 跟进 2026-11-14 增量：回合末延迟交互 Power（挂卡 → `BeforeSideTurnEnd` 选牌 → `AfterSideTurnEnd` 自移除）、增幅卡 `base.CanonicalVars.Concat` 基类变量修复与 `CalculatedDamage` 求值、战斗历史动态倍率、本地化条件块 `{InCombat:…|}`/`{IfUpgraded:…|}`/复数、Godot 元文件 `.cs.uid` 与 `*.import` 入库约定）
-- [mewcodex/AutoAnthony](https://github.com/mewcodex/AutoAnthony) — 程序化卡池随机 mod「东尼算法」：组件化卡牌（ASCII 语义 ID + OperationRuntimeSpec 结构化执行，本地化只是输出）、组件 API v3（外部角色接入/自定义关键词/运行时路由）、CardTinkering 编辑器 API、平衡货币模型、快照 schema 迁移、单工程双用（2026-10-31 学习 v0.3.147；2026-11-16 跟进 v0.3.165：STS2 v0.113 + 愚者 Fool 词条系统、原生卡目录 659/566、自降费封顶计价、归属掩码与增量成长、20 个回归工程）
+- [mewcodex/AutoAnthony](https://github.com/mewcodex/AutoAnthony) — 程序化卡池随机 mod「东尼算法」：组件化卡牌（ASCII 语义 ID + OperationRuntimeSpec 结构化执行，本地化只是输出）、组件 API v3（外部角色接入/自定义关键词/运行时路由）、CardTinkering 编辑器 API、平衡货币模型、快照 schema 迁移、单工程双用（2026-10-31 学习 v0.3.147；2026-11-16 跟进 v0.3.165：STS2 v0.113 + 愚者 Fool 词条系统、原生卡目录 659/566、自降费封顶计价、归属掩码与增量成长、20 个回归工程；2026-11-20 复核上游无新提交，转为拿快照校正文档：`InstallDefinitions(profileId, definitions)` 签名修正、20 个 API 面版本矩阵、安装校验清单、旋律/成长/组合身份契约）
 - [s1f102500012/sts2mod](https://github.com/s1f102500012/sts2mod) — 多聚合 mod 合集（PRTS 动态光标 overlay、俄洛伊角色六机制、多版本兼容编译、测试护栏）
 
 ### 项目仓库

@@ -5,9 +5,9 @@
 ## 一、一张牌从 JSON 到战斗的完整链路
 
 1. **定义**：`fool_components.json` → `FoolComponentDefinitions.TryCompile` 生成 RuntimeSpec。数字 token 只在**离线编译边界**匹配（`FoolComponentDefinitions.cs:42`–`:53`），运行期不再解析文本。
-2. **生成**：`ComponentAssemblyGenerator` 调 `CanAppend`（`:2960`）、`HasValidShootAssembly`（`:2681`）、`FoolMelodySubset.WithMask(atom, _random.Next(1, 8))`（`:2761`）组卡；旋律命名/打标走 `FoolMelodyNames.Compose`（`:28`）+ `ApplyNameTags`（`:854` / `:961`）。
+2. **生成**：`ChaosCardGenerator/ComponentAssemblyGenerator.cs` 调 `CanAppend`（同文件 `:2960`）、`HasValidShootAssembly`（同文件 `:2681`）+ `HasValidExhaustDependencies(operations, ultimateChaos: true)`（同文件 `:2683`）、`FoolMelodySubset.WithMask(atom, _random.Next(1, 8))`（同文件 `:2761`，所以运行时拿到的旋律掩码只会是 1–7）组卡；旋律命名走 `FoolMelodyNames.Compose`（`ChaosCardGenerator/FoolMelodyNames.cs:28`，返回可空，撞名时放弃这个名字），打标 `ApplyNameTags` 由同一个生成器收尾，调了两处：`ComponentAssemblyGenerator.cs:854` 与 `:961`。
 3. **入池**：`ChaosFoolCardPool`（`ChaosMode/ChaosCardPool.cs:71`）由 Harmony 前缀替换原生 `Fool.CardPool` / `Fool.StartingDeck`（`ChaosMode/Patches/FoolPoolPatches.cs:9`–`:21`）。
-4. **战斗**：`ExecuteFoolOperation` 分派 → `PowerCmd.Apply<AimPower/StretchPower/…>`、`ArrowCmd.GainArrowSlot`；条件子句走 `ExecuteImmediateConditionChildren`（`:46`），需要持续挂载的走 `ArmCompositePower`（`:63`）。
+4. **战斗**：`ExecuteFoolOperation`（`ChaosFoolExecutor.cs:71`）分派 → `PowerCmd.Apply<AimPower/StretchPower/…>`、`ArrowCmd.GainArrowSlot`；条件子句走 `ExecuteImmediateConditionChildren`（同文件 `:46`），需要持续挂载的走 `ArmCompositePower`（同文件 `:63`）。
 5. **触发边界**：见下节。
 6. **存档 / 多人**：见第三节。
 7. **卡面**：`FoolHoverTips`（`ChaosFoolPresentation.cs:12`）按「出现了哪些模板」推导瞄准 / 拉伸 / 扎穿 / 箭矢 / 旋律 / Tarot / 悲伤提示，`melody_mask` 反查 `FoolMelodySubset.Tags(mask)`（`:35`）。
@@ -25,10 +25,12 @@
 
 ## 三、存档与多人
 
-- 永久瞄准层数存 `[SavedProperty] ExtraAim`（`ChaosFoolCardState.cs:15`），setter 里同步 `F:Aim` 的 `DynamicVars` 增量（`:22`–`:29`）—— 同一份数值既是显示值又是 `BaseValue`，用 setter 做 delta 同步，别在两处各存一份。
+- 永久瞄准层数存 `[SavedProperty] ExtraAim`（`ChaosFoolCardState.cs:15`–`:16`），setter 里同步 `F:Aim` 的 `DynamicVars` 增量（`:19`–`:28`，`:22` 算 delta、`:24` 空定义或 delta 0 直接返回）—— 同一份数值既是显示值又是 `BaseValue`，用 setter 做 delta 同步，别在两处各存一份。战场实例和牌库版本是两份对象，`F:IncreaseAimRun` 会**两边都加**（`ChaosFoolExecutor.cs:273`–`:282`：写 `source.ExtraAim += amount`，若 `source.DeckVersion` 是另一个 `ChaosCardModel` 再写一次）。
+- 导入原生实例时**不要用规范基值覆盖累计成长**：`AutoAnthonyNativeCardApi.CopyPermanentGrowth` 对 `ShowOff` 直接取 `showOff.IncreasedAim` 写进 `preview.ExtraAim`（`AutoAnthonyNativeCardApi.cs:200`–`:202`），`ExtraBlock` / `ExtraDamage` 则用「当前 − 规范基线」的增量（`:223`–`:233`）；升级 / 模板元数据与累计活状态分离。
+- `F:TransformThisToSadness` 的「变成悲伤再回手」**不是免费回手**：它只在 `play.IsLastInSeries` 时挂一个 post-play 变换（`ChaosFoolExecutor.cs:156`–`:162` → `SetPostPlayTransformation` + `RequestPostPlayMove`），真正换牌发生在结算之后（`ChaosFoolCardState.cs:35`–`:48`，`Pile?.Type != PileType.Play` 就放弃）；它有自己的生命周期与费用口径（Sadness 的具体费用值在游戏程序集里，本仓库快照无法自证）。
 - 一次性闸门状态同样 `[SavedProperty]`：`ConsumedFoolDeathTriggers` / `FoolFirstArrowDislodged` / `FoolAllMelodiesTriggered`（`ChaosFoolPowerHooks.cs:16`–`:22`），跨回合在 `BeforeSideTurnStart` 重置（`:24`）。
-- 多人：走原生 `PlayerChoiceContext` + 命令，由权威端结算；和原生一致，别自己发网络消息。
-- 冷快照水合要能**原样恢复**具名计数模板（两张「隐式单卡 Transform」的计数），否则 Continue 会判定需要重建整池 —— 判据是「Continue 期间零池生成」，比只比指纹更硬。
+- 多人：走原生 `PlayerChoiceContext` + 命令，由权威端结算；和原生一致，别自己发网络消息。生成侧的铁律是**宿主只生成一次**、把整份有序定义表发给客户端，各端不各自再生成一套；槽位顺序与 `Slot` 就是 ModelDb 地址，不能重排（`Save-and-Multiplayer.md:11`–`:14`）。
+- 冷快照水合要能**原样恢复**具名计数模板（两张「隐式单卡 Transform」的计数），否则 Continue 会判定需要重建整池 —— 判据是「Continue 期间零池生成」，比只比指纹更硬（`Save-and-Multiplayer.md:78`–`:81`、`docs/game-v0.113-follow-up-audit.md:97`）。
 
 ## 四、为什么拆成 6 个 `ChaosFool*` 文件
 
@@ -38,7 +40,7 @@
 
 ## 五、坑与取舍
 
-- **永久奖励是硬约束**：任何跨战斗收益必须 `Restricted` + 保留 `Exhaust`，禁止靠 recurring 祖先或计数乘子绕过，并且要校验**整条触发祖先链**（`docs/fool-integration-plan.md:70`–`:81`）。旋律掩码不算可升级数值。
+- **永久奖励是硬约束**：任何跨战斗收益必须 `Restricted` + 保留 `Exhaust`，禁止靠 recurring 祖先或计数乘子绕过，并且要校验**整条触发祖先链**（`docs/fool-integration-plan.md:70`–`:81`）。`F:IncreaseAimRun` 就是这个范式的样板：`flags` 里写着 `permanent_growth` + `api_restricted`（`ChaosCardGenerator/Data/fool_components.json`），估值 `amount × 12,000`（`FoolComponentDefinitions.cs:103`），并且只配一次性死亡门 —— Show Off = 1 费 Rare + Exhaust + 立即 Aim 5 + 永久 Aim +2 + `F:UntilNonMinionDies`（`one_shot` / `next_non_minion_enemy_death_this_turn`），估 0.10 命中率，`docs/fool-integration-plan.md:78`–`:79` 明确它「不许变成长期监听死亡的 Power」。旋律掩码不算可升级数值。
 - **状态必须单独存**：`ExtraAim` 既是显示值又是 `F:Aim` 的 BaseValue，两边各存一份迟早不同步。
 - **别让 executor 记状态**：它被所有卡共享，一旦存了「某张牌射过箭」这类事实，读档/多人就崩。
 - **数量封顶写进限流器**：手写 `if (count < 20)` 会散落在各处；统一进 `ChaosAbilityTriggerLimiter` 才能保证「同效果同时点」语义。

@@ -95,6 +95,30 @@
 ## 六、v0.113 / 0.3.158–0.3.165 增量（自降费重定价 + Fool）
 
 - **自降费改成 shell 级共享上限**（`ChaosCardGenerator/SelfCostReductionValuation.cs`）：单价 `ValuePerEnergy = 700`/每点未来能量，但印刷自减不能超过固定基础能量；含重复触发的**总期望节省被基础费封顶**，多组件按比例分享上限（保证逐组件追踪与升级增量求和等于整卡值）。例：2 费卡自减 2、频率 2 → 最多 1 400，不是 2 800。星费与即时能量返还另算；脱离整卡上下文的原子估值（`baseEnergyCost == null`）没有这个上限。
+
+  源码实测（`SelfCostReductionValuation.cs`）——`Value(op, index, operations, baseEnergyCost)` 三条分支就是全部规则：
+
+  ```csharp
+  if (baseEnergyCost is not { } cost) return ownSavings * 700d;   // 原子估值：不封顶
+  if (cost <= 0) return 0d;                                      // 0 费卡的「自减费」无价值
+  return ownSavings * Math.Min(1d, cost / Max(1e-9d, totalSavings)) * 700d;  // 整卡上下文：按比例分享上限
+  ```
+
+  `totalSavings` = 全卡所有 `IsSelfCostReduction` 组件的 `ExpectedSavings` 之和，所以 `cost/totalSavings` 就是这张卡每个自减组件瓜分到的份额——逐组件 trace 与升级增量求和后仍等于整卡值。
+
+  `ExpectedSavings` = `amount × intrinsicCount × LinkedResolutionMultiplierForAudit`，其中 `intrinsicCount` 是**逐模板的固有次数先验**（不是触发频率表里的那个数）：
+
+  | 模板 | intrinsicCount | 含义 |
+  |---|---:|---|
+  | `F:CostPerMelody` | 1.5 | 愚者按旋律数减费，平均吃到 1.5 次 |
+  | `F:CostIfWahKi` | 0.6 | 只在 Wah+Ki 同时存在时生效，条件窄 |
+  | `NCR:SetCostZeroIfOstyAttacked` | 0.55 | 依赖敌方行为，不确定性高 |
+  | `C:whileInCombat` / `C:whileInCombatSkillCostReduction` | 2.0 | 持续型，整场稳定吃到 2 次 |
+  | 其它 | 1.0 | 默认单次 |
+
+  `amount` 取法：数值型自减（`IsNumericSelfCostReduction`）读 RuntimeSpec 的 `"amount"` 字面量（默认 1）；非数值型（如「减至 0 费」）直接取 `baseEnergyCost`（默认 1）。
+
+  **封顶在生成侧还有一道结构性闸门**（不只是估值侧）：`ChaosCardGenerator/ComponentAssemblyGenerator.cs:6572` 的 `HasValidNumericSelfCostReductionAmounts(int energyCost, IReadOnlyList<GeneratorOperation> operations)` 要求所有数值型自减都满足 `energyCost > 0 && amount >= 1 && amount <= energyCost`；`:6578` 的 `ClampNumericSelfCostReductionAmounts(int energyCost, IList<GeneratorOperation> operations)` 直接把 `amount` 夹到 `[1, energyCost]`（用 `OperationRuntimeSpecCompiler.TryReplaceFixedValue(operation, "amount", replacement, out ...)` 替换，返回 false 表示「0 费卡却带数值型自减」，属于根本不该生成的组合）。所以「2 费卡自减 3」在生成期就被夹成 2，估值侧那 700/点再乘 `min(1, cost/totalSavings)` 是第二道。
 - **回合内抽牌单独定价**：`card_drawn_during_turn` 由 4.8 降到 3.2（`MidTurnDrawFrequency`），生命期封顶 20/3 回合——原生 Speedster 伤害 2→3 后靠降频保住原 shell 价值，而不是给全池加价。
 - **Expect a Fight（`N:ReduceHandAttackCostUntilPlayed`）** = 28.00/点：整手攻击「打出前」减费算若干次未来支付，不是一次能量；执行侧走新路由 `("modify_cost","reduce_until_played")`，只作用于手牌、跳过 X 费牌。
 - **Phantom Blades**：原生首飞刀加成 9→8 后，`A:ruleFirstShivBonusDamage` 单价 180→200，保住整包价值。

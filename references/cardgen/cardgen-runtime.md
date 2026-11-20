@@ -17,7 +17,7 @@ spec = operation.Template switch { /* 内置模板 */ };
 ```
 
 - 估值同理：`EffectBalanceModel` 里 `FoolComponentDefinitions.TryEstimate(atom.Template, spec, out v)` 排在 `ComponentValuationApi.TryEstimate` **之前**
-- 新增 flag 走 `TemplateFlags` 表：如 `compact_hand_token_reference`（`joy`/`sadness` 这类生成到手牌的 token）
+- flag 不靠全局表，靠 spec 上的定向改写：派生引用由 `OperationRuntimeSpec.WithDerivativeReference(source, derivativeId)` 先摘掉 7 条互斥引用 flag（`shiv_reference`/`giant_rock_reference`/`soul_reference`/`fuel_reference`/`debris_reference`/`sovereign_blade_reference`/`compact_hand_token_reference`），再按 `derivativeId` 追加一条（`shiv`→`shiv_reference`、`joy`/`sadness`→`compact_hand_token_reference`，`OperationRuntimeSpec.cs:453-473`）。新增保留字 flag 必须先进 `IsIdentityNeutralFlag`（`:29-35`）——该名单只对 `ShapeSignature`/`XShapeSignature` 生效（`:125-127`、`:155-157`），`StableSignature` 是**逐条拼全部 flag 且含 BaseValue/Offset** 的严格签名（`:82-105`）。`compact_hand_token_reference` 的下游用途是 `amount`/`count` 槽的压缩取样（`GenerationTuning.IsCompactHandTokenCount`，`GenerationTuning.cs:908-911`）
 - 新增 opcode 只需一行 spec：`N:ReduceHandAttackCostUntilPlayed` → `("modify_cost","reduce_until_played","hand_cards")`；`CL:ForEachGoldThreshold` → `("template_modifier","gold_threshold")` + `RuntimeTriggerSpec("for_each_gold_threshold","immediate","threshold")`
 
 > 教训：**扩展点要开在「数据路由」而不是「执行分支」**——组件包只负责把 opcode 编译成 RuntimeSpec，执行器仍然只认 RuntimeSpec。
@@ -27,7 +27,7 @@ spec = operation.Template switch { /* 内置模板 */ };
 一张卡的多条持久触发由一个 `ChaosCompositePower` 承载，而同一 slot/定义可能在场上存在两份战斗副本。做法：
 
 - `[SavedProperty] ActivationRootIndex` 记「这个 Power 是从哪条 operation 激活的」
-- `_ownedOperationMask` 沿 `triggerIndex` 父链求**最近的持久祖先**（`NearestPersistent`），首次使用构建、之后缓存
+- `_ownedOperationMask` 沿 `triggerIndex` 父链求**最近的持久祖先**（`NearestPersistent`），首次使用构建、之后缓存；「持久」的判据是 `ChaosOperationExecutor.RequiresCompositePower(operation)`（`ChaosOperationExecutor.cs:4290-4296`：`AbilityTrigger`，或 `AbilityRule` 且模板命中白名单），归属式本身是 `mask[i] = ActivationRootIndex >= 0 ? nearest == ActivationRootIndex : nearest < 0 || NearestPersistent(Parent(nearest)) < 0`（`ChaosCompositePower.cs:428-450`）
 - 描述渲染、触发判定、修正符应用、成长累加全部先 `OwnsOperation(index)` 过滤（连 `FindOperationIndex` 都带这个谓词）
 - 延迟监听器只在父触发时才安装，但**保留原 operation 索引**——捕获值、升级增量、卡身份、多人/存档 payload 都指向同一份定义
 
@@ -39,7 +39,7 @@ spec = operation.Template switch { /* 内置模板 */ };
 |---|---|---|
 | 找「施加效果的那张牌」 | `Definition.Slot + RuntimeProfileId + EffectiveDefinitionPayload` 全等 | ①`TriggerSources` 弱表里的**精确实例**（且未离场）②唯一匹配的 `DeckVersion` 副本；否则 `null` |
 | 效果改动目标 | 找不到就退回定义匹配 | 找不到就**放弃这次改动**（静默不发生也比改错牌好） |
-| 卡来源绑定 | 每次重新推断 | `PowerCmd.Apply(..., cardSource: parent?.SourceCombatCard ?? card)`，`SourceCombatCard` 移除/转移后仍保留 |
+| 卡来源绑定 | 每次重新推断 | `PowerCmd.Apply(choiceContext, power, card.Owner.Creature, 1m, card.Owner.Creature, parent?.SourceCombatCard ?? card)`（`ChaosOperationExecutor.cs:269-270`，末位实参即施加这张牌的实例），`SourceCombatCard` 移除/转移后仍保留 |
 
 > 教训：给「效果改动」准备一个运行时唯一句柄（实例引用 / 版本号 / 显式索引），没有就**不做**；`DeckVersion` 在多份候选时必须唯一。
 > 战斗内生成的卡没有 DeckVersion——不能靠「定义完全相等」当身份。
@@ -56,7 +56,7 @@ spec = operation.Template switch { /* 内置模板 */ };
 ## 五、升级只能有一个入口
 
 - 旧：执行期逐条 `ApplyUpgradeDelta`，还要为 schema 1-7 猜 `slotId`
-- 新：`ExecuteSpec` 一律来自 `CardUpgradeGenerator.GetUpgradedOperations(card.Generated)` 后取 `RequireStructured(operations[operationIndex])`
+- 新：唯一入口是 `ChaosOperationExecutor.EffectiveRuntimeSpec(card, operationIndex)`——已升级取 `CardUpgradeGenerator.GetUpgradedOperations(card.Generated)`，再 `RequireStructured(operations[operationIndex])`（`ChaosOperationExecutor.cs:4298-4304`；`CardIdentityAndUpgradeGenerator.cs:14-16`）
 - 描述、变量、执行三处同源，升级不再出现「描述加了、执行没加」
 - 数值 cap 与负面升级取 `Math.Max(1 - negativeUpgradeDelta, randomized)` 式下限保护，避免 cap 把升级增量反向吃掉
 
