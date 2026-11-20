@@ -1,0 +1,3 @@
+# 构建产物（scripts/cardgen-probe 是 .NET 项目，本仓库其余部分是纯文档）
+bin/
+obj/

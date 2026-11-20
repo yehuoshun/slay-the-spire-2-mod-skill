@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    cardgen 文档的「真 API 面」核对探针。
+    不参与任何 CI/构建流程：sts2-mod-examples 的 CI 只下载 sts2.dll + 0Harmony.dll，
+    拿不到 AutoAnthony（第三方工坊 mod，不在公开渠道），因此 cardgen 类文档
+    无法走「示例编译」那条验证路径，只能在本机对着已安装的 AutoAnthony.dll 跑这个探针。
+
+    用法（在 scripts/cardgen-probe 下）：
+      dotnet run -c Release                                  # 用环境变量/默认游戏路径
+      dotnet run -c Release <两横> 落盘参数看 Program.cs 顶部注释
+    路径覆盖：
+      命令行 game / anthony 参数（写法见 Program.cs 顶部注释），或环境变量 STS2_DATA_DIR / AUTOANTHONY_DIR
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>CardgenApiProbe</AssemblyName>
+    <RootNamespace>CardgenApiProbe</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Sts2DataDir Condition="'$(Sts2DataDir)' == ''">E:\SteamLibrary\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64</Sts2DataDir>
+    <AutoAnthonyDir Condition="'$(AutoAnthonyDir)' == ''">E:\SteamLibrary\steamapps\workshop\content\2868840\3786611028</AutoAnthonyDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="sts2">
+      <HintPath>$(Sts2DataDir)/sts2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(Sts2DataDir)/0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="GodotSharp">
+      <HintPath>$(Sts2DataDir)/GodotSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="AutoAnthony">
+      <HintPath>$(AutoAnthonyDir)/AutoAnthony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

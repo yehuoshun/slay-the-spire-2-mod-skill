@@ -1,0 +1,205 @@
+# assembly: AutoAnthony
+# types: 1868
+
+## ApiVersion matrix
+ComponentApi	3	ChaosCardGenerator.ComponentApi
+ComponentPackageApi	3	ChaosCardGenerator.ComponentPackageApi
+ComponentLocalizationApi	2	ChaosCardGenerator.ComponentLocalizationApi
+ComponentValuationApi	1	ChaosCardGenerator.ComponentValuationApi
+ComponentKeywordApi	1	ChaosCardGenerator.ComponentKeywordApi
+CardTinkeringApi	6	ChaosCardGenerator.CardTinkeringApi
+NativeCardDecompositionApi	1	ChaosCardGenerator.NativeCardDecompositionApi
+ExternalComponentCharacterApi	4	AutoAnthony.ExternalComponentCharacterApi
+ComponentPresentationApi	2	AutoAnthony.ComponentPresentationApi
+ComponentRuntimeApi	1	AutoAnthony.ComponentRuntimeApi
+ComponentKeywordRuntimeApi	1	AutoAnthony.ComponentKeywordRuntimeApi
+ComponentRunSettingsApi	2	AutoAnthony.ComponentRunSettingsApi
+ComponentGenerationProgressApi	1	AutoAnthony.ComponentGenerationProgressApi
+ComponentTriggerApi	1	AutoAnthony.ComponentTriggerApi
+ComponentSurpriseApi	1	AutoAnthony.ComponentSurpriseApi
+AutoAnthonySettingsApi	5	AutoAnthony.AutoAnthonySettingsApi
+AutoAnthonyEditorApi	2	AutoAnthony.AutoAnthonyEditorApi
+AutoAnthonyFreeformCardApi	2	AutoAnthony.AutoAnthonyFreeformCardApi
+AutoAnthonyNativeCardApi	3	AutoAnthony.AutoAnthonyNativeCardApi
+AutoAnthonyBalanceAdjustmentApi	1	AutoAnthony.AutoAnthonyBalanceAdjustmentApi
+CardNameGenerator	none	ChaosCardGenerator.CardNameGenerator
+
+## Public static members
+
+### ChaosCardGenerator.ComponentApi
+  field Int32 ApiVersion
+  prop IComponentValuePolicy DefaultValuePolicy
+  prop IReadOnlyList<ComponentProfileRequest> RegisteredProfiles
+  prop Boolean RegistrationsFrozen
+  method IComponentCatalog ComposeCatalog(GeneratedCharacter balanceArchetype, IComponentCatalog[] catalogs)
+  method IComponentOccurrencePolicy CreateNativeOccurrencePolicy(IComponentCatalog catalog, Boolean unlockComponentRoles = False)
+  method Void RegisterProfile(ComponentProfileRequest request, ComponentGenerationProfile profile)
+  method Void RegisterProfileProvider(IComponentProfileProvider provider)
+  method Void RegisterUltimateChaosContribution(String packageId, IComponentCatalog catalog)
+  method ComponentGenerationProfile Resolve(ComponentProfileRequest request)
+  method Boolean TryGetProfileRequest(String profileId, Boolean unlockComponentRoles, ComponentProfileRequest& request)
+
+### ChaosCardGenerator.ComponentPackageApi
+  field Int32 ApiVersion
+  prop IReadOnlyList<String> RegisteredPackages
+  method Void Register(ComponentPackageRegistration package)
+
+### ChaosCardGenerator.ComponentLocalizationApi
+  field Int32 ApiVersion
+  method Void Register(String localizationId, OperationLocalizedText localizedText, OperationRuntimeSpec runtimeSpec)
+  method Boolean TryGet(String localizationId, OperationLocalizedText& localizedText)
+
+### ChaosCardGenerator.ComponentValuationApi
+  field Int32 ApiVersion
+  prop IReadOnlyList<ValueTuple<String, String>> RegisteredRoutes
+  method Void Register(ComponentValuationRegistration registration)
+
+### ChaosCardGenerator.ComponentKeywordApi
+  field Int32 ApiVersion
+  prop IReadOnlyList<String> RegisteredKeywordIds
+  method Boolean IsRegistered(String keywordId)
+  method Void Register(ComponentKeywordDefinition definition)
+  method Boolean TryGetDefinition(String keywordId, ComponentKeywordDefinition& definition)
+
+### ChaosCardGenerator.CardTinkeringApi
+  field Int32 ApiVersion
+  method CardTinkeringCardAnalysis Analyze(GeneratedCard card, CardTinkeringEvaluationOptions options = null)
+  method CardTinkeringCardAnalysis AnalyzeAtX(GeneratedCard card, Int32 resolvedX, Boolean balancedValues = True)
+  method CardTinkeringComponentAnalysis AnalyzeStandaloneComponent(GeneratorOperation operation, GeneratedRarity rarity = Common)
+  method GeneratedCard DeserializeCard(String payload)
+  method IReadOnlyList<CardTinkeringComponentPrototype> GetComponentPrototypes()
+  method IReadOnlyList<CardTinkeringProfileComponentPrototype> GetComponentPrototypes(ComponentProfileRequest request)
+  method IReadOnlyList<CardTinkeringProfileComponentPrototype> GetComponentPrototypes(String profileId, Boolean unlockComponentRoles = False)
+  method IReadOnlyList<CardTinkeringEditableValue> GetEditableValues(GeneratorOperation operation)
+  method Double GetEffectiveCost(GeneratedCard card, Nullable<Int32> resolvedX = null)
+  method IReadOnlyList<CardTinkeringKeywordPrototype> GetKeywordPrototypes(ComponentProfileRequest request)
+  method IReadOnlyList<CardTinkeringKeywordPrototype> GetKeywordPrototypes(String profileId, Boolean unlockComponentRoles = False)
+  method Double GetKeywordValue(CardTag tag)
+  method Boolean IsVariableX(GeneratedCard card)
+  method GeneratedCard Rebuild(GeneratedCard shell, IReadOnlyList<GeneratorOperation> operations, IReadOnlyList<CardUpgradeEffect> operationUpgrades = null)
+  method String SerializeCard(GeneratedCard card)
+  method Boolean TrySetEditableValue(GeneratorOperation operation, String slotId, Int32 value, GeneratorOperation& updated)
+  method CardTinkeringValidationResult Validate(GeneratedCard shell, IReadOnlyList<GeneratorOperation> operations, CardTinkeringValidationOptions options = null)
+
+### ChaosCardGenerator.NativeCardDecompositionApi
+  field Int32 ApiVersion
+  prop IReadOnlyList<NativeCardDecomposition> Cards
+  prop IReadOnlyList<NativeComponentDefinition> Components
+  prop IReadOnlyList<NativeKeywordDefinition> Keywords
+  method IReadOnlyList<NativeCardDecomposition> FindByNativeId(String nativeId)
+  method NativeCardDecomposition Get(String catalogId)
+  method NativeCardDecomposition Resolve(String nativeId, IReadOnlyDictionary<String, String> templateBindings = null)
+  method Boolean TryCreateBaseDefinition(String catalogId, GeneratedCard& definition)
+  method Boolean TryCreateComponentDescriptionTemplate(String catalogId, Boolean upgraded, Boolean chinese, String& template)
+  method Boolean TryCreateDefinition(String catalogId, GeneratedCard& definition, IReadOnlyList<String>& unsupportedUpgradeActions)
+
+### AutoAnthony.ExternalComponentCharacterApi
+  field Int32 ApiVersion
+  prop IReadOnlyList<ExternalComponentCharacterRegistration> RegisteredCharacters
+  prop IReadOnlyList<ExternalComponentCharacterRuntimeRegistration> RegisteredRuntimeHosts
+  method Void ClearDefinitions(String profileId)
+  method IReadOnlyList<CardPoolModel> GetActiveCardPools()
+  method IReadOnlyList<ChaosCardDefinition> GetDefinitions(String profileId)
+  method Void InstallDefinitions(String profileId, IEnumerable<ChaosCardDefinition> definitions)
+  method Void Register(ExternalComponentCharacterRegistration registration)
+  method Void RegisterRuntime(ExternalComponentCharacterRuntimeRegistration registration)
+  method Boolean TryGetActiveProfile(Player player, String& profileId)
+  method Boolean TryGetAncientRelicAdapter(Player player, IExternalAncientRelicAdapter& adapter)
+  method Boolean TryGetProfileId(ChaosCardModel card, String& profileId)
+
+### AutoAnthony.ComponentPresentationApi
+  field Int32 ApiVersion
+  prop IReadOnlyList<String> RegisteredPackages
+  prop IReadOnlyList<ValueTuple<String, String>> RegisteredRoutes
+  prop Boolean RegistrationsFrozen
+  method Void Register(String opcode, String variant, IComponentHoverTipProvider provider)
+  method Void RegisterPackage(String packageId, IEnumerable<ComponentPresentationRoute> routes)
+
+### AutoAnthony.ComponentRuntimeApi
+  field Int32 ApiVersion
+  prop IReadOnlyList<ValueTuple<String, String>> RegisteredRoutes
+  prop Boolean RegistrationsFrozen
+  method Boolean HasRoute(String opcode, String variant = )
+  method Void Register(String opcode, String variant, IComponentRuntimeHandler handler)
+  method Void RegisterPackage(String packageId, IEnumerable<ComponentRuntimeRoute> routes)
+
+### AutoAnthony.ComponentKeywordRuntimeApi
+  field Int32 ApiVersion
+  prop IReadOnlyList<String> RegisteredKeywordIds
+  prop IReadOnlyList<String> RegisteredPackages
+  prop Boolean RegistrationsFrozen
+  method Void RegisterPackage(String packageId, IEnumerable<ComponentKeywordRuntimeRegistration> registrations)
+
+### AutoAnthony.ComponentRunSettingsApi
+  field Int32 ApiVersion
+  prop ComponentRunSettings Local
+  method Boolean TryResolveMultiplayer(IEnumerable<ModifierModel> modifiers, ComponentRunSettings& settings)
+
+### AutoAnthony.ComponentGenerationProgressApi
+  field Int32 ApiVersion
+  method IComponentGenerationProgress Create(Int32 total)
+
+### AutoAnthony.ComponentTriggerApi
+  field Int32 ApiVersion
+  method Int32 EffectiveOperationAmount(ChaosCardModel card, Int32 operationIndex)
+  method Task FireCardAsync(ChaosCardModel card, PlayerChoiceContext choiceContext, String triggerKind, CardPlay sourcePlay = null, CardModel eventCard = null, Creature eventCreature = null, Decimal eventAmount = 0, Creature sourceTarget = null)
+  method Task FirePlayerAsync(Player owner, PlayerChoiceContext choiceContext, String triggerKind, CardPlay sourcePlay = null, CardModel eventCard = null, Creature eventCreature = null, Decimal eventAmount = 0)
+  method Boolean HasCardTrigger(ChaosCardModel card, String triggerKind)
+
+### AutoAnthony.ComponentSurpriseApi
+  field Int32 ApiVersion
+  method Boolean IsGenerated(CardModel card)
+  method Boolean IsKnown(CardModel card)
+  method Boolean ShouldConceal(CardModel card)
+
+### AutoAnthony.AutoAnthonySettingsApi
+  field Int32 ApiVersion
+  prop AutoAnthonySettingsSnapshot Current
+
+### AutoAnthony.AutoAnthonyEditorApi
+  field Int32 ApiVersion
+  method Void ApplyEditorDefinition(ChaosCardModel card, GeneratedCard definition, AutoAnthonyEditorIdentity identity)
+  method Void ApplyEditorDefinition(ChaosCardModel card, String profileId, GeneratedCard definition, AutoAnthonyEditorIdentity identity)
+  method Void RegisterExternalCapabilities(String profileId, ExternalEditorCapabilities capabilities)
+  method Void RegisterIdentityProvider(String profileId, IExternalEditorIdentityProvider provider)
+  method AutoAnthonyEditorIdentity RerollEditorIdentity(GeneratedCard current, Int32 seed)
+  method AutoAnthonyEditorIdentity RerollEditorIdentity(String profileId, GeneratedCard current, Int32 seed)
+  method Boolean Supports(String profileId, ExternalEditorCapabilities capabilities)
+
+### AutoAnthony.AutoAnthonyFreeformCardApi
+  field Int32 ApiVersion
+  method ChaosCardModel CreateForCombat(Player owner, GeneratedCard definition)
+  method ChaosCardModel CreateForCombat(Player owner, String profileId, GeneratedCard definition)
+  method ChaosCardModel CreateForCombat(Player owner, String profileId, GeneratedCard definition, String portraitPath)
+  method ChaosCardModel CreateForDeck(Player owner, GeneratedCard definition)
+  method ChaosCardModel CreateForDeck(Player owner, GeneratedCard definition, String portraitPath)
+  method ChaosCardModel CreateForDeck(Player owner, String profileId, GeneratedCard definition)
+  method ChaosCardModel CreateForDeck(Player owner, String profileId, GeneratedCard definition, String portraitPath)
+  method ChaosCardModel CreatePreview(Player owner, GeneratedCard definition)
+  method ChaosCardModel CreatePreview(Player owner, GeneratedCard definition, String portraitPath)
+  method ChaosCardModel CreatePreview(Player owner, String profileId, GeneratedCard definition)
+  method ChaosCardModel CreatePreview(Player owner, String profileId, GeneratedCard definition, String portraitPath)
+  method CardTinkeringValidationResult Validate(GeneratedCard definition)
+
+### AutoAnthony.AutoAnthonyNativeCardApi
+  field Int32 ApiVersion
+  prop Boolean ComponentDescriptionsEnabled
+  method Boolean CanMaterialize(CardModel card)
+  method Boolean CanMaterializeExact(CardModel card)
+  method Void CopyLocalKeywordDelta(CardModel source, CardModel destination)
+  method Void RegisterExternalAdapter(IExternalNativeCardAdapter adapter)
+  method Boolean TryCreateBasePreview(Player owner, CardModel source, ChaosCardModel& preview)
+  method Boolean TryCreateDefinition(CardModel card, String& profileId, GeneratedCard& definition)
+  method Boolean TryCreateProfilePreview(Player owner, CardModel source, ChaosCardModel& preview)
+  method Boolean TryGetComponentDescriptionTemplate(CardModel card, Boolean upgraded, Boolean chinese, String& template)
+  method Boolean TryGetExternalComponentDescriptionTemplate(CardModel card, Boolean upgraded, Boolean chinese, String& template)
+  method Boolean TryResolve(CardModel card, NativeCardDecomposition& decomposition)
+
+### AutoAnthony.AutoAnthonyBalanceAdjustmentApi
+  field Int32 ApiVersion
+  method Void RegisterDefinitionChangedListener(Action<ChaosCardModel> listener)
+
+### ChaosCardGenerator.CardNameGenerator
+  method GeneratedCardName Generate(IComponentCatalog catalog, GeneratedCard card, Random random, ISet<String> usedChineseNames = null, ISet<String> usedEnglishNames = null)
+  method Void RegisterExternalParts(String packageId, IEnumerable<ComponentCardNameParts> entries)
+  method Void ValidateCatalog(IComponentCatalog catalog)

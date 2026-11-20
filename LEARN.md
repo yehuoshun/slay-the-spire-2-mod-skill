@@ -21,7 +21,7 @@
 6. **更新 README.md** — 状态列表勾选 + 鸣谢追加
 7. **更新** — 新学内容直接写入 `references/<模块>/<模块>.md` 或对应子文件，审查通过后更新导航页为最新版
 8. **commit + push**
-9. **测试验证** — 文档改动必须过 [sts2-mod-examples](https://github.com/yehuoshun/sts2-mod-examples) 的编译验证（见下「测试与验证流程」）
+9. **测试验证** — 文档改动必须过 [sts2-mod-examples](https://github.com/yehuoshun/sts2-mod-examples) 的编译验证；**cardgen 例外**，走 DLL 反射探针（见下「测试与验证流程」例外段）
 10. **同步备份仓库** — 主仓库 commit 后，把 `references/` 增量同步到 [slay-the-spire-2-mod-skill-archive](https://github.com/yehuoshun/slay-the-spire-2-mod-skill-archive)（见下）
 
 ---
@@ -41,6 +41,10 @@
 6. **示例里踩的坑必须回流** — 真编译暴露的文档 bug/签名差异，当天修进 references + SKILL.md/README 同步
 
 > 覆盖矩阵（24 模块 ↔ 示例文件）见 sts2-mod-examples README「覆盖内容」表。新增模块示例时同步更新该表。
+
+> **例外：cardgen（生态参考模块）不走示例编译。** `sts2-mod-examples` 的 `deps/` 只有 `sts2.dll` + `0Harmony.dll`（CI 从 `yehuoshun/STS2-ShunMod` release 下载这两颗），拿不到 AutoAnthony —— 第三方工坊 mod，无公开分发渠道；覆盖矩阵里也没有 cardgen。往里补 cardgen 示例既编译不了、也会把第三方 API 带进 CI。所以 cardgen 文档的等价验收是**对着已安装的 AutoAnthony.dll 跑反射探针**：`scripts/cardgen-probe/`（`dotnet run -c Release -- --out dump.txt` 后与 `snapshot-<版本>.txt` diff），把输出与 `references/cardgen/*.md` 的签名/版本矩阵逐条对。
+>
+> 2026-11-20 首次跑探针即抓到文档真错：`CardTinkeringApi.AnalyzeAtX(GeneratedCard, int resolvedX, bool balancedValues = true)` 被写成第三参 `CardTinkeringEvaluationOptions? options = null`（源码 `ChaosCardGenerator/CardTinkeringApi.cs:329` 转成 `Analyze(card, new CardTinkeringEvaluationOptions(balancedValues, Math.Max(0, resolvedX)))`）。同批核对确认 `cardgen-api.md` 的 20 面版本矩阵与 DLL 实测**全部一致**。**教训：`dotnet build` 全绿不代表 cardgen 文档被验证过，那是空验证；必须跑探针。**
 
 ---
 
