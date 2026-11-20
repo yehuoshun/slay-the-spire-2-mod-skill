@@ -21,7 +21,7 @@
 6. **更新 README.md** — 状态列表勾选 + 鸣谢追加
 7. **更新** — 新学内容直接写入 `references/<模块>/<模块>.md` 或对应子文件，审查通过后更新导航页为最新版
 8. **commit + push**
-9. **测试验证** — 文档改动必须过 [sts2-mod-examples](https://github.com/yehuoshun/sts2-mod-examples) 的编译验证；**cardgen 例外**，走 DLL 反射探针（见下「测试与验证流程」例外段）
+9. **测试验证** — 文档改动必须过 [sts2-mod-examples](https://github.com/yehuoshun/sts2-mod-examples) 的编译验证；**cardgen 例外**，本地装了 AutoAnthony 才参与编译，CI 上靠反射探针兜底（见下「测试与验证流程」例外段）
 10. **同步备份仓库** — 主仓库 commit 后，把 `references/` 增量同步到 [slay-the-spire-2-mod-skill-archive](https://github.com/yehuoshun/slay-the-spire-2-mod-skill-archive)（见下）
 
 ---
@@ -40,11 +40,21 @@
 5. **CI 全绿才算完** — 编译报错 → 按错误修正示例（或修正文档）→ 重推，直到绿色
 6. **示例里踩的坑必须回流** — 真编译暴露的文档 bug/签名差异，当天修进 references + SKILL.md/README 同步
 
-> 覆盖矩阵（24 模块 ↔ 示例文件）见 sts2-mod-examples README「覆盖内容」表。新增模块示例时同步更新该表。
+> 覆盖矩阵见 sts2-mod-examples README「覆盖内容」表。新增模块示例时同步更新该表。
 
-> **例外：cardgen（生态参考模块）不走示例编译。** `sts2-mod-examples` 的 `deps/` 只有 `sts2.dll` + `0Harmony.dll`（CI 从 `yehuoshun/STS2-ShunMod` release 下载这两颗），拿不到 AutoAnthony —— 第三方工坊 mod，无公开分发渠道；覆盖矩阵里也没有 cardgen。往里补 cardgen 示例既编译不了、也会把第三方 API 带进 CI。所以 cardgen 文档的等价验收是**对着已安装的 AutoAnthony.dll 跑反射探针**：`scripts/cardgen-probe/`（`dotnet run -c Release -- --out dump.txt` 后与 `snapshot-<版本>.txt` diff），把输出与 `references/cardgen/*.md` 的签名/版本矩阵逐条对。
+> **cardgen（生态参考模块）的双轨验证。** `sts2-mod-examples` 的 `deps/` 只有 `sts2.dll` + `0Harmony.dll`（CI 从 `yehuoshun/STS2-ShunMod` release 下载这两颗），拿不到 AutoAnthony（第三方工坊 mod，无公开分发渠道）——所以 cardgen 示例按**条件编译**接进示例仓库：
 >
-> 2026-11-20 首次跑探针即抓到文档真错：`CardTinkeringApi.AnalyzeAtX(GeneratedCard, int resolvedX, bool balancedValues = true)` 被写成第三参 `CardTinkeringEvaluationOptions? options = null`（源码 `ChaosCardGenerator/CardTinkeringApi.cs:329` 转成 `Analyze(card, new CardTinkeringEvaluationOptions(balancedValues, Math.Max(0, resolvedX)))`）。同批核对确认 `cardgen-api.md` 的 20 面版本矩阵与 DLL 实测**全部一致**。**教训：`dotnet build` 全绿不代表 cardgen 文档被验证过，那是空验证；必须跑探针。**
+> - `Sts2ModExamplesCode/Cardgen/` 两个文件（`CardgenTinkeringFlow.cs` 覆盖 `CardTinkeringApi` v6 + `AutoAnthonyEditorApi` v2；`CardgenPackageRegistration.cs` 覆盖组件包注册七步 + 运行时/展示/关键词路由 + 外部角色 + 原生分解 + freeform 物化 + 设置/平衡监听）
+> - `Sts2ModExamples.csproj`：`AutoAnthonyDir` 从实际找到游戏的 Steam 库根反推 `../../workshop/content/2868840/3786611028`（退回 `SteamLibraryPath`/`AutoSteamPath`）；找到 `AutoAnthony.dll` 就 `<Reference Include="AutoAnthony" Private="false">` 参与编译，找不到就 `<Compile Remove="Sts2ModExamplesCode/Cardgen/**/*.cs" />`
+> - **CI 仍全绿**：构建日志里会打印 `AutoAnthony.dll 未找到 → 跳过 Cardgen 编译`，不会把第三方 DLL 拖进产物
+> - 本机装了 mod：`dotnet build` 就是 cardgen 文档的**真编译验证**——文档写错参数名/类型/重载/大小写，这里直接编不过
+> - 任何机器（含 CI）都能跑的独立验收：`scripts/cardgen-probe/`（`dotnet run -c Release -- --out dump.txt` 后与 `snapshot-<版本>.txt` diff），把 20 个 API 面与 `references/cardgen/*.md` 的签名/版本矩阵逐条对
+>
+> 2026-11-20 首跑探针抓到文档真错：`CardTinkeringApi.AnalyzeAtX(GeneratedCard, int resolvedX, bool balancedValues = true)` 被写成第三参 `CardTinkeringEvaluationOptions? options = null`。同批核对确认 `cardgen-api.md` 的 20 面版本矩阵与 DLL 实测**全部一致**。
+>
+> 2026-11-20 接上条件编译后，真编译又抓到三处只有编译器才认得的差异：① `CardTinkeringApi.Valid`（源码 `:49` 的静态只读「校验通过」结果）**没进 0.3.165 包**——源码快照 ≠ 已发布包，以已装 DLL 为准；② record 的位置参数在元数据里是 PascalCase（`GeneratedCard(Cost:, Type:, Operations:)`），普通类/结构是 camelCase（`ComponentProfileRequest(UnlockComponentRoles:)`），写反编译期报 `CS1739`；③ `AutoAnthonyEditorApi` 的命名空间是 `AutoAnthony`，不是它所在目录名 `ChaosMode`。
+>
+> **教训：`dotnet build` 全绿但没把 cardgen 编进去 = 空验证。** 先看构建日志里那条 `AutoAnthony.dll 已找到 / 未找到`，确认这次到底验没验；文档改动必须落在「装了 mod 的机器上编译通过」这一条上。
 
 ---
 

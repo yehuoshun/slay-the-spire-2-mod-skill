@@ -41,13 +41,14 @@ CardTinkeringApi.GetKeywordValue(CardTag tag) → double                        
 // —— 校验 / 重建（顺序不可换）——
 CardTinkeringApi.Validate(GeneratedCard shell, IReadOnlyList<GeneratorOperation> operations,
                           CardTinkeringValidationOptions? options = null) → CardTinkeringValidationResult  // :359
-CardTinkeringApi.Valid                                                     // :49 静态只读「校验通过」结果，可当恒真基准比对
 CardTinkeringApi.Rebuild(GeneratedCard shell, IReadOnlyList<GeneratorOperation> operations,
                          IReadOnlyList<CardUpgradeEffect>? operationUpgrades = null) → GeneratedCard       // :449
 ```
 
 **流程铁律**：`Validate` 通过才 `Rebuild`（`Rebuild` 内部自己再 `Validate` 一次，失败抛）。失败结果是用户可见的非法组合，不是该安装的运行时操作。
 **`Analyze` 的 X 前置**：`options.ResolvedX` 只允许给 Energy-X / Star-X 卡，其它卡传了直接抛 `ArgumentException`（`:289-291`）。
+**具名实参的大小写**：`GeneratedCard` 这类 record 的位置参数在 DLL 元数据里是 PascalCase（`Cost:` / `Type:` / `Operations:`），而普通类/结构的构造参数是 camelCase（`unlockComponentRoles:`）。写错大小写编译期直接 `CS1739`「最佳重载没有名为 … 的参数」——这是最容易被反射 dump 误导的一处。
+**源码快照 ≠ 已发布包**：源码 HEAD 的 `CardTinkeringApi.Valid`（`:49` 静态只读「校验通过」结果）**不在 0.3.165 包里**，反射 dump 与编译验证都查不到；以已装 DLL 为准，别照源码写。
 
 ## 三、预算评估（编辑器要精确不等式用它）
 
