@@ -31,7 +31,7 @@ CardTinkeringApi.TrySetEditableValue(GeneratorOperation operation, string slotId
 
 // —— 分析 / 判定 ——
 CardTinkeringApi.Analyze(GeneratedCard card, CardTinkeringEvaluationOptions? options = null)          // :283
-CardTinkeringApi.AnalyzeAtX(GeneratedCard card, int resolvedX, CardTinkeringEvaluationOptions? options = null) // :329
+CardTinkeringApi.AnalyzeAtX(GeneratedCard card, int resolvedX, bool balancedValues = true)          // :329 内部转成 Analyze(card, new CardTinkeringEvaluationOptions(balancedValues, Math.Max(0, resolvedX)))
 CardTinkeringApi.AnalyzeStandaloneComponent(GeneratorOperation operation,
                                             GeneratedRarity rarity = GeneratedRarity.Common)          // :333 单组件裸值
 CardTinkeringApi.IsVariableX(GeneratedCard card) → bool                                              // :341
@@ -41,6 +41,7 @@ CardTinkeringApi.GetKeywordValue(CardTag tag) → double                        
 // —— 校验 / 重建（顺序不可换）——
 CardTinkeringApi.Validate(GeneratedCard shell, IReadOnlyList<GeneratorOperation> operations,
                           CardTinkeringValidationOptions? options = null) → CardTinkeringValidationResult  // :359
+CardTinkeringApi.Valid                                                     // :49 静态只读「校验通过」结果，可当恒真基准比对
 CardTinkeringApi.Rebuild(GeneratedCard shell, IReadOnlyList<GeneratorOperation> operations,
                          IReadOnlyList<CardUpgradeEffect>? operationUpgrades = null) → GeneratedCard       // :449
 ```
